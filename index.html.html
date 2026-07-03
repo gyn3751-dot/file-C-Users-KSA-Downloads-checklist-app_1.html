@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>행사 체크리스트</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232636;
+    --border: #2e3246;
+    --accent: #5b7ff5;
+    --accent2: #7c5bf5;
+    --green: #34c97e;
+    --yellow: #f5c04a;
+    --red: #f55b5b;
+    --text: #e8eaf2;
+    --text2: #8b8fa8;
+    --text3: #5a5d72;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .header-title {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  .header-event {
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    background: rgba(91,127,245,0.12);
+    padding: 3px 9px;
+    border-radius: 20px;
+  }
+
+  /* ── Progress Bar ── */
+  .progress-wrap {
+    background: var(--surface2);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+  }
+  .progress-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .progress-pct {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--green);
+    line-height: 1;
+  }
+  .progress-pct span {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text2);
+    margin-left: 2px;
+  }
+  .progress-bar-bg {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--green));
+    border-radius: 3px;
+    transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+  .progress-count {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 6px;
+    text-align: right;
+  }
+
+  /* ── Phase Tabs ── */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    padding: 12px 20px 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--text2);
+    transition: all 0.2s;
+    position: relative;
+  }
+  .tab.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .tab .tab-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: var(--green);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 1px 4px;
+    min-width: 14px;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .tab .tab-badge.all-done {
+    background: var(--green);
+  }
+  .tab .tab-badge.none {
+    background: var(--text3);
+  }
+
+  /* ── Content ── */
+  .content {
+    padding: 14px 20px;
+  }
+
+  /* ── Phase Block ── */
+  .phase-block {
+    display: none;
+  }
+  .phase-block.active {
+    display: block;
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .phase-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .phase-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .phase-sub {
+    font-size: 11px;
+    color: var(--text3);
+    margin-left: auto;
+  }
+
+  /* ── Task Item ── */
+  .task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .task-item {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .task-item:active {
+    transform: scale(0.98);
+  }
+  .task-item.done {
+    background: rgba(52,201,126,0.06);
+    border-color: rgba(52,201,126,0.3);
+  }
+
+  .task-check {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s;
+    margin-top: 1px;
+  }
+  .task-item.done .task-check {
+    background: var(--green);
+    border-color: var(--green);
+  }
+  .task-check svg {
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s;
+  }
+  .task-item.done .task-check svg {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .task-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .task-text {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--text);
+    transition: color 0.2s;
+    word-break: keep-all;
+  }
+  .task-item.done .task-text {
+    color: var(--text3);
+    text-decoration: line-through;
+  }
+  .task-note {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  .task-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text3);
+    width: 18px;
+    text-align: right;
+    flex-shrink: 0;
+    padding-top: 5px;
+  }
+
+  /* ── Reset + 행사변경 buttons ── */
+  .action-row {
+    display: flex;
+    gap: 10px;
+    padding: 0 20px;
+    margin-top: 4px;
+  }
+  .btn {
+    flex: 1;
+    padding: 13px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-reset {
+    background: var(--surface2);
+    color: var(--text2);
+    border: 1.5px solid var(--border);
+  }
+  .btn-edit {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+  }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: flex-end;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 20px 20px 40px;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal-handle {
+    width: 36px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0 auto 18px;
+  }
+  .modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .modal-sub {
+    font-size: 12px;
+    color: var(--text3);
+    margin-bottom: 16px;
+  }
+  .modal label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text2);
+    margin-bottom: 6px;
+    margin-top: 14px;
+  }
+  .modal input, .modal textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 14px;
+    padding: 10px 12px;
+    font-family: inherit;
+    outline: none;
+    resize: vertical;
+  }
+  .modal input:focus, .modal textarea:focus {
+    border-color: var(--accent);
+  }
+  .modal textarea {
+    min-height: 200px;
+    line-height: 1.6;
+  }
+  .modal-hint {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .modal-cancel {
+    flex: 1;
+    padding: 13px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--surface2);
+    color: var(--text2);
+    border: 1.5px solid var(--border);
+  }
+  .modal-save {
+    flex: 2;
+    padding: 13px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    border: none;
+  }
+
+  /* ── Confetti / Done Banner ── */
+  .done-banner {
+    display: none;
+    text-align: center;
+    padding: 30px 20px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    margin: 0 20px 20px;
+    border: 1.5px solid rgba(52,201,126,0.3);
+  }
+  .done-banner.show { display: block; }
+  .done-banner .emoji { font-size: 40px; margin-bottom: 10px; }
+  .done-banner h3 { font-size: 18px; font-weight: 700; color: var(--green); margin-bottom: 6px; }
+  .done-banner p { font-size: 13px; color: var(--text2); }
+
+  /* ── Template select in modal ── */
+  .template-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .template-chip {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--text2);
+    transition: all 0.15s;
+  }
+  .template-chip:active { transform: scale(0.95); }
+  .template-chip.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* ── Phase mini progress ── */
+  .phase-progress-mini {
+    font-size: 11px;
+    color: var(--text3);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .mini-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .mini-bar-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-top">
+    <div class="header-title">📋 행사 체크리스트</div>
+    <div class="header-event" id="eventLabel">2026 조찬회</div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-row">
+      <div class="progress-label">전체 진척도</div>
+      <div class="progress-pct" id="pctText">0<span>%</span></div>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+    </div>
+    <div class="progress-count" id="progressCount">0 / 0 완료</div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs" id="tabsRow"></div>
+
+<!-- Content -->
+<div class="content">
+  <div id="phasesWrap"></div>
+</div>
+
+<!-- Done banner -->
+<div class="done-banner" id="doneBanner">
+  <div class="emoji">🎉</div>
+  <h3>행사 완료!</h3>
+  <p>모든 항목을 마쳤어요.<br>수고하셨습니다!</p>
+</div>
+
+<!-- Actions -->
+<div class="action-row">
+  <button class="btn btn-reset" onclick="resetAll()">처음부터</button>
+  <button class="btn btn-edit" onclick="openModal()">+ 행사 편집</button>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">행사 편집</div>
+    <div class="modal-sub">행사명과 체크리스트를 설정하세요</div>
+
+    <label>행사명</label>
+    <input type="text" id="inputEventName" placeholder="예: 443회 조찬회" />
+
+    <label>템플릿 불러오기</label>
+    <div class="template-chips" id="templateChips"></div>
+
+    <label>단계별 체크리스트</label>
+    <div class="modal-hint">단계 구분: [단계명] 으로 입력<br>예)<br>[조찬회 당일]<br>출근 (05:30까지 롯데호텔)<br>명찰 세팅<br>[마무리]<br>물품 정리</div>
+    <textarea id="inputChecklist" placeholder="[조찬회 당일]&#10;출근 (05:30까지)&#10;명찰 세팅&#10;..."></textarea>
+
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">취소</button>
+      <button class="modal-save" onclick="applyChecklist()">적용하기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Default Data ──
+const TEMPLATES = {
+  "2026 조찬회": `[조찬회 당일]
+출근 (05:30까지 롯데호텔 소공동, 콜택시 이용)
+명찰 세팅 (회사명 순)
+행운권 교재 삽입
+온라인 송출업체 지원
+고객 영접 (테이블 바깥쪽에서 미신청 참석자는 여분명찰 패용)
+미참석자 체크 (오전 8시경, 명부 체크·여분명찰 박스·안내판 거두기)
+[행사 진행]
+이달의 도서/품질경영 봉투 작업
+지배인에게 명찰 담을 통 준비 요청
+조찬회 종료 후 회원들의 명찰 수거하며 인사
+조찬회원 모두 환송 후 연회장 내부 순회하며 정리
+[물품 정리]
+조찬회 물품 정리 (회사 복귀 후)
+[참석자 및 경품 명단 작업]
+참석예정자 명단에서 불참자 삭제
+접수없이 참석한 인원 추가
+경품 당첨자 명단 작성
+발송 경품 발송 요청 (블랙박스, 씰리)
+[강사료]
+강사료 지급 품의 상신`
+};
+
+// ── State ──
+let state = {
+  eventName: "2026 조찬회",
+  phases: [],
+  checked: {}
+};
+
+// ── Parse checklist text ──
+function parseChecklist(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const phases = [];
+  let currentPhase = null;
+
+  for (const line of lines) {
+    if (line.startsWith('[') && line.endsWith(']')) {
+      currentPhase = { title: line.slice(1, -1), tasks: [] };
+      phases.push(currentPhase);
+    } else if (currentPhase) {
+      currentPhase.tasks.push(line);
+    }
+  }
+  return phases;
+}
+
+// ── Render ──
+function render() {
+  renderTabs();
+  renderPhases();
+  updateProgress();
+}
+
+function renderTabs() {
+  const row = document.getElementById('tabsRow');
+  row.innerHTML = '';
+  state.phases.forEach((phase, pi) => {
+    const done = phase.tasks.filter((_, ti) => state.checked[`${pi}-${ti}`]).length;
+    const total = phase.tasks.length;
+    const tab = document.createElement('div');
+    tab.className = 'tab' + (pi === 0 ? ' active' : '');
+    tab.onclick = () => switchTab(pi);
+    tab.id = `tab-${pi}`;
+
+    let badge = '';
+    if (total > 0) {
+      badge = `<div class="tab-badge ${done === total ? 'all-done' : done === 0 ? 'none' : ''}">${done}/${total}</div>`;
+    }
+    tab.innerHTML = (done === total && total > 0 ? '✓ ' : '') + phase.title + badge;
+    row.appendChild(tab);
+  });
+}
+
+function switchTab(pi) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', i === pi);
+  });
+  document.querySelectorAll('.phase-block').forEach((b, i) => {
+    b.classList.toggle('active', i === pi);
+  });
+}
+
+const PHASE_COLORS = ['#5b7ff5','#7c5bf5','#34c97e','#f5c04a','#f55b5b','#5bf5c0'];
+
+function renderPhases() {
+  const wrap = document.getElementById('phasesWrap');
+  wrap.innerHTML = '';
+
+  state.phases.forEach((phase, pi) => {
+    const block = document.createElement('div');
+    block.className = 'phase-block' + (pi === 0 ? ' active' : '');
+    block.id = `phase-${pi}`;
+
+    const done = phase.tasks.filter((_, ti) => state.checked[`${pi}-${ti}`]).length;
+    const total = phase.tasks.length;
+    const pct = total ? Math.round(done/total*100) : 0;
+    const color = PHASE_COLORS[pi % PHASE_COLORS.length];
+
+    block.innerHTML = `
+      <div class="phase-header">
+        <div class="phase-dot" style="background:${color}"></div>
+        <div class="phase-title">${phase.title}</div>
+        <div class="phase-sub">${done}/${total}</div>
+      </div>
+      <div class="phase-progress-mini">
+        <div class="mini-bar"><div class="mini-bar-fill" id="mini-${pi}" style="width:${pct}%;background:${color}"></div></div>
+        <span>${pct}%</span>
+      </div>
+      <div class="task-list" id="tasks-${pi}"></div>
+    `;
+
+    const taskList = block.querySelector(`#tasks-${pi}`);
+    phase.tasks.forEach((task, ti) => {
+      const isDone = !!state.checked[`${pi}-${ti}`];
+      const item = document.createElement('div');
+      item.className = 'task-item' + (isDone ? ' done' : '');
+      item.onclick = () => toggleTask(pi, ti);
+      item.innerHTML = `
+        <div class="task-num">${ti+1}</div>
+        <div class="task-check">
+          <svg width="13" height="10" viewBox="0 0 13 10" fill="none">
+            <path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="task-body">
+          <div class="task-text">${task}</div>
+        </div>
+      `;
+      taskList.appendChild(item);
+    });
+
+    wrap.appendChild(block);
+  });
+}
+
+function toggleTask(pi, ti) {
+  const key = `${pi}-${ti}`;
+  state.checked[key] = !state.checked[key];
+  saveState();
+
+  // Update item UI
+  const taskList = document.getElementById(`tasks-${pi}`);
+  const item = taskList.children[ti];
+  if (item) {
+    item.classList.toggle('done', state.checked[key]);
+  }
+
+  updateProgress();
+  updatePhaseProgress(pi);
+  updateTabBadge(pi);
+}
+
+function updatePhaseProgress(pi) {
+  const phase = state.phases[pi];
+  if (!phase) return;
+  const done = phase.tasks.filter((_, ti) => state.checked[`${pi}-${ti}`]).length;
+  const total = phase.tasks.length;
+  const pct = total ? Math.round(done/total*100) : 0;
+  const miniFill = document.getElementById(`mini-${pi}`);
+  const header = document.querySelector(`#phase-${pi} .phase-sub`);
+  if (miniFill) miniFill.style.width = pct + '%';
+  if (header) header.textContent = `${done}/${total}`;
+  const miniPct = document.querySelector(`#phase-${pi} .phase-progress-mini span`);
+  if (miniPct) miniPct.textContent = pct + '%';
+}
+
+function updateTabBadge(pi) {
+  const tab = document.getElementById(`tab-${pi}`);
+  if (!tab) return;
+  const phase = state.phases[pi];
+  const done = phase.tasks.filter((_, ti) => state.checked[`${pi}-${ti}`]).length;
+  const total = phase.tasks.length;
+  tab.innerHTML = (done === total && total > 0 ? '✓ ' : '') + phase.title +
+    `<div class="tab-badge ${done === total ? 'all-done' : done === 0 ? 'none' : ''}">${done}/${total}</div>`;
+  tab.onclick = () => switchTab(pi);
+}
+
+function updateProgress() {
+  let total = 0, done = 0;
+  state.phases.forEach((phase, pi) => {
+    phase.tasks.forEach((_, ti) => {
+      total++;
+      if (state.checked[`${pi}-${ti}`]) done++;
+    });
+  });
+  const pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('pctText').innerHTML = `${pct}<span>%</span>`;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressCount').textContent = `${done} / ${total} 완료`;
+
+  // Done banner
+  const banner = document.getElementById('doneBanner');
+  banner.classList.toggle('show', total > 0 && done === total);
+}
+
+// ── Modal ──
+function openModal() {
+  // Populate template chips
+  const chips = document.getElementById('templateChips');
+  chips.innerHTML = '';
+  Object.keys(TEMPLATES).forEach(name => {
+    const chip = document.createElement('div');
+    chip.className = 'template-chip';
+    chip.textContent = name;
+    chip.onclick = () => {
+      document.querySelectorAll('.template-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      document.getElementById('inputEventName').value = name;
+      document.getElementById('inputChecklist').value = TEMPLATES[name];
+    };
+    chips.appendChild(chip);
+  });
+
+  // Pre-fill current
+  document.getElementById('inputEventName').value = state.eventName;
+  const currentText = state.phases.map(p =>
+    `[${p.title}]\n` + p.tasks.join('\n')
+  ).join('\n');
+  document.getElementById('inputChecklist').value = currentText;
+
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function applyChecklist() {
+  const name = document.getElementById('inputEventName').value.trim() || '행사';
+  const text = document.getElementById('inputChecklist').value.trim();
+  const phases = parseChecklist(text);
+  if (phases.length === 0) {
+    alert('[단계명] 형식으로 단계를 구분해 주세요.');
+    return;
+  }
+
+  // Save as template
+  TEMPLATES[name] = text;
+
+  state.eventName = name;
+  state.phases = phases;
+  state.checked = {};
+  document.getElementById('eventLabel').textContent = name;
+
+  saveState();
+  render();
+  closeModal();
+}
+
+function resetAll() {
+  if (!confirm('진행 상황을 초기화할까요?')) return;
+  state.checked = {};
+  saveState();
+  render();
+}
+
+// ── Persistence ──
+function saveState() {
+  try {
+    localStorage.setItem('checklist_state', JSON.stringify({
+      eventName: state.eventName,
+      phases: state.phases,
+      checked: state.checked
+    }));
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('checklist_state');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state.eventName = parsed.eventName || '2026 조찬회';
+      state.phases = parsed.phases || [];
+      state.checked = parsed.checked || {};
+      document.getElementById('eventLabel').textContent = state.eventName;
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+// ── Init ──
+function init() {
+  const hasSaved = loadState();
+  if (!hasSaved || state.phases.length === 0) {
+    // Load default template
+    state.eventName = '2026 조찬회';
+    state.phases = parseChecklist(TEMPLATES['2026 조찬회']);
+    state.checked = {};
+  }
+  render();
+}
+
+init();
+</script>
+</body>
+</html>
