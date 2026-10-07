@@ -171,6 +171,7 @@ p{margin:0}
 
 /* ── Sections ── */
 section.block{padding-block:var(--s-9)}
+section[id]{scroll-margin-top:72px}
 .sec-head{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(1.5rem,5vw,5rem);align-items:end;margin-bottom:var(--s-7)}
 .sec-head h2{margin-top:var(--s-4)}
 .sec-head p{color:var(--ink-2);max-width:36em}
@@ -229,6 +230,34 @@ section.block{padding-block:var(--s-9)}
   .dim{grid-template-columns:minmax(0,7rem) minmax(0,1fr) 2.8rem}
 }
 
+/* ── Award (separate from the indices: a ceremony band) ── */
+.award{background:var(--navy);color:var(--on-navy);position:relative;isolation:isolate;overflow:hidden}
+.award::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(40% 70% at 22% 50%,color-mix(in srgb,var(--brass) 22%,transparent),transparent 70%),linear-gradient(to right,rgba(255,255,255,.04) 1px,transparent 1px);background-size:auto,calc(100%/12) 100%}
+.award-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(2rem,6vw,6rem);align-items:center}
+.medal{position:relative;width:min(300px,58vw);aspect-ratio:1;max-width:100%;margin-inline:auto;display:grid;place-items:center}
+.medal::before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,#8C6A2C,#F3D99A,#B48A3E,#FBE8B6,#8C6A2C);animation:spin 14s linear infinite;box-shadow:0 30px 60px -30px rgba(0,0,0,.8)}
+.medal::after{content:"";position:absolute;inset:10px;border-radius:50%;background:var(--plaque);box-shadow:inset 0 0 0 1px rgba(156,122,60,.5),inset 0 6px 18px rgba(0,0,0,.08)}
+.medal img{position:relative;z-index:1;width:58%;height:auto;animation:floaty 5s ease-in-out infinite}
+.medal .ribbon{position:absolute;z-index:2;bottom:-14px;left:50%;transform:translateX(-50%);background:var(--brass);color:#fff;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.18em;padding:.45em 1.2em;white-space:nowrap}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes floaty{50%{transform:translateY(-5px)}}
+.award .eyebrow{color:var(--brass)}
+.award h2{margin-top:var(--s-4);color:var(--on-navy)}
+.award-en{font-family:var(--f-mono);font-size:.8rem;letter-spacing:.08em;color:var(--on-navy-2);margin-top:var(--s-2)}
+.award-desc{color:var(--on-navy-2);margin-top:var(--s-5);max-width:40em}
+.award-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:var(--s-6) 0 0;border-top:1px solid rgba(255,255,255,.16)}
+.award-meta div{padding:var(--s-4) var(--s-4) 0 0;min-width:0}
+.award-meta dt{font-size:.74rem;color:var(--on-navy-2)}
+.award-meta dd{margin:var(--s-1) 0 0;font-weight:500;font-size:.94rem}
+.award-steps{list-style:none;margin:var(--s-6) 0 0;padding:0;display:flex;flex-wrap:wrap;gap:var(--s-2) 0;counter-reset:as;font-size:.86rem}
+.award-steps li{counter-increment:as;display:flex;align-items:center;color:var(--on-navy)}
+.award-steps li::before{content:counter(as,decimal-leading-zero);font-family:var(--f-mono);font-size:.7rem;color:var(--brass);margin-right:8px}
+.award-steps li:not(:last-child)::after{content:"";width:28px;height:1px;background:rgba(255,255,255,.28);margin-inline:12px}
+.award .btn{margin-top:var(--s-6);background:var(--on-navy);color:var(--navy);border-color:var(--on-navy)}
+.award .btn:hover{background:transparent;color:var(--on-navy)}
+@media (max-width:860px){.medal{width:min(220px,58vw)}.award-grid{grid-template-columns:minmax(0,1fr)}.award-meta{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){.medal::before,.medal img{animation:none}}
+
 /* ── Process ── */
 .process{background:var(--sheet);border-block:1px solid var(--rule)}
 .steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));counter-reset:st;border-top:1px solid var(--ink)}
@@ -284,6 +313,7 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
     </a>
     <nav class="nav" id="nav" aria-label="주요 메뉴">
       <a href="#indices">지수 소개</a>
+      <a href="#award">포상</a>
       <a href="#process">참여 절차</a>
       <a href="#schedule">연간 일정</a>
       <a href="explore.html" class="btn sm">탐사 모드 <span class="arr">↗</span></a>
@@ -299,7 +329,7 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
       <div>
         <p class="eyebrow">Korean Standards Association · Index &amp; Awards</p>
         <h1>고객이 증명한 품질,<br>국가 <em>표준</em>의 이름으로<br>인정받습니다.</h1>
-        <p class="hero-lede">한국표준협회는 KS 표준에 기반한 측정모델로 제품과 서비스의 품질, 브랜드 가치, 고객경험을 객관적으로 평가합니다. 다섯 개 지수의 평가 기준을 살펴보세요.</p>
+        <p class="hero-lede">한국표준협회는 KS 표준에 기반한 측정모델로 제품과 서비스의 품질, 브랜드 가치, 고객경험을 객관적으로 평가합니다. 다섯 개 지수의 평가 기준과 대한민국혁신대상을 살펴보세요.</p>
         <div class="hero-cta">
           <a href="#indices" class="btn">지수 살펴보기 <span class="arr">→</span></a>
           <a href="explore.html" class="btn ghost">화성에서 지수 찾기 <span class="arr">↗</span></a>
@@ -328,8 +358,8 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
 
   <div class="strip" aria-hidden="true">
     <div class="strip-track">
-      <span>KS-QEI 한국품질만족지수</span><span>KS-CQI 콜센터품질지수</span><span>KS-PBI 프리미엄브랜드지수</span><span>Wellness 한국웰니스지수</span><span>DCXI 디지털고객경험지수</span>
-      <span>KS-QEI 한국품질만족지수</span><span>KS-CQI 콜센터품질지수</span><span>KS-PBI 프리미엄브랜드지수</span><span>Wellness 한국웰니스지수</span><span>DCXI 디지털고객경험지수</span>
+      <span>KS-QEI 한국품질만족지수</span><span>KS-CQI 콜센터품질지수</span><span>KS-PBI 프리미엄브랜드지수</span><span>Wellness 한국웰니스지수</span><span>DCXI 디지털고객경험지수</span><span>AWARD 대한민국혁신대상</span>
+      <span>KS-QEI 한국품질만족지수</span><span>KS-CQI 콜센터품질지수</span><span>KS-PBI 프리미엄브랜드지수</span><span>Wellness 한국웰니스지수</span><span>DCXI 디지털고객경험지수</span><span>AWARD 대한민국혁신대상</span>
     </div>
   </div>
 
@@ -351,15 +381,40 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
     </div>
   </section>
 
+  <!-- Award -->
+  <section class="block award" id="award" aria-labelledby="awardTitle">
+    <div class="wrap award-grid">
+      <div class="medal">
+        <img src="assets/logos/innovation.png" alt="대한민국혁신대상 로고">
+        <span class="ribbon">AWARD</span>
+      </div>
+      <div>
+        <p class="eyebrow">Award · 포상</p>
+        <h2 id="awardTitle">대한민국혁신대상</h2>
+        <p class="award-en">Korean Innovation Frontier Award</p>
+        <p class="award-desc">지수가 고객의 평가를 측정한다면, 대한민국혁신대상은 혁신으로 성과를 만든 기업과 기관을 포상합니다. 경영·기술·서비스 전반의 혁신 역량과 성과를 종합적으로 심사해 선정합니다.</p>
+        <dl class="award-meta">
+          <div><dt>구분</dt><dd>포상 제도</dd></div>
+          <div><dt>대상</dt><dd>혁신 성과를 낸 기업 · 기관</dd></div>
+          <div><dt>주관</dt><dd>한국표준협회</dd></div>
+        </dl>
+        <ol class="award-steps" aria-label="심사 절차">
+          <li>신청 접수</li><li>서류 심사</li><li>현장 심사</li><li>심의 · 선정</li><li>시상식</li>
+        </ol>
+        <a class="btn" id="awardLink" href="https://www.ksa.or.kr" target="_blank" rel="noopener">대한민국혁신대상 홈페이지 <span class="arr">↗</span></a>
+      </div>
+    </div>
+  </section>
+
   <!-- Process -->
   <section class="block process" id="process">
     <div class="wrap">
       <div class="sec-head">
         <div>
           <p class="eyebrow">Process</p>
-          <h2>상담부터 인증 수여까지</h2>
+          <h2>참여 문의부터 인증 수여까지</h2>
         </div>
-        <p>모든 지수는 같은 여섯 단계를 거칩니다. 조사 기간과 평가 방식은 지수별로 다르며, 첫 상담에서 일정과 준비 서류를 안내해 드립니다.</p>
+        <p>모든 지수는 같은 여섯 단계를 거칩니다. 조사 기간과 평가 방식은 지수별로 다르며, 참여 문의 시 일정과 준비 서류를 안내해 드립니다.</p>
       </div>
       <ol class="steps">
         <li><h3>참여 문의</h3><p>참여 지수와 업종을 확인하고 담당 연구원과 진행 일정을 정합니다.</p><span class="when">D-120</span></li>
@@ -407,7 +462,7 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
         <p style="margin-top:1rem;max-width:28em">서울특별시 강남구 테헤란로 305 한국기술센터</p>
       </div>
       <div><h4>지수</h4><ul><li><a href="#indices" data-idx="qei">KS-QEI</a></li><li><a href="#indices" data-idx="cqi">KS-CQI</a></li><li><a href="#indices" data-idx="pbi">KS-PBI</a></li><li><a href="#indices" data-idx="well">Wellness</a></li><li><a href="#indices" data-idx="dcxi">DCXI</a></li></ul></div>
-      <div><h4>안내</h4><ul><li><a href="#process">참여 절차</a></li><li><a href="#schedule">연간 일정</a></li></ul></div>
+      <div><h4>안내</h4><ul><li><a href="#award">대한민국혁신대상</a></li><li><a href="#process">참여 절차</a></li><li><a href="#schedule">연간 일정</a></li></ul></div>
       <div><h4>바로가기</h4><ul><li><a href="explore.html">화성 탐사 모드</a></li><li><a href="https://www.ksa.or.kr" target="_blank" rel="noopener">협회 홈페이지 ↗</a></li></ul></div>
     </div>
     <div class="foot-bottom"><span>© 2026 Korean Standards Association. All rights reserved.</span><span>개인정보처리방침 · 이용약관</span></div>
@@ -467,6 +522,7 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
   });
   show('qei');
   window.__ksa={INDICES,show};
+  if(window.KSA_AWARD)$('#awardLink').href=window.KSA_AWARD.homepage;
 
   /* schedule */
   const now=new Date(),curM=now.getFullYear()===2026?now.getMonth()+1:0;
