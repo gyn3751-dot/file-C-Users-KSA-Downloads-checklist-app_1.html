@@ -95,13 +95,14 @@ p{margin:0}
 .hero{padding-block:var(--s-7) var(--s-8)}
 .hero-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(2rem,5vw,4.5rem);align-items:center}
 .hero h1{font-size:clamp(2rem,3.6vw,3.05rem);line-height:1.22;margin-block:var(--s-5)}
-.hero h1 em{font-style:normal;color:var(--brass)}
+.hero h1 em{font-style:normal;color:var(--brass);background:linear-gradient(var(--brass),var(--brass)) no-repeat 0 94%/0% 2px;animation:underline 1.1s .6s var(--ease) forwards}
+@keyframes underline{to{background-size:100% 2px}}
 .hero-lede{color:var(--ink-2);font-size:1.04rem;max-width:32em}
 .hero-cta{display:flex;flex-wrap:wrap;gap:var(--s-3);margin-top:var(--s-6)}
 .hero-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:var(--s-7) 0 0;border-top:1px solid var(--rule)}
 .hero-facts div{padding:var(--s-4) var(--s-4) 0 0}
 .hero-facts dt{font-size:.75rem;color:var(--ink-3)}
-.hero-facts dd{margin:var(--s-1) 0 0;font-family:var(--f-display);font-size:1.5rem;font-weight:600}
+.hero-facts dd{margin:var(--s-1) 0 0;font-family:var(--f-display);font-size:1.5rem;font-weight:600;font-variant-numeric:tabular-nums}
 .hero-facts dd small{font-family:var(--f-body);font-size:.8rem;font-weight:400;color:var(--ink-2);margin-left:2px}
 
 .board{--bp:clamp(1.1rem,2.6vw,2rem);position:relative;background:var(--navy);color:var(--on-navy);padding:var(--bp);isolation:isolate;overflow:hidden}
@@ -182,26 +183,31 @@ section[id]{scroll-margin-top:72px}
 .idx-list{list-style:none;margin:0;padding:0;border-right:1px solid var(--rule)}
 .idx-list button{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:var(--s-4);align-items:center;text-align:left;background:none;border:0;border-bottom:1px solid var(--rule);padding:var(--s-5);cursor:pointer;position:relative;transition:background .25s}
 .idx-list li:last-child button{border-bottom:0}
-.idx-list button::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--brass);transform:scaleY(0);transition:transform .35s var(--ease)}
+.idx-list button::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c,var(--brass));transform:scaleY(0);transition:transform .35s var(--ease)}
 .idx-list button:hover{background:color-mix(in srgb,var(--paper) 60%,var(--sheet))}
 .idx-list button[aria-selected="true"]{background:var(--paper)}
 .idx-list button[aria-selected="true"]::before{transform:scaleY(1)}
+.idx-list button[aria-selected="true"] .thumb{border-color:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 18%,transparent)}
 .idx-list .thumb{width:56px;height:56px;background:var(--plaque);border:1px solid var(--rule);display:grid;place-items:center;padding:6px}
 .idx-list .thumb img{max-height:42px;width:auto}
 .idx-list .t{display:flex;flex-direction:column;min-width:0;line-height:1.35}
 .idx-list .t b{font-weight:500;font-size:.98rem}
 .idx-list .t span{font-family:var(--f-mono);font-size:.74rem;color:var(--ink-3);letter-spacing:.04em}
 .idx-list .chev{color:var(--ink-3);transition:transform .3s var(--ease),color .3s}
-.idx-list button[aria-selected="true"] .chev{color:var(--brass);transform:translateX(3px)}
+.idx-list button[aria-selected="true"] .chev{color:var(--c,var(--brass));transform:translateX(3px)}
 
-.idx-detail{padding:clamp(1.5rem,4vw,3rem);min-width:0;display:flex;flex-direction:column;gap:var(--s-6)}
+.explorer{--c:var(--brass)}
+.idx-detail{padding:clamp(1.5rem,4vw,3rem);min-width:0;display:flex;flex-direction:column;gap:var(--s-6);background:radial-gradient(75% 65% at 100% 0%,color-mix(in srgb,var(--c) 14%,transparent),transparent 72%)}
 .idx-detail.swap{animation:fade .5s var(--ease)}
 @keyframes fade{from{opacity:.2;transform:translateY(6px)}to{opacity:1;transform:none}}
 .d-top{display:flex;gap:var(--s-5);align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
 .d-code{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.1em;color:var(--brass)}
 .d-title{font-size:clamp(1.5rem,2.6vw,2rem);margin-top:var(--s-2)}
 .d-en{font-size:.85rem;color:var(--ink-3);margin-top:var(--s-1)}
-.d-logo{background:var(--plaque);border:1px solid var(--rule);width:132px;height:100px;display:grid;place-items:center;padding:12px;flex:none}
+.d-logo{background:var(--plaque);border:1px solid var(--rule);border-top:3px solid var(--c);width:132px;height:100px;display:grid;place-items:center;padding:12px;flex:none;position:relative;overflow:hidden;box-shadow:0 14px 30px -18px color-mix(in srgb,var(--c) 70%,transparent)}
+.d-logo::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.85) 50%,transparent 70%);transform:translateX(-120%)}
+.idx-detail.swap .d-logo::after{animation:sheen 1.2s .25s var(--ease)}
+@keyframes sheen{to{transform:translateX(120%)}}
 .d-logo img{max-height:72px;width:auto}
 .d-desc{color:var(--ink-2);max-width:42em}
 .d-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--rule)}
@@ -211,9 +217,13 @@ section[id]{scroll-margin-top:72px}
 .d-dims h4{margin:0 0 var(--s-3);font-size:.78rem;font-weight:500;color:var(--ink-3);letter-spacing:.04em}
 .dims{display:flex;flex-direction:column;gap:var(--s-3)}
 .dim{display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 3.2rem;align-items:center;gap:var(--s-4);font-size:.88rem}
-.dim .bar{height:4px;background:var(--rule);position:relative;overflow:hidden}
-.dim .bar i{position:absolute;inset:0 auto 0 0;background:var(--ink);transform-origin:left;animation:grow 1s var(--ease) both}
-.dim .w{font-family:var(--f-mono);font-size:.78rem;color:var(--ink-2);text-align:right}
+.dim .bar{height:6px;background:var(--rule);position:relative;overflow:hidden;border-radius:0 3px 3px 0}
+.dim .bar i{position:absolute;inset:0 auto 0 0;background:var(--c);border-radius:0 3px 3px 0;transform-origin:left;animation:grow 1s var(--ease) both}
+.dim .w{font-family:var(--f-mono);font-size:.78rem;color:var(--ink-2);text-align:right;font-variant-numeric:tabular-nums}
+.dim:nth-child(2) .bar i{animation-delay:.08s}.dim:nth-child(3) .bar i{animation-delay:.16s}.dim:nth-child(4) .bar i{animation-delay:.24s}.dim:nth-child(5) .bar i{animation-delay:.32s}
+.dim-scale{display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 3.2rem;gap:var(--s-4);font-family:var(--f-mono);font-size:.66rem;color:var(--ink-3);margin-top:2px}
+.dim-scale span:nth-child(2){display:flex;justify-content:space-between}
+@media (max-width:860px){.dim-scale{grid-template-columns:minmax(0,7rem) minmax(0,1fr) 2.8rem}}
 @keyframes grow{from{transform:scaleX(0)}}
 .d-actions{display:flex;flex-wrap:wrap;gap:var(--s-3);align-items:center}
 .d-actions .note{font-size:.8rem;color:var(--ink-3)}
@@ -256,7 +266,7 @@ section[id]{scroll-margin-top:72px}
 .award .btn{margin-top:var(--s-6);background:var(--on-navy);color:var(--navy);border-color:var(--on-navy)}
 .award .btn:hover{background:transparent;color:var(--on-navy)}
 @media (max-width:860px){.medal{width:min(220px,58vw)}.award-grid{grid-template-columns:minmax(0,1fr)}.award-meta{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
-@media (prefers-reduced-motion:reduce){.medal::before,.medal img{animation:none}}
+@media (prefers-reduced-motion:reduce){.hero h1 em{background-size:100% 2px}.medal::before,.medal img{animation:none}}
 
 /* ── Process ── */
 .process{background:var(--sheet);border-block:1px solid var(--rule)}
@@ -273,9 +283,9 @@ section[id]{scroll-margin-top:72px}
 /* ── Schedule ── */
 .sched-wrap{overflow-x:auto;border:1px solid var(--rule);background:var(--sheet)}
 .sched{width:100%;min-width:760px;border-collapse:collapse;font-size:.86rem}
-.sched th,.sched td{border-bottom:1px solid var(--rule);padding:0;height:56px}
+.sched th,.sched td{border-bottom:1px solid var(--rule);padding:0;height:76px}
 .sched thead th{height:44px;font-family:var(--f-mono);font-weight:400;font-size:.72rem;color:var(--ink-3);letter-spacing:.06em;text-align:center}
-.sched tbody th{text-align:left;padding-inline:var(--s-5);font-weight:500;white-space:nowrap;width:190px}
+.sched tbody th{text-align:left;padding:var(--s-2) var(--s-5);font-weight:500;white-space:nowrap;width:190px;line-height:1.35}
 .sched tbody th span{display:block;font-family:var(--f-mono);font-size:.7rem;color:var(--ink-3);font-weight:400}
 .sched td{position:relative;border-left:1px solid color-mix(in srgb,var(--rule) 60%,transparent)}
 .sched tbody tr:last-child th,.sched tbody tr:last-child td{border-bottom:0}
@@ -284,6 +294,21 @@ section[id]{scroll-margin-top:72px}
 .seg.survey{background:color-mix(in srgb,var(--ink) 9%,transparent);color:var(--ink-2)}
 .seg.award{background:var(--ink);color:var(--paper);font-weight:500}
 .now-col{background:color-mix(in srgb,var(--brass) 6%,transparent)}
+.sched .today{position:absolute;top:0;bottom:0;width:0;border-left:1.5px solid var(--brass);z-index:2;pointer-events:none}
+.sched .today::before{content:"";position:absolute;top:-1px;left:-4.5px;width:8px;height:8px;border-radius:50%;background:var(--brass)}
+.sched thead .today-lab{display:block;font-size:.6rem;color:var(--brass);letter-spacing:.1em;line-height:1}
+.sched tbody th .st{display:inline-block;margin-top:5px;font-family:var(--f-body);font-style:normal;font-size:.66rem;font-weight:500;padding:1px 7px;border-radius:99px;white-space:nowrap}
+.st-apply{background:var(--brass-soft);color:var(--brass);border:1px solid color-mix(in srgb,var(--brass) 45%,transparent)}
+.st-apply::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;margin-right:5px;vertical-align:middle;animation:blink 1.6s infinite}
+.st-survey{background:color-mix(in srgb,var(--ink) 9%,transparent);color:var(--ink-2)}
+.st-award{background:var(--ink);color:var(--paper)}
+.st-next{color:var(--ink-3);padding-left:0!important}
+@keyframes blink{50%{opacity:.25}}
+.legend .l-today{width:0;height:12px;border-left:1.5px solid var(--brass)}
+.rv .sched .seg{transform:translateY(-50%) scaleX(0);transform-origin:left center}
+.rv .sched.in .seg{transform:translateY(-50%) scaleX(1);transition:transform .9s var(--ease) var(--d,0s)}
+.rv .reveal{opacity:.45;transform:translateY(22px);transition:opacity .9s var(--ease),transform .9s var(--ease);transition-delay:var(--rd,0s)}
+.rv .reveal.in{opacity:1;transform:none}
 .legend{display:flex;flex-wrap:wrap;gap:var(--s-5);margin-top:var(--s-4);font-size:.8rem;color:var(--ink-2);align-items:center}
 .legend i{display:inline-block;width:18px;height:10px;margin-right:6px;vertical-align:middle}
 .legend .l-apply{background:var(--brass-soft);border:1px solid var(--brass)}
@@ -335,8 +360,8 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
           <a href="explore.html" class="btn ghost">화성에서 지수 찾기 <span class="arr">↗</span></a>
         </div>
         <dl class="hero-facts">
-          <div><dt>운영 지수</dt><dd>5<small>개</small></dd></div>
-          <div><dt>평가 척도</dt><dd>100<small>점 만점</small></dd></div>
+          <div><dt>운영 지수</dt><dd><span data-count="5">5</span><small>개</small></dd></div>
+          <div><dt>평가 척도</dt><dd><span data-count="100">100</span><small>점 만점</small></dd></div>
           <div><dt>조사 주기</dt><dd>연 1<small>회</small></dd></div>
         </dl>
       </div>
@@ -435,7 +460,7 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
           <p class="eyebrow">Annual Calendar</p>
           <h2>2026 지수별 운영 일정</h2>
         </div>
-        <p>신청 접수 기간 안에 상담을 마쳐야 해당 연도 조사에 포함됩니다. 이번 달은 옅은 색으로 표시했습니다.</p>
+        <p>신청 접수 기간 안에 참여 신청을 마쳐야 해당 연도 조사에 포함됩니다. 금색 세로선이 오늘이며, 지수마다 현재 단계를 표시했습니다.</p>
       </div>
       <div class="sched-wrap">
         <table class="sched" id="sched">
@@ -447,6 +472,7 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
         <span><i class="l-apply"></i>신청 접수</span>
         <span><i class="l-survey"></i>고객 조사·평가</span>
         <span><i class="l-award"></i>발표·인증식</span>
+        <span><i class="l-today"></i>오늘</span>
         <span class="disc">일정은 예시이며 확정 일정은 공지사항을 기준으로 합니다.</span>
       </div>
     </div>
@@ -494,18 +520,19 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
 
   /* explorer */
   const list=$('#idxList'),detail=$('#idxDetail');
-  list.innerHTML=INDICES.map(i=>`<li><button type="button" role="tab" id="tab-${i.id}" data-idx="${i.id}" aria-selected="false">
+  list.innerHTML=INDICES.map(i=>`<li><button type="button" role="tab" id="tab-${i.id}" data-idx="${i.id}" aria-selected="false" style="--c:${i.color}">
     <span class="thumb"><img src="${i.logo}" alt=""></span>
     <span class="t"><b>${i.name}</b><span>${i.code}</span></span><span class="chev">→</span></button></li>`).join('');
   function show(id,scroll){
     const i=byId[id];if(!i)return;
     list.querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',b.dataset.idx===id));
     detail.setAttribute('aria-labelledby','tab-'+id);
+    detail.closest('.explorer').style.setProperty('--c',i.color);
     detail.innerHTML=`<div class="d-top"><div><p class="d-code">${i.code}</p><h3 class="d-title">${i.name}</h3><p class="d-en">${i.en}</p></div>
       <div class="d-logo"><img src="${i.logo}" alt="${i.code} 인증 로고"></div></div>
       <p class="d-desc">${i.desc}</p>
       <dl class="d-meta"><div><dt>평가 대상</dt><dd>${i.target}</dd></div><div><dt>평가 방식</dt><dd>${i.method}</dd></div><div><dt>결과 발표</dt><dd>매년 ${i.announce}</dd></div></dl>
-      <div class="d-dims"><h4>측정 차원 · 가중치 (100점 환산)</h4><div class="dims">${i.dims.map(([n,w])=>`<div class="dim"><span>${n}</span><span class="bar"><i style="width:${w/40*100}%"></i></span><span class="w">${w}%</span></div>`).join('')}</div></div>
+      <div class="d-dims"><h4>측정 차원 · 가중치 (100점 환산)</h4><div class="dims">${i.dims.map(([n,w])=>`<div class="dim"><span>${n}</span><span class="bar"><i style="width:${w/40*100}%"></i></span><span class="w">${w}%</span></div>`).join('')}</div><div class="dim-scale" aria-hidden="true"><span></span><span><span>0</span><span>20%</span><span>40%</span></span><span></span></div></div>
       <div class="d-actions"><a href="${i.homepage}" class="btn" target="_blank" rel="noopener">${i.code} 공식 홈페이지 <span class="arr">↗</span></a><span class="note">가중치는 업종에 따라 조정될 수 있습니다.</span></div>`;
     detail.classList.remove('swap');void detail.offsetWidth;detail.classList.add('swap');
     if(scroll)document.getElementById('indices').scrollIntoView({behavior:'smooth'});
@@ -526,9 +553,11 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
 
   /* schedule */
   const now=new Date(),curM=now.getFullYear()===2026?now.getMonth()+1:0;
+  const dayFrac=(now.getDate()-1)/new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),pos=curM?curM+dayFrac:0;
+  const inR=([a,b])=>pos>=a&&pos<b;
   const thead=$('#sched thead tr');
-  for(let m=1;m<=12;m++){const th=document.createElement('th');th.scope='col';th.textContent=String(m).padStart(2,'0')+'월';if(m===curM)th.className='now-col';thead.appendChild(th)}
-  $('#sched tbody').innerHTML=INDICES.map(i=>{
+  for(let m=1;m<=12;m++){const th=document.createElement('th');th.scope='col';th.textContent=String(m).padStart(2,'0')+'월';if(m===curM){th.className='now-col';th.innerHTML='<span class="today-lab">TODAY</span>'+th.textContent}thead.appendChild(th)}
+  $('#sched tbody').innerHTML=INDICES.map((i,row)=>{
     const s=SCHED[i.id];let cells='';
     for(let m=1;m<=12;m++){
       let segs='';
@@ -537,14 +566,29 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
         if(m>=Math.floor(a)&&m<Math.ceil(b)){
           const L=Math.max(a,m)-m,R=Math.min(b,m+1)-m;
           const first=m===Math.floor(a);
-          segs+=`<span class="seg ${k}" style="left:${L*100}%;right:${(1-R)*100}%">${first?lab:''}</span>`;
+          segs+=`<span class="seg ${k}" style="left:${L*100}%;right:${(1-R)*100}%;--d:${(row*.09+(m-1)*.035).toFixed(2)}s">${first?lab:''}</span>`;
         }
       });
+      if(m===curM)segs+=`<span class="today" style="left:${(dayFrac*100).toFixed(1)}%"></span>`;
       cells+=`<td class="${m===curM?'now-col':''}">${segs}</td>`;
     }
-    return `<tr><th scope="row">${i.name}<span>${i.code}</span></th>${cells}</tr>`;
+    let st='';
+    if(pos){if(inR(s.apply))st='<em class="st st-apply">접수 중</em>';else if(inR(s.survey))st='<em class="st st-survey">조사 · 평가 중</em>';else if(inR(s.award))st='<em class="st st-award">발표 시즌</em>';else st=`<em class="st st-next">다음 접수 ${Math.floor(s.apply[0])}월</em>`}
+    return `<tr><th scope="row">${i.name}<span>${i.code}</span>${st}</th>${cells}</tr>`;
   }).join('');
 
+  /* scroll reveal, schedule draw-in, hero count-up (content is fully visible without JS or with reduced motion) */
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduce&&'IntersectionObserver' in window){
+    document.documentElement.classList.add('rv');
+    const targets=[...document.querySelectorAll('main .sec-head,.explorer,.steps li,.sched-wrap,.award .medal,.award-grid>div:last-child')];
+    document.querySelectorAll('.steps li').forEach((li,k)=>li.style.setProperty('--rd',(k*.08)+'s'));
+    targets.forEach(t=>t.classList.add('reveal'));
+    const io=new IntersectionObserver(es=>es.forEach(en=>{if(!en.isIntersecting)return;en.target.classList.add('in');if(en.target.classList.contains('sched-wrap'))$('#sched').classList.add('in');io.unobserve(en.target)}),{rootMargin:'0px 0px -8% 0px',threshold:.12});
+    targets.forEach(t=>io.observe(t));
+    document.querySelectorAll('[data-count]').forEach(el=>{const to=+el.dataset.count,t0=performance.now()+300,dur=1300;
+      const step=t=>{const k=Math.min(Math.max((t-t0)/dur,0),1),e=1-Math.pow(1-k,3);el.textContent=Math.round(to*e);if(k<1)requestAnimationFrame(step)};el.textContent='0';requestAnimationFrame(step)});
+  }
 })();
 </script>
 <script>
