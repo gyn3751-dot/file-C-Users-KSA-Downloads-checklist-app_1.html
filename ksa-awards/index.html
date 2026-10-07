@@ -616,6 +616,7 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="assets/js/indices.js"></script>
+<script src="assets/js/logo-data.js"></script>
 <script>
 (function(){
   const INDICES=window.KSA_INDICES;
@@ -996,7 +997,7 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
   document.addEventListener('visibilitychange',()=>document.hidden?stop():start());
 
   const load=src=>new Promise(res=>{const im=new Image();im.onload=()=>res(im);im.onerror=()=>res(null);im.src=src});
-  Promise.all([Promise.all(IDX.map(x=>load(x.logo))),document.fonts?document.fonts.ready:0]).then(([imgs])=>{
+  Promise.all([Promise.all(IDX.map(x=>load((window.KSA_LOGO_DATA||{})[x.id]||x.logo))),document.fonts?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))]):0]).then(([imgs])=>{
     if(imgs.some(x=>!x)){host.classList.remove('webgl');return}
     try{build(imgs)}catch(e){host.classList.remove('webgl');return}
     layout();rot=target=0;paint(0);running=false;start();

@@ -239,6 +239,7 @@ img{max-width:100%;display:block}
 </div>
 
 <script src="assets/js/indices.js"></script>
+<script src="assets/js/logo-data.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
@@ -558,7 +559,7 @@ function frame(now){
 
 /* boot: fonts + logos, then build */
 const load=src=>new Promise(r=>{const im=new Image();im.onload=()=>r(im);im.onerror=()=>r(null);im.src=src});
-Promise.all([Promise.all(IDX.map(x=>load(x.logo))),document.fonts?document.fonts.ready:0]).then(([imgs])=>{
+Promise.all([Promise.all(IDX.map(x=>load((window.KSA_LOGO_DATA||{})[x.id]||x.logo))),document.fonts?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))]):0]).then(([imgs])=>{
   if(imgs.some(x=>!x))return noGL();
   buildBeacons(imgs);
   $('goBtn').disabled=false;$('goLabel').textContent='탐사 시작';
