@@ -91,74 +91,39 @@ p{margin:0}
   .menu-btn{display:block}
 }
 
-/* ── Space hero (single deep-space look in both themes) ── */
-:root{--sp-bg:#04070F;--sp-fg:#EEF2FA;--sp-mute:#94A1BB;--sp-line:rgba(255,255,255,.12);--sp-line-2:rgba(255,255,255,.28);--sp-glass:rgba(9,15,31,.58);--sp-gold:#D6B26C}
-.space{position:relative;color:var(--sp-fg);overflow:hidden;isolation:isolate;
-  background:
-    radial-gradient(55% 65% at 70% 42%,#14285A 0%,transparent 62%),
-    radial-gradient(38% 48% at 12% 88%,#2A1642 0%,transparent 66%),
-    radial-gradient(30% 40% at 96% 96%,#0D3B4B 0%,transparent 70%),
-    var(--sp-bg)}
-.space::after{content:"";position:absolute;inset:auto 0 0 0;height:120px;z-index:1;pointer-events:none;background:linear-gradient(to bottom,transparent,rgba(4,7,15,.55))}
-#spaceCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;display:block;touch-action:pan-y;cursor:grab;outline:none}
-#spaceCanvas.grabbing{cursor:grabbing}
-#spaceCanvas.hover{cursor:pointer}
-.space-grid{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);grid-template-rows:auto 1fr;column-gap:clamp(1.5rem,4vw,4rem);row-gap:var(--s-6);padding-block:clamp(3rem,6vw,5rem) clamp(2rem,4vw,3rem);min-height:clamp(640px,88vh,880px);pointer-events:none}
-.space-copy,.space-card,.space-nav,.space .plaques{pointer-events:auto}
-.space-copy{grid-column:1;grid-row:1}
-.space .eyebrow{color:var(--sp-gold)}
-.space h1{font-size:clamp(2rem,3.4vw,3rem);line-height:1.22;margin-block:var(--s-5);color:var(--sp-fg)}
-.space h1 em{font-style:normal;color:var(--sp-gold)}
-.space-lede{color:var(--sp-mute);max-width:30em}
-.space .hero-cta{display:flex;flex-wrap:wrap;gap:var(--s-3);margin-top:var(--s-6)}
-.space .btn{background:var(--sp-fg);color:var(--sp-bg);border-color:var(--sp-fg)}
-.space .btn:hover{background:transparent;color:var(--sp-fg)}
-.space .btn.ghost{background:transparent;color:var(--sp-fg);border-color:var(--sp-line-2)}
-.space .btn.ghost:hover{background:var(--sp-fg);color:var(--sp-bg);border-color:var(--sp-fg)}
-.space-stage{grid-column:2;grid-row:1/span 2;position:relative;min-height:460px;display:flex;flex-direction:column;justify-content:flex-end}
-.space-card{grid-column:1;grid-row:2;align-self:end;background:var(--sp-glass);backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);border:1px solid var(--sp-line);padding:clamp(1.25rem,2.5vw,1.75rem);display:flex;flex-direction:column;gap:var(--s-3);position:relative}
-.space-card::before{content:"";position:absolute;left:-1px;top:-1px;width:44px;height:2px;background:var(--planet,var(--sp-gold));transition:background .6s}
-.sc-top{display:flex;justify-content:space-between;align-items:center;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;color:var(--sp-mute)}
-.sc-top .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--planet,var(--sp-gold));box-shadow:0 0 12px var(--planet,var(--sp-gold));margin-right:8px;vertical-align:middle;transition:.6s}
-.sc-body{display:flex;flex-direction:column;gap:var(--s-2)}
-.sc-body.swap{animation:fade .55s var(--ease)}
-.sc-code{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.1em;color:var(--sp-gold)}
-.sc-name{font-family:var(--f-display);font-size:clamp(1.35rem,2vw,1.65rem);font-weight:600;letter-spacing:-.02em;line-height:1.3}
-.sc-desc{color:var(--sp-mute);font-size:.9rem;line-height:1.65}
-.sc-meta{display:flex;flex-wrap:wrap;gap:var(--s-2) var(--s-5);font-size:.78rem;color:var(--sp-mute);padding-top:var(--s-3);border-top:1px solid var(--sp-line)}
-.sc-meta b{color:var(--sp-fg);font-weight:500;margin-left:6px}
-.sc-actions{display:flex;flex-wrap:wrap;gap:var(--s-2);margin-top:var(--s-2)}
-.space-nav{display:flex;align-items:center;justify-content:center;gap:var(--s-4);padding-top:var(--s-4)}
-.sn-arrow{width:44px;height:44px;border-radius:50%;border:1px solid var(--sp-line-2);background:rgba(255,255,255,.03);color:var(--sp-fg);cursor:pointer;display:grid;place-items:center;font-size:1.05rem;transition:background .25s,border-color .25s,transform .25s var(--ease)}
-.sn-arrow:hover{background:rgba(255,255,255,.1);border-color:var(--sp-fg)}
-.sn-arrow:active{transform:scale(.94)}
-.sn-dots{display:flex;flex-wrap:wrap;justify-content:center;gap:2px}
-.sn-dots button{background:none;border:0;color:var(--sp-mute);font-family:var(--f-mono);font-size:.7rem;letter-spacing:.06em;padding:.6rem .55rem;cursor:pointer;position:relative;transition:color .3s}
-.sn-dots button::after{content:"";position:absolute;left:.55rem;right:.55rem;bottom:.3rem;height:1px;background:var(--sp-fg);transform:scaleX(0);transition:transform .45s var(--ease)}
-.sn-dots button:hover{color:var(--sp-fg)}
-.sn-dots button[aria-current="true"]{color:var(--sp-fg)}
-.sn-dots button[aria-current="true"]::after{transform:scaleX(1)}
-.drag-hint{position:absolute;top:2%;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:.7em;font-size:.76rem;color:var(--sp-mute);border:1px solid var(--sp-line);background:rgba(255,255,255,.04);padding:.45em 1em;border-radius:99px;white-space:nowrap;transition:opacity .6s,transform .6s var(--ease);pointer-events:none}
-.drag-hint i{font-style:normal;display:inline-block;animation:nudge 1.6s var(--ease) infinite}
-.drag-hint i:last-child{animation-direction:reverse}
-.drag-hint.gone{opacity:0;transform:translate(-50%,-6px)}
-@keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(-4px)}}
-.space .plaques{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:.75rem;margin-block:auto}
-.space.webgl .plaques{display:none}
-.space:not(.webgl) .drag-hint{display:none}
-.plaque{grid-column:span 2;background:var(--plaque);color:#101B2E;display:flex;flex-direction:column;cursor:pointer;border:0;padding:0;text-align:left;transition:transform .45s var(--ease)}
+/* ── Hero ── */
+.hero{padding-block:var(--s-7) var(--s-8)}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(2rem,5vw,5rem);align-items:center}
+.hero h1{font-size:clamp(2rem,3.6vw,3.05rem);line-height:1.22;margin-block:var(--s-5) var(--s-5)}
+.hero h1 em{font-style:normal;color:var(--brass)}
+.hero-lede{color:var(--ink-2);font-size:1.06rem;max-width:34em}
+.hero-cta{display:flex;flex-wrap:wrap;gap:var(--s-3);margin-top:var(--s-6)}
+.hero-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:var(--s-7);border-top:1px solid var(--rule)}
+.hero-facts div{padding:var(--s-4) var(--s-4) 0 0}
+.hero-facts dt{font-size:.75rem;color:var(--ink-3);letter-spacing:.02em}
+.hero-facts dd{margin:var(--s-1) 0 0;font-family:var(--f-display);font-size:1.5rem;font-weight:600}
+.hero-facts dd small{font-family:var(--f-body);font-size:.8rem;font-weight:400;color:var(--ink-2);margin-left:2px}
+
+.board{position:relative;background:var(--navy);color:var(--on-navy);padding:clamp(1.25rem,3vw,2.25rem);isolation:isolate;overflow:hidden}
+.board::before{content:"";position:absolute;inset:0;z-index:-1;background-image:linear-gradient(to right,rgba(255,255,255,.055) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.055) 1px,transparent 1px);background-size:calc(100%/12) 48px}
+.board::after{content:"";position:absolute;width:70%;aspect-ratio:1;right:-25%;top:-35%;z-index:-1;background:radial-gradient(closest-side,var(--navy-2),transparent);opacity:.9}
+.board-head{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;color:var(--on-navy-2);text-transform:uppercase;padding-bottom:var(--s-4);border-bottom:1px solid rgba(255,255,255,.14)}
+.plaques{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:clamp(.6rem,1.4vw,1rem);margin-top:var(--s-5)}
+.plaque{grid-column:span 2;background:var(--plaque);color:#101B2E;display:flex;flex-direction:column;cursor:pointer;border:0;padding:0;text-align:left;transition:transform .45s var(--ease),box-shadow .45s var(--ease);animation:rise .9s var(--ease) both}
 .plaque:nth-child(4),.plaque:nth-child(5){grid-column:span 3}
-.plaque:hover{transform:translateY(-4px)}
-.plaque .logo{flex:1;display:grid;place-items:center;padding:1.2rem .75rem;min-height:110px}
-.plaque .logo img{max-height:64px;width:auto}
-.plaque .cap{display:flex;flex-direction:column;line-height:1.35;padding:.55rem .75rem;border-top:1px solid #E6E9EF;font-size:.72rem;color:#4A5568}
-.plaque .cap b{font-family:var(--f-mono);font-weight:500;color:#101B2E}
-@media (max-width:900px){
-  .space-grid{grid-template-columns:minmax(0,1fr);grid-template-rows:auto;min-height:0;row-gap:var(--s-4)}
-  .space-copy,.space-stage,.space-card{grid-column:1;grid-row:auto}
-  .space-stage{min-height:clamp(340px,88vw,480px)}
-  .space .hero-cta{margin-top:var(--s-5)}
-}
+.plaque:nth-child(1){animation-delay:.05s}.plaque:nth-child(2){animation-delay:.12s}.plaque:nth-child(3){animation-delay:.19s}.plaque:nth-child(4){animation-delay:.26s}.plaque:nth-child(5){animation-delay:.33s}
+.plaque:hover{transform:translateY(-4px);box-shadow:0 18px 30px -18px rgba(0,0,0,.6)}
+.plaque .logo{flex:1;display:grid;place-items:center;padding:clamp(.9rem,2vw,1.5rem) .75rem;min-height:clamp(96px,11vw,132px)}
+.plaque .logo img{max-height:clamp(52px,6vw,74px);width:auto;object-fit:contain}
+.plaque .cap{display:flex;flex-direction:column;gap:1px;line-height:1.35;padding:.55rem .75rem;border-top:1px solid #E6E9EF;font-size:.72rem;color:#4A5568}
+.plaque .cap b{font-family:var(--f-mono);font-weight:500;color:#101B2E;letter-spacing:.02em}
+.board-foot{display:flex;align-items:center;gap:var(--s-4);margin-top:var(--s-5);padding-top:var(--s-4);border-top:1px solid rgba(255,255,255,.14);font-size:.82rem;color:var(--on-navy-2)}
+.seal{flex:none;width:52px;height:52px;border-radius:50%;border:1px solid var(--brass);display:grid;place-items:center;color:var(--brass);font-family:var(--f-mono);font-size:.62rem;letter-spacing:.06em;text-align:center;line-height:1.15;position:relative}
+.seal::after{content:"";position:absolute;inset:4px;border-radius:50%;border:1px dashed color-mix(in srgb,var(--brass) 55%,transparent)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (max-width:960px){.hero-grid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:520px){.plaque,.plaque:nth-child(4),.plaque:nth-child(5){grid-column:span 3}.plaque:nth-child(5){grid-column:span 6}.hero-facts dd{font-size:1.2rem}}
+
 /* ── Marquee strip ── */
 .strip{border-block:1px solid var(--rule);overflow:hidden;background:var(--sheet)}
 .strip-track{display:flex;gap:var(--s-8);width:max-content;padding-block:var(--s-4);animation:slide 40s linear infinite;font-family:var(--f-mono);font-size:.78rem;letter-spacing:.12em;color:var(--ink-3);text-transform:uppercase}
@@ -388,36 +353,35 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
 </header>
 
 <main>
-  <!-- Hero: interactive planets -->
-  <section class="space" id="space" aria-label="한국표준협회 지수 탐색">
-    <canvas id="spaceCanvas" tabindex="0" aria-label="지수 행성 궤도. 드래그하거나 좌우 방향키로 회전합니다."></canvas>
-    <div class="wrap space-grid">
-      <div class="space-copy">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
         <p class="eyebrow">Korean Standards Association · Index &amp; Awards</p>
         <h1>고객이 증명한 품질,<br>국가 <em>표준</em>의 이름으로<br>인정받습니다.</h1>
-        <p class="space-lede">KS 표준 기반 측정모델로 평가하는 다섯 개의 지수. 행성을 드래그해 하나씩 살펴보고, 우리 기업에 맞는 참여 상담을 예약하세요.</p>
+        <p class="hero-lede">한국표준협회는 KS 표준에 기반한 측정모델로 제품과 서비스의 품질, 브랜드 가치, 고객경험을 객관적으로 평가합니다. 5개 지수의 평가 기준을 살펴보고, 우리 기업에 맞는 참여 상담을 예약하세요.</p>
         <div class="hero-cta">
           <a href="#booking" class="btn">참여 상담 예약 <span class="arr">→</span></a>
-          <a href="#indices" class="btn ghost">지수 기준 보기</a>
+          <a href="#indices" class="btn ghost">지수 살펴보기</a>
         </div>
+        <dl class="hero-facts">
+          <div><dt>운영 지수</dt><dd>5<small>개</small></dd></div>
+          <div><dt>평가 척도</dt><dd>100<small>점 만점</small></dd></div>
+          <div><dt>조사 주기</dt><dd>연 1<small>회</small></dd></div>
+        </dl>
       </div>
 
-      <div class="space-stage" id="stage">
-        <p class="drag-hint" id="dragHint"><i>←</i> 드래그해서 행성을 돌려보세요 <i>→</i></p>
+      <div class="board" aria-label="한국표준협회 지수 인증 로고">
+        <div class="board-head"><span>KSA Index Portfolio</span><span class="mono">2026</span></div>
         <div class="plaques" id="plaques"></div>
-        <div class="space-nav">
-          <button class="sn-arrow" type="button" id="snPrev" aria-label="이전 지수">←</button>
-          <div class="sn-dots" id="snDots" role="group" aria-label="지수 선택"></div>
-          <button class="sn-arrow" type="button" id="snNext" aria-label="다음 지수">→</button>
+        <div class="board-foot">
+          <span class="seal">KS<br>CERT.</span>
+          <span>인증 로고는 해당 지수 1위 또는 우수기업으로 선정된 기업이 홍보에 사용할 수 있습니다. 로고를 선택하면 상세 기준을 볼 수 있습니다.</span>
         </div>
       </div>
-
-      <article class="space-card" id="spaceCard" aria-live="polite">
-        <div class="sc-top"><span><span class="dot"></span><span id="scCount">01 / 05</span></span><span>KSA INDEX</span></div>
-        <div class="sc-body" id="scBody"></div>
-      </article>
     </div>
   </section>
+
   <div class="strip" aria-hidden="true">
     <div class="strip-track">
       <span>KS-QEI 한국품질만족지수</span><span>KS-CQI 콜센터품질지수</span><span>KS-PBI 프리미엄브랜드지수</span><span>Wellness 한국웰니스지수</span><span>DCXI 디지털고객경험지수</span>
@@ -692,7 +656,6 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
     if(b){const c=document.getElementById('ix-'+b.dataset.book);if(c&&!c.checked){c.checked=true;updateSummary()}}
   });
   show('qei');
-  window.__ksa={INDICES,show,book(id){const c=document.getElementById('ix-'+id);if(c&&!c.checked){c.checked=true;updateSummary()}document.getElementById('booking').scrollIntoView({behavior:'smooth'})}};
 
   /* schedule */
   const now=new Date(),curM=now.getFullYear()===2026?now.getMonth()+1:0;
@@ -800,225 +763,6 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
       <div><button class="btn ghost" type="button" id="again">새 예약 작성</button></div></div>`;
     const box=$('#doneBox');box.focus({preventScroll:true});box.scrollIntoView({behavior:'smooth',block:'center'});
     $('#again').onclick=()=>location.reload();
-  });
-})();
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
-(function(){
-  const K=window.__ksa;if(!K)return;
-  const IDX=K.INDICES,N=IDX.length;
-  const HEX={qei:'#F2C230',cqi:'#E8392E',pbi:'#EE5F2F',well:'#7DC245',dcxi:'#7B93F5'};
-  const host=document.getElementById('space'),canvas=document.getElementById('spaceCanvas'),stage=document.getElementById('stage');
-  const card=document.getElementById('spaceCard'),scBody=document.getElementById('scBody'),scCount=document.getElementById('scCount');
-  const dots=document.getElementById('snDots'),hint=document.getElementById('dragHint');
-  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let cur=-1;
-
-  /* ── UI shared by WebGL and fallback ── */
-  dots.innerHTML=IDX.map((x,i)=>`<button type="button" data-i="${i}" aria-label="${x.name}">${x.code}</button>`).join('');
-  function paint(i){
-    if(i===cur)return;cur=i;const x=IDX[i];
-    card.style.setProperty('--planet',HEX[x.id]);
-    scCount.textContent=String(i+1).padStart(2,'0')+' / '+String(N).padStart(2,'0');
-    scBody.innerHTML=`<p class="sc-code">${x.code}</p><h2 class="sc-name">${x.name}</h2><p class="sc-desc">${x.desc}</p>
-      <div class="sc-meta"><span>평가 방식<b>${x.method}</b></span><span>결과 발표<b>매년 ${x.announce}</b></span></div>
-      <div class="sc-actions"><button class="btn sm" type="button" data-act="book">상담 예약 <span class="arr">→</span></button><button class="btn sm ghost" type="button" data-act="detail">평가 기준</button></div>`;
-    scBody.classList.remove('swap');void scBody.offsetWidth;scBody.classList.add('swap');
-    dots.querySelectorAll('button').forEach((b,k)=>b.setAttribute('aria-current',k===i));
-  }
-  scBody.addEventListener('click',e=>{
-    const b=e.target.closest('[data-act]');if(!b)return;const id=IDX[cur].id;
-    if(b.dataset.act==='book')K.book(id);else K.show(id,true);
-  });
-
-  let api={go:i=>paint(((i%N)+N)%N),step:d=>api.go(cur+d)};
-  dots.addEventListener('click',e=>{const b=e.target.closest('button');if(b){api.go(+b.dataset.i);poke()}});
-  document.getElementById('snPrev').onclick=()=>{api.step(-1);poke()};
-  document.getElementById('snNext').onclick=()=>{api.step(1);poke()};
-  let lastPoke=performance.now();
-  function poke(){lastPoke=performance.now();hint.classList.add('gone')}
-  paint(0);
-
-  /* ── WebGL scene ── */
-  if(!window.THREE)return;
-  let renderer;
-  try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,powerPreference:'high-performance'})}catch(e){return}
-  if(!renderer.getContext())return;
-  host.classList.add('webgl');
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  renderer.outputEncoding=THREE.sRGBEncoding;
-  const scene=new THREE.Scene();
-  scene.fog=new THREE.Fog(0x04070F,14,26);
-  const camera=new THREE.PerspectiveCamera(34,1,.1,500);
-
-  scene.add(new THREE.AmbientLight(0x8fa0c8,.55));
-  const key=new THREE.DirectionalLight(0xffffff,.95);key.position.set(5,7,9);scene.add(key);
-  const rim=new THREE.DirectionalLight(0x6d8cff,.6);rim.position.set(-7,-2,-6);scene.add(rim);
-  const warm=new THREE.PointLight(0xffd9a0,.6,40);warm.position.set(0,4,8);scene.add(warm);
-
-  /* helpers */
-  function cnv(s){const c=document.createElement('canvas');c.width=c.height=s;return c}
-  function turn(c,a){if(!a)return c;const o=cnv(c.width),g=o.getContext('2d');g.translate(c.width/2,c.width/2);g.rotate(a);g.drawImage(c,-c.width/2,-c.width/2);return o}
-  const FACE_A=-Math.PI/2,BACK_A=-Math.PI/2;
-  function tex(c){const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=renderer.capabilities.getMaxAnisotropy();return t}
-  const glowTex=(()=>{const c=cnv(256),g=c.getContext('2d'),r=g.createRadialGradient(128,128,0,128,128,128);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.25,'rgba(255,255,255,.35)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,256,256);return new THREE.CanvasTexture(c)})();
-  const dotTex=(()=>{const c=cnv(64),g=c.getContext('2d'),r=g.createRadialGradient(32,32,0,32,32,32);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.4,'rgba(255,255,255,.6)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,64,64);return new THREE.CanvasTexture(c)})();
-
-  /* stars: far shell + near dust */
-  function starField(n,rMin,rMax,size,op){
-    const p=new Float32Array(n*3),col=new Float32Array(n*3),tints=[[1,1,1],[.75,.85,1],[1,.9,.75],[.85,.8,1]];
-    for(let i=0;i<n;i++){const u=Math.random()*2-1,a=Math.random()*Math.PI*2,r=rMin+Math.random()*(rMax-rMin),s=Math.sqrt(1-u*u);
-      p[i*3]=r*s*Math.cos(a);p[i*3+1]=r*u;p[i*3+2]=r*s*Math.sin(a);const t=tints[i%4],b=.5+Math.random()*.5;col.set([t[0]*b,t[1]*b,t[2]*b],i*3)}
-    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));g.setAttribute('color',new THREE.BufferAttribute(col,3));
-    return new THREE.Points(g,new THREE.PointsMaterial({size,map:dotTex,vertexColors:true,transparent:true,opacity:op,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));
-  }
-  const stars=starField(2600,60,160,.9,.9),dust=starField(420,10,34,.12,.55);
-  scene.add(stars,dust);
-
-  /* fresnel atmosphere */
-  const fresVS='varying vec3 vN;varying vec3 vV;void main(){vec4 mv=modelViewMatrix*vec4(position,1.);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}';
-  const fresFS='uniform vec3 c;uniform float p;uniform float k;varying vec3 vN;varying vec3 vV;void main(){float f=pow(1.-max(dot(vN,vV),0.),p);gl_FragColor=vec4(c*f*k,f*k);}';
-  function fresnel(color,p,k,side){return new THREE.ShaderMaterial({uniforms:{c:{value:new THREE.Color(color)},p:{value:p},k:{value:k}},vertexShader:fresVS,fragmentShader:fresFS,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:side||THREE.FrontSide})}
-
-  /* coin faces */
-  function arcText(g,str,r,font,color){g.save();g.translate(512,512);g.font=font;g.fillStyle=color;g.textAlign='center';g.textBaseline='middle';const st=Math.PI*2/str.length;for(let i=0;i<str.length;i++){g.save();g.rotate(i*st);g.translate(0,-r);g.fillText(str[i],0,0);g.restore()}g.restore()}
-  function front(x,img){
-    const c=cnv(1024),g=c.getContext('2d');
-    g.fillStyle='#0F2140';g.beginPath();g.arc(512,512,512,0,7);g.fill();
-    arcText(g,(' KOREAN STANDARDS ASSOCIATION · '+x.code+' ·').repeat(2),462,'500 30px "IBM Plex Mono", monospace','#D6B26C');
-    g.fillStyle='#FFFFFF';g.beginPath();g.arc(512,512,418,0,7);g.fill();
-    g.strokeStyle='#D6B26C';g.lineWidth=6;g.beginPath();g.arc(512,512,404,0,7);g.stroke();
-    const bw=500,bh=360,s=Math.min(bw/img.width,bh/img.height),w=img.width*s,h=img.height*s;
-    g.imageSmoothingQuality='high';g.drawImage(img,512-w/2,470-h/2,w,h);
-    g.fillStyle='#13284A';g.font='600 40px "Noto Serif KR", serif';g.textAlign='center';g.fillText(x.name,512,770);
-    return tex(turn(c,FACE_A));
-  }
-  function back(x){
-    const c=cnv(1024),g=c.getContext('2d'),r=g.createRadialGradient(400,360,40,512,512,520);
-    r.addColorStop(0,'#24427A');r.addColorStop(1,'#0B1A33');g.fillStyle=r;g.beginPath();g.arc(512,512,512,0,7);g.fill();
-    g.strokeStyle='#D6B26C';g.lineWidth=5;[470,440].forEach(rr=>{g.beginPath();g.arc(512,512,rr,0,7);g.stroke()});
-    arcText(g,(' ★ CERTIFIED · 2026 · '+x.code).repeat(3),405,'500 26px "IBM Plex Mono", monospace','rgba(214,178,108,.85)');
-    g.textAlign='center';g.fillStyle='#D6B26C';g.font='700 190px "Noto Serif KR", serif';g.fillText('KS',512,560);
-    g.fillStyle='#EEF2FA';g.font='500 54px "IBM Plex Mono", monospace';g.fillText(x.code,512,665);
-    g.font='400 34px "IBM Plex Sans KR", sans-serif';g.fillStyle='#A9B5CB';g.fillText(x.name,512,725);
-    return tex(turn(c,BACK_A));
-  }
-
-  /* planets */
-  const ring=new THREE.Group();scene.add(ring);
-  const R=5.2,items=[],hits=[];
-  const coinGeo=new THREE.CylinderGeometry(1,1,.17,128,1);
-  const sideMat=new THREE.MeshPhongMaterial({color:0xC9A25A,specular:0xfff1c8,shininess:90,emissive:0x2a1d05});
-  function build(imgs){
-    IDX.forEach((x,i)=>{
-      const col=new THREE.Color(HEX[x.id]),a=i/N*Math.PI*2,grp=new THREE.Group();
-      grp.position.set(Math.sin(a)*R,0,Math.cos(a)*R);
-      const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:col,transparent:true,opacity:.42,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));
-      halo.scale.set(6.2,6.2,1);grp.add(halo);
-      const fill=new THREE.Mesh(new THREE.SphereGeometry(1.55,48,48),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.07,side:THREE.BackSide,depthWrite:false}));grp.add(fill);
-      const atmo=new THREE.Mesh(new THREE.SphereGeometry(1.6,64,64),fresnel(col,2.4,1.25));grp.add(atmo);hits.push(atmo);atmo.userData.i=i;
-      const outer=new THREE.Mesh(new THREE.SphereGeometry(1.78,48,48),fresnel(col,4,.55,THREE.BackSide));grp.add(outer);
-      /* latitude grid lines for a "planet" read */
-      const lat=new THREE.Group();
-      for(let k=-2;k<=2;k++){const y=k*.5,rr=Math.sqrt(1.56*1.56-y*y);const l=new THREE.Mesh(new THREE.TorusGeometry(rr,.004,4,96),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.22,depthWrite:false}));l.rotation.x=Math.PI/2;l.position.y=y;lat.add(l)}
-      lat.rotation.z=.35;grp.add(lat);
-      const orbit=new THREE.Group();orbit.rotation.set(1.2+i*.08,0,.45-(i%2)*.9);
-      const band=new THREE.Mesh(new THREE.RingGeometry(2.05,2.08,128),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.55,side:THREE.DoubleSide,depthWrite:false}));
-      const band2=new THREE.Mesh(new THREE.RingGeometry(2.16,2.5,128),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.08,side:THREE.DoubleSide,depthWrite:false}));
-      const moon=new THREE.Mesh(new THREE.SphereGeometry(.09,16,16),new THREE.MeshBasicMaterial({color:0xffffff}));
-      const mg=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:col,transparent:true,opacity:.9,depthWrite:false,blending:THREE.AdditiveBlending}));mg.scale.set(.7,.7,1);moon.add(mg);
-      moon.position.x=2.065;const mp=new THREE.Group();mp.add(moon);orbit.add(band,band2,mp);grp.add(orbit);
-      const pivot=new THREE.Group(),coin=new THREE.Mesh(coinGeo,[sideMat,
-        new THREE.MeshPhongMaterial({map:front(x,imgs[i]),emissive:0xffffff,emissiveMap:null,emissiveIntensity:0,specular:0x444444,shininess:70}),
-        new THREE.MeshPhongMaterial({map:back(x),specular:0x555555,shininess:70})]);
-      coin.rotation.x=Math.PI/2;pivot.add(coin);grp.add(pivot);
-      ring.add(grp);
-      items.push({grp,pivot,orbit,mp,lat,halo,atmo,spin:Math.random()*6,flip:0,phase:Math.random()*6});
-    });
-  }
-
-  /* layout: centre projection on the stage box and fit the orbit inside it */
-  let W=1,H=1,dist=16;
-  function layout(){
-    W=host.clientWidth;H=host.clientHeight;renderer.setSize(W,H,false);
-    const hr=host.getBoundingClientRect(),sr=stage.getBoundingClientRect();
-    const navH=stage.querySelector('.space-nav').offsetHeight;
-    const cx=sr.left-hr.left+sr.width/2,cy=sr.top-hr.top+(sr.height-navH)/2,sw=sr.width,sh=sr.height-navH;
-    const ppu=Math.min(sw/(2*R+(W<700?.4:3.2)),sh/(W<700?5.2:6));
-    dist=Math.max(R+6,H/(2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*ppu));
-    camera.aspect=W/H;camera.setViewOffset(W,H,W/2-cx,H/2-cy,W,H);camera.updateProjectionMatrix();
-    scene.fog.near=dist-R*.2;scene.fog.far=dist+R*2.2;
-  }
-
-  /* interaction */
-  const STEP=Math.PI*2/N;
-  let rot=0,target=0,vel=0,dragging=false,downX=0,downY=0,lastX=0,lastT=0,moved=0,px=0,py=0,spx=0,spy=0;
-  const nearestIdx=r=>((Math.round(-r/STEP)%N)+N)%N;
-  api.go=i=>{i=((i%N)+N)%N;let d=(-i*STEP)-target;d=((d%(Math.PI*2))+Math.PI*3)%(Math.PI*2)-Math.PI;target+=d;paint(i)};
-  api.step=d=>{target=Math.round(target/STEP)*STEP-d*STEP;paint(nearestIdx(target))};
-  const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();
-  function pick(e){const r=canvas.getBoundingClientRect();ndc.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(ndc,camera);const h=ray.intersectObjects(hits,false);return h.length?h[0].object.userData.i:-1}
-  canvas.addEventListener('pointerdown',e=>{if(e.button)return;dragging=true;moved=0;downX=lastX=e.clientX;downY=e.clientY;lastT=performance.now();vel=0;canvas.setPointerCapture(e.pointerId);canvas.classList.add('grabbing');poke()});
-  canvas.addEventListener('pointermove',e=>{
-    const r=canvas.getBoundingClientRect();px=(e.clientX-r.left)/r.width*2-1;py=(e.clientY-r.top)/r.height*2-1;
-    if(!dragging){canvas.classList.toggle('hover',pick(e)>=0);return}
-    const dx=e.clientX-lastX,now=performance.now(),k=2.6/Math.max(stage.clientWidth,320);
-    if(Math.abs(e.clientX-downX)>Math.abs(e.clientY-downY)||moved>6)e.preventDefault();
-    moved=Math.max(moved,Math.abs(e.clientX-downX),Math.abs(e.clientY-downY));
-    rot+=dx*k;target=rot;vel=dx*k/Math.max(now-lastT,1)*16;lastX=e.clientX;lastT=now;
-    paint(nearestIdx(rot));
-  });
-  function release(e){
-    if(!dragging)return;dragging=false;canvas.classList.remove('grabbing');
-    if(moved<6){const i=pick(e);if(i>=0){if(i===cur){items[i].flip^=1}else api.go(i)}target=Math.round(target/STEP)*STEP;return}
-    target=Math.round((rot+vel*9)/STEP)*STEP;paint(nearestIdx(target));
-  }
-  canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);
-  canvas.addEventListener('pointerleave',()=>{if(!dragging){px=py=0}});
-  canvas.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){api.step(1);poke();e.preventDefault()}else if(e.key==='ArrowLeft'){api.step(-1);poke();e.preventDefault()}else if(e.key==='Enter'||e.key===' '){items[cur]&&(items[cur].flip^=1);e.preventDefault()}});
-
-  /* loop */
-  let running=true,t0=performance.now(),raf=0,lastAuto=performance.now();
-  function frame(now){
-    raf=requestAnimationFrame(frame);
-    const dt=Math.min((now-t0)/1000,.05);t0=now;
-    if(!dragging)rot+=(target-rot)*(1-Math.pow(.0009,dt));
-    ring.rotation.y=rot;
-    if(!reduce&&!dragging&&now-lastPoke>9000&&now-lastAuto>5200){lastAuto=now;api.step(1)}
-    spx+=(px-spx)*.06;spy+=(py-spy)*.06;
-    camera.position.set(spx*.7,3.1-spy*.5,dist);camera.lookAt(0,0,0);
-    stars.rotation.y+=dt*.006;stars.rotation.x=spy*.03;dust.rotation.y-=dt*.02;dust.rotation.x=spy*.08;
-    const tm=now/1000;
-    items.forEach((it,i)=>{
-      const rel=i*STEP+rot,f=(Math.cos(rel)+1)/2,front=f>.985;
-      const s=.5+.44*f*f;it.grp.scale.setScalar(s);
-      it.grp.rotation.y=-rot;
-      it.grp.position.y=Math.sin(tm*.8+it.phase)*.12*(reduce?0:1);
-      it.halo.material.opacity=.12+.38*f*f;
-      it.atmo.material.uniforms.k.value=.55+.8*f;
-      if(i===cur&&f>.9){
-        const goal=Math.round(it.spin/(Math.PI*2))*Math.PI*2+it.flip*Math.PI;
-        it.spin+=(goal-it.spin)*(1-Math.pow(.004,dt));
-        it.pivot.rotation.set(spy*.32+Math.sin(tm*1.1)*.04,it.spin+spx*.5,0);
-      }else{
-        it.flip=0;const sw=reduce?0:Math.sin(tm*.7+it.phase)*.55;it.spin+=(sw-it.spin)*(1-Math.pow(.05,dt));it.pivot.rotation.set(Math.sin(tm+it.phase)*.12,it.spin,0);
-      }
-      it.mp.rotation.z+=dt*(.5+i*.07);it.lat.rotation.y+=dt*.12;
-    });
-    renderer.render(scene,camera);
-  }
-  function start(){if(!running){running=true;t0=performance.now();raf=requestAnimationFrame(frame)}}
-  function stop(){running=false;cancelAnimationFrame(raf)}
-  new IntersectionObserver(es=>es.forEach(en=>en.isIntersecting?start():stop())).observe(host);
-  new ResizeObserver(layout).observe(host);
-  document.addEventListener('visibilitychange',()=>document.hidden?stop():start());
-
-  const load=src=>new Promise(res=>{const im=new Image();im.onload=()=>res(im);im.onerror=()=>res(null);im.src=src});
-  Promise.all([Promise.all(IDX.map(x=>load(x.logo))),document.fonts?document.fonts.ready:0]).then(([imgs])=>{
-    if(imgs.some(x=>!x)){host.classList.remove('webgl');return}
-    try{build(imgs)}catch(e){host.classList.remove('webgl');return}
-    layout();rot=target=0;paint(0);running=false;start();
   });
 })();
 </script>
