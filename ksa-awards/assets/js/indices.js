@@ -7,8 +7,7 @@ const HOME={
   cqi:'https://www.ksa.or.kr',
   pbi:'https://www.ksa.or.kr',
   well:'https://www.ksa.or.kr',
-  dcxi:'https://www.ksa.or.kr',
-  award:'https://www.ksa.or.kr'   /* 대한민국혁신대상 */
+  dcxi:'https://www.ksa.or.kr'
 };
 window.KSA_INDICES=[
   {id:'qei',color:'#F2C230',homepage:HOME.qei,code:'KS-QEI',name:'한국품질만족지수',en:'Korean Standard Quality Excellence Index',logo:'assets/logos/ks-qei.png',
@@ -32,6 +31,4 @@ window.KSA_INDICES=[
    target:'앱 · 웹 서비스 운영 기업',method:'채널 진단 + 고객 설문',announce:'12월',
    dims:[['사용 편의성',30],['기능 완성도',25],['개인화',20],['보안 · 신뢰',25]]}
 ];
-/* 포상 (지수와 별도로 표시) */
-window.KSA_AWARD={id:'award',code:'KIFA',name:'대한민국혁신대상',en:'Korean Innovation Frontier Award',logo:'assets/logos/innovation.png',homepage:HOME.award};
 })();
