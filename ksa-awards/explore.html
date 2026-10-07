@@ -266,7 +266,7 @@ function openDetail(i){
     <dl class="dr-meta"><div><dt>평가 대상</dt><dd>${x.target}</dd></div><div><dt>결과 발표</dt><dd>매년 ${x.announce}</dd></div></dl>
     <div class="dims">${x.dims.map(([n,w])=>`<div class="dim"><span>${n}</span><span class="bar"><i style="width:${w/40*100}%"></i></span><span class="w">${w}%</span></div>`).join('')}</div>`;
   $('drActions').innerHTML=`<a class="btn" href="${x.homepage}" target="_blank" rel="noopener">${x.code} 공식 홈페이지 <span class="arr">↗</span></a>
-    <div class="row"><a class="btn ghost" href="index.html#booking">상담 예약</a><button class="btn ghost" type="button" id="nextSig">다음 신호 찾기</button></div>`;
+    <div class="row"><a class="btn ghost" href="index.html#indices">평가 기준 비교</a><button class="btn ghost" type="button" id="nextSig">다음 신호 찾기</button></div>`;
   $('drBody').scrollTop=0;drawer.classList.add('open');
   $('nextSig').onclick=()=>api.next();
 }

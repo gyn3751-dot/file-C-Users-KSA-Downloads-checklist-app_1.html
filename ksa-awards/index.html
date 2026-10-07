@@ -91,53 +91,49 @@ p{margin:0}
   .menu-btn{display:block}
 }
 
-/* ── Orbit hero (single deep-space look in both themes) ── */
-:root{--sp-bg:#04070F;--sp-fg:#EEF2FA;--sp-mute:#94A1BB;--sp-line:rgba(255,255,255,.12);--sp-line-2:rgba(255,255,255,.28);--sp-gold:#D6B26C}
-.space{position:relative;color:var(--sp-fg);overflow:hidden;isolation:isolate;
-  background:
-    radial-gradient(50% 60% at 70% 48%,#132857 0%,transparent 64%),
-    radial-gradient(36% 46% at 10% 90%,#28153F 0%,transparent 66%),
-    radial-gradient(28% 38% at 98% 96%,#0D3B4B 0%,transparent 70%),
-    var(--sp-bg)}
-.space::after{content:"";position:absolute;inset:auto 0 0 0;height:120px;z-index:1;pointer-events:none;background:linear-gradient(to bottom,transparent,rgba(4,7,15,.6))}
-#spaceCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;display:block}
-#spaceCanvas.hot{cursor:pointer}
-.space-grid{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);column-gap:clamp(1.5rem,4vw,4rem);align-items:center;padding-block:clamp(3rem,6vw,5rem);min-height:clamp(600px,84vh,820px);pointer-events:none}
-.space-copy,.space .plaques,.orbit-legend{pointer-events:auto}
-.space .eyebrow{color:var(--sp-gold)}
-.space h1{font-size:clamp(2rem,3.4vw,3rem);line-height:1.22;margin-block:var(--s-5);color:var(--sp-fg)}
-.space h1 em{font-style:normal;color:var(--sp-gold)}
-.space-lede{color:var(--sp-mute);max-width:30em}
-.space .hero-cta{display:flex;flex-wrap:wrap;gap:var(--s-3);margin-top:var(--s-6)}
-.space .btn{background:var(--sp-fg);color:var(--sp-bg);border-color:var(--sp-fg)}
-.space .btn:hover{background:transparent;color:var(--sp-fg)}
-.space .btn.ghost{background:transparent;color:var(--sp-fg);border-color:var(--sp-line-2)}
-.space .btn.ghost:hover{background:var(--sp-fg);color:var(--sp-bg);border-color:var(--sp-fg)}
-.space-stage{position:relative;align-self:stretch;min-height:460px;display:flex;flex-direction:column;justify-content:flex-end}
-.orbit-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.06em;color:var(--sp-mute);padding-top:var(--s-4)}
-.orbit-legend button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inherit;cursor:pointer;display:flex;align-items:center;gap:7px;padding:4px 0;transition:color .25s}
-.orbit-legend button:hover,.orbit-legend button.on{color:var(--sp-fg)}
-.orbit-legend i{width:7px;height:7px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c)}
-.sat-tag{position:absolute;left:0;top:0;z-index:3;pointer-events:none;transform:translate(-50%,-100%);opacity:0;transition:opacity .25s;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:4px}
-.sat-tag.show{opacity:1}
-.sat-tag .chip{background:rgba(6,11,24,.78);border:1px solid var(--c,var(--sp-line-2));padding:6px 11px;font-size:.78rem;display:flex;gap:9px;align-items:baseline;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.sat-tag .chip b{font-family:var(--f-mono);font-weight:500;color:var(--c,var(--sp-gold));font-size:.72rem;letter-spacing:.06em}
-.sat-tag .chip span{color:var(--sp-fg)}
-.sat-tag .stem{width:1px;height:16px;background:linear-gradient(var(--c,#fff),transparent)}
-.space .plaques{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:.75rem;margin-block:auto}
-.space.webgl .plaques{display:none}
-.plaque{grid-column:span 2;background:var(--plaque);color:#101B2E;display:flex;flex-direction:column;cursor:pointer;border:0;padding:0;text-align:left;transition:transform .45s var(--ease)}
-.plaque:nth-child(4),.plaque:nth-child(5){grid-column:span 3}
-.plaque:hover{transform:translateY(-4px)}
-.plaque .logo{flex:1;display:grid;place-items:center;padding:1.2rem .75rem;min-height:110px}
-.plaque .logo img{max-height:64px;width:auto}
-.plaque .cap{display:flex;flex-direction:column;line-height:1.35;padding:.55rem .75rem;border-top:1px solid #E6E9EF;font-size:.72rem;color:#4A5568}
-.plaque .cap b{font-family:var(--f-mono);font-weight:500;color:#101B2E}
-@media (max-width:900px){
-  .space-grid{grid-template-columns:minmax(0,1fr);min-height:0;row-gap:var(--s-4)}
-  .space-stage{min-height:clamp(360px,96vw,520px)}
-  .space .hero-cta{margin-top:var(--s-5)}
-}
+/* ── Hero: certificate board with orbiting logo plaques ── */
+.hero{padding-block:var(--s-7) var(--s-8)}
+.hero-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(2rem,5vw,4.5rem);align-items:center}
+.hero h1{font-size:clamp(2rem,3.6vw,3.05rem);line-height:1.22;margin-block:var(--s-5)}
+.hero h1 em{font-style:normal;color:var(--brass)}
+.hero-lede{color:var(--ink-2);font-size:1.04rem;max-width:32em}
+.hero-cta{display:flex;flex-wrap:wrap;gap:var(--s-3);margin-top:var(--s-6)}
+.hero-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:var(--s-7) 0 0;border-top:1px solid var(--rule)}
+.hero-facts div{padding:var(--s-4) var(--s-4) 0 0}
+.hero-facts dt{font-size:.75rem;color:var(--ink-3)}
+.hero-facts dd{margin:var(--s-1) 0 0;font-family:var(--f-display);font-size:1.5rem;font-weight:600}
+.hero-facts dd small{font-family:var(--f-body);font-size:.8rem;font-weight:400;color:var(--ink-2);margin-left:2px}
+
+.board{position:relative;background:var(--navy);color:var(--on-navy);padding:clamp(1.1rem,2.6vw,2rem);isolation:isolate;overflow:hidden}
+.board::before{content:"";position:absolute;inset:0;z-index:-1;background-image:linear-gradient(to right,rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.05) 1px,transparent 1px);background-size:calc(100%/12) 44px}
+.board::after{content:"";position:absolute;width:80%;aspect-ratio:1;left:10%;top:12%;z-index:-1;background:radial-gradient(closest-side,var(--navy-2),transparent);opacity:.95}
+.board-head{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;color:var(--on-navy-2);text-transform:uppercase;padding-bottom:var(--s-4);border-bottom:1px solid rgba(255,255,255,.14)}
+.orbit{position:relative;height:clamp(330px,33vw,430px);margin-block:var(--s-3)}
+.orbit svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.orbit ellipse{fill:none;stroke:rgba(255,255,255,.2);stroke-width:1;stroke-dasharray:3 6}
+.orbit ellipse.faint{stroke:rgba(255,255,255,.08);stroke-dasharray:none}
+.orbit ellipse.gold{stroke:color-mix(in srgb,var(--brass) 55%,transparent);stroke-dasharray:1 7;stroke-linecap:round}
+.core{position:absolute;left:50%;top:50%;width:122px;height:122px;transform:translate(-50%,-50%);z-index:50;display:grid;place-items:center;text-align:center;color:var(--brass);pointer-events:none}
+.core svg{position:absolute;inset:0;animation:spin 40s linear infinite}
+.core text{font-family:var(--f-mono);font-size:8.6px;letter-spacing:.18em;fill:var(--brass)}
+.core::before{content:"";position:absolute;inset:16px;border-radius:50%;border:1px solid var(--brass);background:radial-gradient(circle at 35% 30%,var(--navy-2),var(--navy) 70%);box-shadow:0 0 40px rgba(201,167,102,.18)}
+.core b{position:relative;font-family:var(--f-display);font-size:1.9rem;font-weight:700;line-height:1}
+.core b small{display:block;font-family:var(--f-mono);font-size:.5rem;font-weight:400;letter-spacing:.06em;color:var(--on-navy-2);margin-top:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.orb-plaque{--pw:clamp(104px,10.5vw,136px);position:absolute;left:0;top:0;width:var(--pw);background:var(--plaque);color:#101B2E;border:0;padding:0;text-align:left;cursor:pointer;display:flex;flex-direction:column;box-shadow:0 22px 32px -20px rgba(0,0,0,.75);will-change:transform;transition:box-shadow .35s,outline-color .35s;outline:1px solid transparent;outline-offset:3px}
+.orb-plaque::before{content:"";height:3px;background:var(--c)}
+.orb-plaque:hover,.orb-plaque:focus-visible{outline-color:var(--brass);box-shadow:0 26px 40px -18px rgba(0,0,0,.85)}
+.orb-plaque .logo{display:grid;place-items:center;height:calc(var(--pw)*.62);padding:.6rem}
+.orb-plaque .logo img{max-height:calc(var(--pw)*.44);max-width:calc(var(--pw)*.8);width:auto;height:auto;object-fit:contain}
+.orb-plaque .cap{display:flex;justify-content:center;align-items:center;gap:7px;padding:.42rem .5rem;border-top:1px solid #E6E9EF;line-height:1.2;white-space:nowrap}
+.orb-plaque .cap i{width:6px;height:6px;border-radius:50%;background:var(--c);flex:none}
+.orb-plaque .cap b{font-family:var(--f-mono);font-weight:500;color:#101B2E;font-size:.68rem;letter-spacing:.04em}
+.sat{position:absolute;left:0;top:0;width:7px;height:7px;border-radius:50%;background:var(--brass);box-shadow:0 0 12px var(--brass);z-index:5;pointer-events:none}
+.board-foot{display:flex;align-items:center;gap:var(--s-4);padding-top:var(--s-4);border-top:1px solid rgba(255,255,255,.14);font-size:.8rem;color:var(--on-navy-2)}
+.board-foot .legend-dots{display:flex;gap:6px;flex:none}
+.board-foot .legend-dots i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+@media (max-width:960px){.hero-grid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:520px){.orbit{height:300px}.orb-plaque{--pw:92px}.core{width:96px;height:96px}.core b{font-size:1.5rem}.hero-facts dd{font-size:1.2rem}}
 /* ── Marquee strip ── */
 .strip{border-block:1px solid var(--rule);overflow:hidden;background:var(--sheet)}
 .strip-track{display:flex;gap:var(--s-8);width:max-content;padding-block:var(--s-4);animation:slide 40s linear infinite;font-family:var(--f-mono);font-size:.78rem;letter-spacing:.12em;color:var(--ink-3);text-transform:uppercase}
@@ -238,100 +234,6 @@ section.block{padding-block:var(--s-9)}
 .legend .l-award{background:var(--ink)}
 .legend .disc{margin-left:auto;color:var(--ink-3)}
 
-/* ── Booking ── */
-.booking{background:var(--navy);color:var(--on-navy);position:relative;isolation:isolate;overflow:hidden}
-.booking::before{content:"";position:absolute;inset:0;z-index:-1;background-image:linear-gradient(to right,rgba(255,255,255,.04) 1px,transparent 1px);background-size:calc(100%/12) 100%}
-.booking .eyebrow{color:var(--brass)}
-.booking .sec-head p{color:var(--on-navy-2)}
-.book-grid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);gap:clamp(1.5rem,4vw,4rem);align-items:start}
-.book-aside{display:flex;flex-direction:column;gap:var(--s-5)}
-.book-aside .card{border:1px solid rgba(255,255,255,.16);padding:var(--s-5)}
-.book-aside h3{font-family:var(--f-body);font-size:.95rem;font-weight:600;margin-bottom:var(--s-3)}
-.book-aside ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:var(--s-2);font-size:.88rem;color:var(--on-navy-2)}
-.book-aside li{display:flex;gap:var(--s-3)}
-.book-aside li::before{content:"—";color:var(--brass)}
-.contact-line{display:flex;justify-content:space-between;gap:var(--s-3);font-size:.86rem;padding-block:var(--s-2);border-bottom:1px solid rgba(255,255,255,.1)}
-.contact-line:last-child{border-bottom:0}
-.contact-line span{color:var(--on-navy-2)}
-
-.form{background:var(--sheet);color:var(--ink);padding:clamp(1.25rem,3.5vw,2.75rem);display:flex;flex-direction:column;gap:var(--s-6)}
-.form fieldset{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction:column;gap:var(--s-4)}
-.form legend{padding:0;margin-bottom:var(--s-4);display:flex;align-items:baseline;gap:var(--s-3);font-weight:600;font-size:1rem}
-.form legend .mono{font-size:.72rem;color:var(--brass);font-weight:400}
-.chips{display:flex;flex-wrap:wrap;gap:var(--s-2)}
-.chip{position:relative}
-.chip input{position:absolute;opacity:0;pointer-events:none}
-.chip label{display:inline-flex;align-items:center;gap:.5em;height:40px;padding-inline:1em;border:1px solid var(--rule);font-size:.86rem;cursor:pointer;transition:border-color .2s,background .2s,color .2s;user-select:none}
-.chip label:hover{border-color:var(--ink-3)}
-.chip input:checked+label{border-color:var(--ink);background:var(--ink);color:var(--sheet)}
-.chip input:focus-visible+label{outline:2px solid var(--brass);outline-offset:2px}
-.chip label .mono{font-size:.7rem;opacity:.7}
-
-.cal-row{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:var(--s-5)}
-.cal{border:1px solid var(--rule);padding:var(--s-4)}
-.cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--s-3)}
-.cal-head b{font-family:var(--f-mono);font-weight:500;font-size:.9rem}
-.cal-head button{width:32px;height:32px;border:1px solid var(--rule);background:none;cursor:pointer;display:grid;place-items:center}
-.cal-head button:disabled{opacity:.3;cursor:default}
-.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;text-align:center}
-.cal-grid .dow{font-size:.68rem;color:var(--ink-3);padding-block:4px;font-family:var(--f-mono)}
-.cal-grid button{aspect-ratio:1;max-width:100%;border:0;background:none;font-family:var(--f-mono);font-size:.82rem;cursor:pointer;position:relative;transition:background .2s,color .2s}
-.cal-grid button:hover:not(:disabled){background:var(--paper)}
-.cal-grid button:disabled{color:var(--ink-3);opacity:.4;cursor:default;text-decoration:line-through;text-decoration-thickness:1px}
-.cal-grid button.today::after{content:"";position:absolute;left:50%;bottom:5px;width:4px;height:4px;border-radius:50%;background:var(--brass);transform:translateX(-50%)}
-.cal-grid button[aria-pressed="true"]{background:var(--ink);color:var(--sheet)}
-.slots{display:flex;flex-direction:column;gap:var(--s-2)}
-.slots-head{font-size:.8rem;color:var(--ink-3);margin-bottom:var(--s-1)}
-.slots-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s-2)}
-.slot{height:42px;border:1px solid var(--rule);background:none;cursor:pointer;font-family:var(--f-mono);font-size:.84rem;display:flex;align-items:center;justify-content:center;gap:.4em;transition:.2s}
-.slot:hover:not(:disabled){border-color:var(--ink)}
-.slot:disabled{color:var(--ink-3);cursor:default;background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--rule) 70%,transparent) 5px 6px)}
-.slot[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
-.slot small{font-family:var(--f-body);font-size:.66rem;opacity:.75}
-.slots-empty{border:1px dashed var(--rule);padding:var(--s-5);font-size:.84rem;color:var(--ink-3);text-align:center}
-
-.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s-4) var(--s-5)}
-.field{display:flex;flex-direction:column;gap:6px;min-width:0}
-.field.full{grid-column:1/-1}
-.field label{font-size:.8rem;color:var(--ink-2)}
-.field label .req{color:var(--brass)}
-.field input,.field select,.field textarea{width:100%;height:48px;border:0;border-bottom:1px solid var(--rule);background:transparent;padding:0 2px;font-size:.95rem;border-radius:0;transition:border-color .2s;outline:none}
-.field textarea{height:96px;padding-top:var(--s-3);resize:vertical;border:1px solid var(--rule);padding-inline:var(--s-3)}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--ink)}
-.field.err input,.field.err select{border-color:#B4432F}
-.field .msg{font-size:.74rem;color:#B4432F;min-height:1em}
-.agree{display:flex;gap:var(--s-3);align-items:flex-start;font-size:.84rem;color:var(--ink-2)}
-.agree input{width:18px;height:18px;margin-top:3px;accent-color:var(--ink)}
-.form-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:var(--s-4);padding-top:var(--s-5);border-top:1px solid var(--rule)}
-.summary{font-size:.84rem;color:var(--ink-2)}
-.summary b{color:var(--ink);font-weight:500}
-@media (max-width:960px){.book-grid{grid-template-columns:minmax(0,1fr)}.book-aside{order:2}}
-@media (max-width:620px){.cal-row,.fields{grid-template-columns:minmax(0,1fr)}}
-
-.done{background:var(--sheet);color:var(--ink);padding:clamp(1.5rem,4vw,3rem);display:flex;flex-direction:column;gap:var(--s-5);animation:fade .6s var(--ease)}
-.done .seal{width:64px;height:64px;font-size:.66rem}
-.done h3{font-size:1.6rem}
-.ticket{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--ink)}
-.ticket div{padding:var(--s-4) var(--s-4) var(--s-4) 0;border-bottom:1px solid var(--rule);min-width:0}
-.ticket dt{font-size:.74rem;color:var(--ink-3)}
-.ticket dd{margin:4px 0 0;font-weight:500;overflow-wrap:anywhere}
-.done p{color:var(--ink-2);font-size:.9rem}
-
-/* ── FAQ ── */
-.faq-grid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);gap:clamp(1.5rem,5vw,5rem)}
-.faq-grid .sec-head{display:block;margin:0}
-.faq-grid .sec-head p{margin-top:var(--s-4)}
-.faq{border-top:1px solid var(--ink)}
-.faq details{border-bottom:1px solid var(--rule)}
-.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:var(--s-4);padding-block:var(--s-5);font-weight:500}
-.faq summary::-webkit-details-marker{display:none}
-.faq summary .pm{flex:none;width:14px;height:14px;position:relative}
-.faq summary .pm::before,.faq summary .pm::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:var(--ink);transition:transform .3s var(--ease)}
-.faq summary .pm::after{transform:rotate(90deg)}
-.faq details[open] summary .pm::after{transform:rotate(0)}
-.faq details p{padding-bottom:var(--s-5);color:var(--ink-2);max-width:44em;font-size:.94rem}
-@media (max-width:860px){.faq-grid{grid-template-columns:minmax(0,1fr)}}
-
 /* ── Footer ── */
 footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font-size:.84rem;color:var(--ink-2)}
 .foot-grid{display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:var(--s-6)}
@@ -340,9 +242,6 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
 .foot-grid a:hover{color:var(--ink)}
 .foot-bottom{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--s-3);margin-top:var(--s-7);padding-top:var(--s-4);border-top:1px solid var(--rule);font-size:.76rem;color:var(--ink-3)}
 @media (max-width:760px){.foot-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.foot-grid>div:first-child{grid-column:1/-1}}
-
-.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--paper);padding:.8em 1.3em;font-size:.86rem;opacity:0;pointer-events:none;transition:.35s var(--ease);z-index:80;max-width:calc(100% - 32px)}
-.toast.show{opacity:1;transform:translate(-50%,0)}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style>
@@ -356,38 +255,49 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
       <span class="brand-text"><b>한국표준협회</b><span>지수 · 포상 센터</span></span>
     </a>
     <nav class="nav" id="nav" aria-label="주요 메뉴">
-      <a href="explore.html">탐사 모드</a>
       <a href="#indices">지수 소개</a>
       <a href="#process">참여 절차</a>
       <a href="#schedule">연간 일정</a>
-      <a href="#faq">자주 묻는 질문</a>
-      <a href="#booking" class="btn sm">상담 예약 <span class="arr">→</span></a>
+      <a href="explore.html" class="btn sm">탐사 모드 <span class="arr">↗</span></a>
     </nav>
     <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false" aria-controls="nav"><i></i><i></i></button>
   </div>
 </header>
 
 <main>
-  <!-- Hero: index satellites orbiting the KSA globe -->
-  <section class="space" id="space" aria-label="한국표준협회 지수">
-    <canvas id="spaceCanvas" aria-hidden="true"></canvas>
-    <div class="wrap space-grid">
-      <div class="space-copy">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
         <p class="eyebrow">Korean Standards Association · Index &amp; Awards</p>
         <h1>고객이 증명한 품질,<br>국가 <em>표준</em>의 이름으로<br>인정받습니다.</h1>
-        <p class="space-lede">KS 표준 기반 측정모델로 평가하는 다섯 개의 지수가 하나의 기준을 중심으로 움직입니다. 우리 기업에 맞는 지수를 찾고 참여 상담을 예약하세요.</p>
+        <p class="hero-lede">한국표준협회는 KS 표준에 기반한 측정모델로 제품과 서비스의 품질, 브랜드 가치, 고객경험을 객관적으로 평가합니다. 다섯 개 지수의 평가 기준을 살펴보세요.</p>
         <div class="hero-cta">
-          <a href="#booking" class="btn">참여 상담 예약 <span class="arr">→</span></a>
+          <a href="#indices" class="btn">지수 살펴보기 <span class="arr">→</span></a>
           <a href="explore.html" class="btn ghost">화성에서 지수 찾기 <span class="arr">↗</span></a>
         </div>
+        <dl class="hero-facts">
+          <div><dt>운영 지수</dt><dd>5<small>개</small></dd></div>
+          <div><dt>평가 척도</dt><dd>100<small>점 만점</small></dd></div>
+          <div><dt>조사 주기</dt><dd>연 1<small>회</small></dd></div>
+        </dl>
       </div>
-      <div class="space-stage" id="stage">
-        <div class="plaques" id="plaques"></div>
-        <div class="orbit-legend" id="legend" aria-label="궤도 위의 지수"></div>
+
+      <div class="board" aria-label="한국표준협회 지수 인증 로고">
+        <div class="board-head"><span>KSA Index Portfolio</span><span class="mono">2026</span></div>
+        <div class="orbit" id="orbit">
+          <svg id="orbitSvg" aria-hidden="true"><ellipse class="faint"/><ellipse class="main"/><ellipse class="gold"/></svg>
+          <div class="core" aria-hidden="true">
+            <svg viewBox="0 0 122 122"><defs><path id="coreRing" d="M61,61 m-52,0 a52,52 0 1,1 104,0 a52,52 0 1,1 -104,0"/></defs><text><textPath href="#coreRing">KOREAN STANDARDS ASSOCIATION · CERTIFIED ·</textPath></text></svg>
+            <b>KS<small>INDEX · 2026</small></b>
+          </div>
+          <span class="sat" id="orbitSat" aria-hidden="true"></span>
+        </div>
+        <div class="board-foot"><span class="legend-dots" id="legendDots"></span><span>인증 로고를 선택하면 지수별 평가 기준을 볼 수 있습니다.</span></div>
       </div>
     </div>
-    <div class="sat-tag" id="satTag" aria-hidden="true"><span class="chip"><b></b><span></span></span><span class="stem"></span></div>
   </section>
+
   <div class="strip" aria-hidden="true">
     <div class="strip-track">
       <span>KS-QEI 한국품질만족지수</span><span>KS-CQI 콜센터품질지수</span><span>KS-PBI 프리미엄브랜드지수</span><span>Wellness 한국웰니스지수</span><span>DCXI 디지털고객경험지수</span>
@@ -424,7 +334,7 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
         <p>모든 지수는 같은 여섯 단계를 거칩니다. 조사 기간과 평가 방식은 지수별로 다르며, 첫 상담에서 일정과 준비 서류를 안내해 드립니다.</p>
       </div>
       <ol class="steps">
-        <li><h3>상담 예약</h3><p>참여 지수와 업종을 확인하고 담당 연구원과 상담 일정을 정합니다.</p><span class="when">D-120</span></li>
+        <li><h3>참여 문의</h3><p>참여 지수와 업종을 확인하고 담당 연구원과 진행 일정을 정합니다.</p><span class="when">D-120</span></li>
         <li><h3>참여 신청</h3><p>신청서와 기업 기본자료를 제출하고 조사 대상 브랜드를 확정합니다.</p><span class="when">D-90</span></li>
         <li><h3>고객 조사</h3><p>실사용 고객 대상 설문, 미스터리 콜, 디지털 채널 진단을 수행합니다.</p><span class="when">D-60</span></li>
         <li><h3>평가·심의</h3><p>측정모델로 지수를 산출하고 외부 전문가 위원회가 결과를 심의합니다.</p><span class="when">D-20</span></li>
@@ -459,112 +369,6 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
     </div>
   </section>
 
-  <!-- Booking -->
-  <section class="block booking" id="booking">
-    <div class="wrap">
-      <div class="sec-head">
-        <div>
-          <p class="eyebrow">Reservation</p>
-          <h2>참여 상담 예약</h2>
-        </div>
-        <p>원하는 지수와 상담 방식, 일시를 선택해 주세요. 담당 연구원이 영업일 기준 1일 안에 확정 연락을 드립니다.</p>
-      </div>
-
-      <div class="book-grid">
-        <aside class="book-aside">
-          <div class="card">
-            <h3>상담에서 안내하는 내용</h3>
-            <ul>
-              <li>업종 분류와 조사 대상 브랜드 범위</li>
-              <li>지수별 측정 차원과 평가 방식</li>
-              <li>참여 비용과 조사 일정</li>
-              <li>인증 로고 사용 범위와 기간</li>
-            </ul>
-          </div>
-          <div class="card">
-            <h3>상담 운영 안내</h3>
-            <div class="contact-line"><span>운영 시간</span><b class="mono">평일 09:00–18:00</b></div>
-            <div class="contact-line"><span>상담 시간</span><b>회당 40분</b></div>
-            <div class="contact-line"><span>방문 상담</span><b>서울 강남구 테헤란로 305</b></div>
-          </div>
-        </aside>
-
-        <div id="bookArea">
-          <form class="form" id="bookForm" novalidate>
-            <fieldset>
-              <legend><span class="mono">STEP 1</span>참여 희망 지수</legend>
-              <div class="chips" id="idxChips"></div>
-            </fieldset>
-
-            <fieldset>
-              <legend><span class="mono">STEP 2</span>상담 방식</legend>
-              <div class="chips">
-                <span class="chip"><input type="radio" name="mode" id="mode-online" value="온라인 화상" checked><label for="mode-online">온라인 화상</label></span>
-                <span class="chip"><input type="radio" name="mode" id="mode-visit" value="협회 방문"><label for="mode-visit">협회 방문</label></span>
-                <span class="chip"><input type="radio" name="mode" id="mode-phone" value="전화"><label for="mode-phone">전화</label></span>
-              </div>
-            </fieldset>
-
-            <fieldset>
-              <legend><span class="mono">STEP 3</span>상담 일시</legend>
-              <div class="cal-row">
-                <div class="cal">
-                  <div class="cal-head">
-                    <button type="button" id="calPrev" aria-label="이전 달">‹</button>
-                    <b id="calTitle"></b>
-                    <button type="button" id="calNext" aria-label="다음 달">›</button>
-                  </div>
-                  <div class="cal-grid" id="calGrid"></div>
-                </div>
-                <div class="slots">
-                  <p class="slots-head" id="slotsHead">날짜를 먼저 선택해 주세요.</p>
-                  <div id="slotsBody"><div class="slots-empty">달력에서 평일을 선택하면<br>예약 가능한 시간이 표시됩니다.</div></div>
-                </div>
-              </div>
-            </fieldset>
-
-            <fieldset>
-              <legend><span class="mono">STEP 4</span>신청 기업 정보</legend>
-              <div class="fields">
-                <div class="field"><label for="f-company">기업명 <span class="req">*</span></label><input id="f-company" name="company" autocomplete="organization" placeholder="예: 한빛전자 주식회사"><span class="msg"></span></div>
-                <div class="field"><label for="f-industry">업종 <span class="req">*</span></label>
-                  <select id="f-industry" name="industry"><option value="">선택해 주세요</option><option>제조 · 전자/가전</option><option>제조 · 생활/소비재</option><option>금융 · 은행/카드/보험</option><option>유통 · 백화점/마트/이커머스</option><option>통신 · 방송</option><option>의료 · 헬스케어</option><option>공공기관</option><option>기타 서비스</option></select><span class="msg"></span></div>
-                <div class="field"><label for="f-name">담당자명 <span class="req">*</span></label><input id="f-name" name="name" autocomplete="name" placeholder="홍길동"><span class="msg"></span></div>
-                <div class="field"><label for="f-dept">부서 / 직책</label><input id="f-dept" name="dept" autocomplete="organization-title" placeholder="고객경험팀 과장"><span class="msg"></span></div>
-                <div class="field"><label for="f-phone">연락처 <span class="req">*</span></label><input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000"><span class="msg"></span></div>
-                <div class="field"><label for="f-email">이메일 <span class="req">*</span></label><input id="f-email" name="email" type="email" autocomplete="email" placeholder="name@company.co.kr"><span class="msg"></span></div>
-                <div class="field full"><label for="f-memo">문의 내용</label><textarea id="f-memo" name="memo" placeholder="조사 대상 브랜드, 지난해 참여 여부 등 미리 알려주시면 상담이 빨라집니다."></textarea></div>
-              </div>
-              <label class="agree"><input type="checkbox" id="f-agree"> <span>상담 진행을 위한 개인정보(이름, 연락처, 이메일) 수집·이용에 동의합니다. 수집된 정보는 상담 종료 후 1년간 보관됩니다.</span></label>
-            </fieldset>
-
-            <div class="form-foot">
-              <p class="summary" id="summary">지수와 일시를 선택해 주세요.</p>
-              <button class="btn" type="submit">예약 신청 <span class="arr">→</span></button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ -->
-  <section class="block" id="faq">
-    <div class="wrap faq-grid">
-      <div class="sec-head">
-        <p class="eyebrow">FAQ</p>
-        <h2>자주 묻는 질문</h2>
-        <p>더 궁금한 점은 상담 예약 시 문의 내용에 남겨 주세요.</p>
-      </div>
-      <div class="faq">
-        <details open><summary>여러 지수에 동시에 참여할 수 있나요?<span class="pm"></span></summary><p>네. 예약 화면에서 지수를 여러 개 선택하면 한 번의 상담에서 지수별 일정과 조건을 함께 안내해 드립니다. 조사 기간이 겹치는 경우 일정 조율을 도와드립니다.</p></details>
-        <details><summary>조사 대상 고객은 어떻게 선정하나요?<span class="pm"></span></summary><p>최근 1년 안에 해당 제품이나 서비스를 이용한 고객을 대상으로 업종별 표본 설계 기준에 따라 무작위로 추출합니다. 참여 기업이 응답자를 직접 지정하지 않습니다.</p></details>
-        <details><summary>결과 보고서에는 어떤 내용이 담기나요?<span class="pm"></span></summary><p>지수 점수와 업종 내 위치, 측정 차원별 점수, 경쟁사 대비 강점과 개선 과제를 담은 진단 보고서를 제공합니다.</p></details>
-        <details><summary>인증 로고는 언제부터 얼마 동안 사용할 수 있나요?<span class="pm"></span></summary><p>결과 발표일부터 1년간 광고, 제품 패키지, 홈페이지 등에 사용할 수 있습니다. 로고 사용 시 인증 연도와 지수명을 함께 표기해야 합니다.</p></details>
-        <details><summary>예약을 변경하거나 취소하려면 어떻게 하나요?<span class="pm"></span></summary><p>예약 확정 연락을 받은 담당 연구원에게 상담 하루 전까지 알려 주시면 일정을 변경하거나 취소할 수 있습니다.</p></details>
-      </div>
-    </div>
-  </section>
 </main>
 
 <footer>
@@ -575,17 +379,15 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
         <p style="margin-top:1rem;max-width:28em">서울특별시 강남구 테헤란로 305 한국기술센터</p>
       </div>
       <div><h4>지수</h4><ul><li><a href="#indices" data-idx="qei">KS-QEI</a></li><li><a href="#indices" data-idx="cqi">KS-CQI</a></li><li><a href="#indices" data-idx="pbi">KS-PBI</a></li><li><a href="#indices" data-idx="well">Wellness</a></li><li><a href="#indices" data-idx="dcxi">DCXI</a></li></ul></div>
-      <div><h4>안내</h4><ul><li><a href="#process">참여 절차</a></li><li><a href="#schedule">연간 일정</a></li><li><a href="#faq">자주 묻는 질문</a></li></ul></div>
-      <div><h4>예약</h4><ul><li><a href="#booking">상담 예약</a></li><li><a href="https://www.ksa.or.kr" target="_blank" rel="noopener">협회 홈페이지 ↗</a></li></ul></div>
+      <div><h4>안내</h4><ul><li><a href="#process">참여 절차</a></li><li><a href="#schedule">연간 일정</a></li></ul></div>
+      <div><h4>바로가기</h4><ul><li><a href="explore.html">화성 탐사 모드</a></li><li><a href="https://www.ksa.or.kr" target="_blank" rel="noopener">협회 홈페이지 ↗</a></li></ul></div>
     </div>
     <div class="foot-bottom"><span>© 2026 Korean Standards Association. All rights reserved.</span><span>개인정보처리방침 · 이용약관</span></div>
   </div>
 </footer>
 
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="assets/js/indices.js"></script>
-<script src="assets/js/logo-data.js"></script>
 <script>
 (function(){
   const INDICES=window.KSA_INDICES;
@@ -607,11 +409,6 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
   menuBtn.addEventListener('click',()=>{const o=nav.classList.toggle('open');menuBtn.setAttribute('aria-expanded',o)});
   nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');menuBtn.setAttribute('aria-expanded','false')}));
 
-  /* hero plaques */
-  $('#plaques').innerHTML=INDICES.map(i=>`<button class="plaque" type="button" data-idx="${i.id}" aria-label="${i.name} ${i.code} 자세히 보기">
-    <span class="logo"><img src="${i.logo}" alt="${i.code} 로고"></span>
-    <span class="cap"><span>${i.name}</span><b>${i.code}</b></span></button>`).join('');
-
   /* explorer */
   const list=$('#idxList'),detail=$('#idxDetail');
   list.innerHTML=INDICES.map(i=>`<li><button type="button" role="tab" id="tab-${i.id}" data-idx="${i.id}" aria-selected="false">
@@ -626,7 +423,7 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
       <p class="d-desc">${i.desc}</p>
       <dl class="d-meta"><div><dt>평가 대상</dt><dd>${i.target}</dd></div><div><dt>평가 방식</dt><dd>${i.method}</dd></div><div><dt>결과 발표</dt><dd>매년 ${i.announce}</dd></div></dl>
       <div class="d-dims"><h4>측정 차원 · 가중치 (100점 환산)</h4><div class="dims">${i.dims.map(([n,w])=>`<div class="dim"><span>${n}</span><span class="bar"><i style="width:${w/40*100}%"></i></span><span class="w">${w}%</span></div>`).join('')}</div></div>
-      <div class="d-actions"><a href="#booking" class="btn" data-book="${i.id}">${i.code} 상담 예약 <span class="arr">→</span></a><a href="${i.homepage}" class="btn ghost" target="_blank" rel="noopener">공식 홈페이지 <span class="arr">↗</span></a><span class="note">가중치는 업종에 따라 조정될 수 있습니다.</span></div>`;
+      <div class="d-actions"><a href="${i.homepage}" class="btn" target="_blank" rel="noopener">${i.code} 공식 홈페이지 <span class="arr">↗</span></a><span class="note">가중치는 업종에 따라 조정될 수 있습니다.</span></div>`;
     detail.classList.remove('swap');void detail.offsetWidth;detail.classList.add('swap');
     if(scroll)document.getElementById('indices').scrollIntoView({behavior:'smooth'});
   }
@@ -639,11 +436,8 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
   document.addEventListener('click',e=>{
     const p=e.target.closest('.plaque,[data-idx]:not([role="tab"])');
     if(p&&!p.closest('#idxList')){if(p.tagName==='A')e.preventDefault();show(p.dataset.idx,true)}
-    const b=e.target.closest('[data-book]');
-    if(b){const c=document.getElementById('ix-'+b.dataset.book);if(c&&!c.checked){c.checked=true;updateSummary()}}
   });
   show('qei');
-  window.__ksa={INDICES,show,book(id){const c=document.getElementById('ix-'+id);if(c&&!c.checked){c.checked=true;updateSummary()}document.getElementById('booking').scrollIntoView({behavior:'smooth'})}};
 
   /* schedule */
   const now=new Date(),curM=now.getFullYear()===2026?now.getMonth()+1:0;
@@ -666,278 +460,38 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
     return `<tr><th scope="row">${i.name}<span>${i.code}</span></th>${cells}</tr>`;
   }).join('');
 
-  /* booking: index chips */
-  $('#idxChips').innerHTML=INDICES.map(i=>`<span class="chip"><input type="checkbox" name="idx" id="ix-${i.id}" value="${i.code}"><label for="ix-${i.id}">${i.name} <span class="mono">${i.code}</span></label></span>`).join('');
-
-  /* calendar */
-  const HOLIDAYS=['2026-10-09','2026-12-25','2027-01-01','2027-02-08','2027-02-09','2027-02-10'];
-  const today=new Date();today.setHours(0,0,0,0);
-  const maxDate=new Date(today);maxDate.setDate(maxDate.getDate()+60);
-  let view=new Date(today.getFullYear(),today.getMonth(),1),selDate=null,selTime=null;
-  const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  const DOW=['일','월','화','수','목','금','토'];
-  function renderCal(){
-    $('#calTitle').textContent=`${view.getFullYear()}.${String(view.getMonth()+1).padStart(2,'0')}`;
-    $('#calPrev').disabled=view<=new Date(today.getFullYear(),today.getMonth(),1);
-    $('#calNext').disabled=new Date(view.getFullYear(),view.getMonth()+1,1)>maxDate;
-    let h=DOW.map(d=>`<span class="dow">${d}</span>`).join('');
-    const first=view.getDay(),days=new Date(view.getFullYear(),view.getMonth()+1,0).getDate();
-    for(let k=0;k<first;k++)h+='<span></span>';
-    for(let d=1;d<=days;d++){
-      const dt=new Date(view.getFullYear(),view.getMonth(),d),key=fmt(dt),wd=dt.getDay();
-      const off=dt<=today||dt>maxDate||wd===0||wd===6||HOLIDAYS.includes(key);
-      h+=`<button type="button" data-date="${key}" ${off?'disabled':''} class="${+dt===+today?'today':''}" aria-pressed="${selDate===key}" aria-label="${dt.getMonth()+1}월 ${d}일 ${DOW[wd]}요일">${d}</button>`;
-    }
-    $('#calGrid').innerHTML=h;
-  }
-  /* deterministic pseudo-availability so the same day always shows the same booked slots */
-  function booked(key,t){let x=0;for(const c of key+t)x=(x*31+c.charCodeAt(0))%9973;return x%10<3}
-  const TIMES=['10:00','11:00','13:30','14:30','15:30','16:30'];
-  function renderSlots(){
-    if(!selDate)return;
-    const d=new Date(selDate+'T00:00');
-    $('#slotsHead').textContent=`${d.getMonth()+1}월 ${d.getDate()}일 (${DOW[d.getDay()]}) 예약 가능 시간`;
-    $('#slotsBody').innerHTML='<div class="slots-grid">'+TIMES.map(t=>{const b=booked(selDate,t);return `<button type="button" class="slot" data-time="${t}" ${b?'disabled':''} aria-pressed="${selTime===t}">${t}${b?' <small>마감</small>':''}</button>`}).join('')+'</div>';
-  }
-  $('#calPrev').onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);renderCal()};
-  $('#calNext').onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);renderCal()};
-  $('#calGrid').addEventListener('click',e=>{const b=e.target.closest('button[data-date]');if(!b||b.disabled)return;selDate=b.dataset.date;selTime=null;renderCal();renderSlots();updateSummary()});
-  $('#slotsBody').addEventListener('click',e=>{const b=e.target.closest('.slot');if(!b||b.disabled)return;selTime=b.dataset.time;renderSlots();updateSummary()});
-  renderCal();
-
-  /* summary + validation */
-  const form=$('#bookForm');
-  function picked(){return [...form.querySelectorAll('input[name=idx]:checked')].map(i=>i.value)}
-  function updateSummary(){
-    const ix=picked(),mode=form.querySelector('input[name=mode]:checked').value;
-    const parts=[];
-    if(ix.length)parts.push(`<b>${ix.join(', ')}</b>`);
-    parts.push(mode);
-    if(selDate){const d=new Date(selDate+'T00:00');parts.push(`<b>${d.getMonth()+1}월 ${d.getDate()}일${selTime?' '+selTime:''}</b>`)}
-    $('#summary').innerHTML=ix.length||selDate?parts.join(' · '):'지수와 일시를 선택해 주세요.';
-  }
-  form.addEventListener('change',updateSummary);
-  const toast=$('#toast');let tt;
-  function say(m){toast.textContent=m;toast.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>toast.classList.remove('show'),2800)}
-  function setErr(id,msg){const f=document.getElementById(id).closest('.field');f.classList.toggle('err',!!msg);f.querySelector('.msg').textContent=msg||''}
-  form.addEventListener('input',e=>{const f=e.target.closest('.field');if(f&&f.classList.contains('err'))setErr(e.target.id,'')});
-  form.addEventListener('submit',e=>{
-    e.preventDefault();
-    const v=id=>document.getElementById(id).value.trim();
-    let ok=true;
-    [['f-company','기업명을 입력해 주세요.'],['f-industry','업종을 선택해 주세요.'],['f-name','담당자명을 입력해 주세요.']].forEach(([id,m])=>{const bad=!v(id);setErr(id,bad?m:'');if(bad)ok=false});
-    const ph=v('f-phone').replace(/\D/g,'');const phBad=ph.length<9||ph.length>11;setErr('f-phone',phBad?'숫자 9~11자리로 입력해 주세요.':'');if(phBad)ok=false;
-    const em=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('f-email'));setErr('f-email',em?'':'이메일 형식을 확인해 주세요. 예: name@company.co.kr');if(!em)ok=false;
-    if(!picked().length){say('참여 희망 지수를 하나 이상 선택해 주세요.');return}
-    if(!selDate||!selTime){say('상담 날짜와 시간을 선택해 주세요.');return}
-    if(!ok){say('표시된 항목을 확인해 주세요.');form.querySelector('.err input,.err select')?.focus();return}
-    if(!document.getElementById('f-agree').checked){say('개인정보 수집·이용에 동의해 주세요.');return}
-    /* TODO: 실제 운영 시 예약 API로 전송 */
-    const d=new Date(selDate+'T00:00');
-    const no='KSA-'+selDate.replace(/-/g,'').slice(2)+'-'+String(Math.floor(Math.random()*9000)+1000);
-    const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-    $('#bookArea').innerHTML=`<div class="done" tabindex="-1" id="doneBox">
-      <span class="seal">KSA<br>RSV.</span>
-      <h3>예약 신청이 접수되었습니다</h3>
-      <p>담당 연구원이 영업일 기준 1일 안에 ${esc(v('f-email'))} 로 확정 안내를 보내드립니다.</p>
-      <dl class="ticket">
-        <div><dt>접수 번호</dt><dd class="mono">${no}</dd></div>
-        <div><dt>상담 일시</dt><dd>${d.getMonth()+1}월 ${d.getDate()}일 (${DOW[d.getDay()]}) ${selTime}</dd></div>
-        <div><dt>참여 지수</dt><dd>${picked().join(', ')}</dd></div>
-        <div><dt>상담 방식</dt><dd>${form.querySelector('input[name=mode]:checked').value}</dd></div>
-        <div><dt>기업명</dt><dd>${esc(v('f-company'))}</dd></div>
-        <div><dt>담당자</dt><dd>${esc(v('f-name'))}</dd></div>
-      </dl>
-      <div><button class="btn ghost" type="button" id="again">새 예약 작성</button></div></div>`;
-    const box=$('#doneBox');box.focus({preventScroll:true});box.scrollIntoView({behavior:'smooth',block:'center'});
-    $('#again').onclick=()=>location.reload();
-  });
 })();
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>window.THREE||document.write('<script src="assets/vendor/three.min.js"><\/script>')</script>
 <script>
 (function(){
-  const K=window.__ksa;if(!K)return;
-  const IDX=K.INDICES,N=IDX.length;
-  const host=document.getElementById('space'),canvas=document.getElementById('spaceCanvas'),stage=document.getElementById('stage');
-  const tag=document.getElementById('satTag'),legend=document.getElementById('legend');
+  /* plaques ride an ellipse around the KS seal; front (lower) plaques are larger and sit above the seal */
+  const IDX=window.KSA_INDICES,N=IDX.length,orbit=document.getElementById('orbit');if(!orbit)return;
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  legend.innerHTML=IDX.map((x,i)=>`<button type="button" data-i="${i}" style="--c:${x.color}"><i></i>${x.code}</button>`).join('');
-  let hoverIdx=-1;
-  legend.addEventListener('click',e=>{const b=e.target.closest('button');if(b)K.show(IDX[+b.dataset.i].id,true)});
-  legend.addEventListener('pointerover',e=>{const b=e.target.closest('button');hoverIdx=b?+b.dataset.i:-1});
-  legend.addEventListener('pointerleave',()=>{hoverIdx=-1});
-
-  if(!window.THREE)return;
-  let renderer;
-  try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,powerPreference:'high-performance'})}catch(e){return}
-  if(!renderer.getContext())return;
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  renderer.outputEncoding=THREE.sRGBEncoding;
-  const scene=new THREE.Scene();
-  const camera=new THREE.PerspectiveCamera(32,1,.1,500);
-
-  scene.add(new THREE.AmbientLight(0x7d8fbf,.45));
-  const key=new THREE.DirectionalLight(0xfff1dc,1.15);key.position.set(-6,4,7);scene.add(key);
-  const rim=new THREE.DirectionalLight(0x5f86ff,.7);rim.position.set(7,-1,-6);scene.add(rim);
-
-  function cnv(w,h){const c=document.createElement('canvas');c.width=w;c.height=h||w;return c}
-  function tex(c){const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=renderer.capabilities.getMaxAnisotropy();return t}
-  function turn(c,a){const o=cnv(c.width),g=o.getContext('2d');g.translate(c.width/2,c.width/2);g.rotate(a);g.drawImage(c,-c.width/2,-c.width/2);return o}
-  const radial=(stops)=>{const c=cnv(128),g=c.getContext('2d'),r=g.createRadialGradient(64,64,0,64,64,64);stops.forEach(([o,s])=>r.addColorStop(o,s));g.fillStyle=r;g.fillRect(0,0,128,128);return new THREE.CanvasTexture(c)};
-  const glowTex=radial([[0,'rgba(255,255,255,1)'],[.3,'rgba(255,255,255,.35)'],[1,'rgba(255,255,255,0)']]);
-  const dotTex=radial([[0,'rgba(255,255,255,1)'],[.45,'rgba(255,255,255,.5)'],[1,'rgba(255,255,255,0)']]);
-
-  /* stars */
-  (function(){const n=2400,p=new Float32Array(n*3),c=new Float32Array(n*3),tints=[[1,1,1],[.75,.85,1],[1,.9,.75]];
-    for(let i=0;i<n;i++){const u=Math.random()*2-1,a=Math.random()*Math.PI*2,r=70+Math.random()*120,s=Math.sqrt(1-u*u);p.set([r*s*Math.cos(a),r*u,r*s*Math.sin(a)],i*3);const t=tints[i%3],b=.45+Math.random()*.55;c.set([t[0]*b,t[1]*b,t[2]*b],i*3)}
-    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));g.setAttribute('color',new THREE.BufferAttribute(c,3));
-    const s=new THREE.Points(g,new THREE.PointsMaterial({size:1,map:dotTex,vertexColors:true,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));s.name='stars';scene.add(s)})();
-  const stars=scene.getObjectByName('stars');
-
-  /* globe: dot-matrix continents on a navy sphere */
-  function hash(x,y){let h=(Math.imul(x,374761393)+Math.imul(y,668265263))|0;h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296}
-  function vn(x,y){const xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi,u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);const a=hash(xi,yi),b=hash(xi+1,yi),c=hash(xi,yi+1),d=hash(xi+1,yi+1);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v}
-  const globeTex=(()=>{const W=2048,H=1024,c=cnv(W,H),g=c.getContext('2d');
-    const bg=g.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#0A1730');bg.addColorStop(.5,'#11244A');bg.addColorStop(1,'#0A1730');g.fillStyle=bg;g.fillRect(0,0,W,H);
-    const step=11;for(let y=step/2;y<H;y+=step){const lat=(y/H-.5)*Math.PI,cols=Math.max(8,Math.round(W/step*Math.cos(lat)));
-      for(let k=0;k<cols;k++){const x=(k+.5)*W/cols,lon=x/W*Math.PI*2;
-        /* sample noise on the sphere so the map wraps without a seam */
-        const sx=Math.cos(lat)*Math.cos(lon),sy=Math.sin(lat),sz=Math.cos(lat)*Math.sin(lon);
-        const n=vn(sx*2.2+5+sz*1.3,sy*2.2+sz*1.7)*.62+vn(sx*5+sz*3,sy*5-sz*2)*.38;
-        if(n>.53){g.fillStyle=n>.62?'rgba(230,196,124,.95)':'rgba(214,178,108,.7)';g.beginPath();g.arc(x,y,2.6,0,7);g.fill()}
-        else{g.fillStyle='rgba(140,165,215,.16)';g.beginPath();g.arc(x,y,1.4,0,7);g.fill()}}}
-    return tex(c)})();
-  const globe=new THREE.Group();scene.add(globe);
-  const planet=new THREE.Mesh(new THREE.SphereGeometry(2,96,96),new THREE.MeshPhongMaterial({map:globeTex,emissive:0xffffff,emissiveMap:globeTex,emissiveIntensity:.32,shininess:18,specular:0x2a3b66}));
-  planet.rotation.z=.32;globe.add(planet);
-  const fresVS='varying vec3 vN;varying vec3 vV;void main(){vec4 mv=modelViewMatrix*vec4(position,1.);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}';
-  const fresFS='uniform vec3 c;uniform float p;uniform float k;varying vec3 vN;varying vec3 vV;void main(){float f=pow(1.-max(dot(vN,vV),0.),p);gl_FragColor=vec4(c*f*k,f*k);}';
-  const haloFS='uniform vec3 c;uniform float p;uniform float k;varying vec3 vN;varying vec3 vV;void main(){float f=pow(abs(dot(vN,vV)),p);gl_FragColor=vec4(c*f*k,f*k);}';
-  const fres=(col,p,k,side)=>new THREE.ShaderMaterial({uniforms:{c:{value:new THREE.Color(col)},p:{value:p},k:{value:k}},vertexShader:fresVS,fragmentShader:side===THREE.BackSide?haloFS:fresFS,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:side||THREE.FrontSide});
-  globe.add(new THREE.Mesh(new THREE.SphereGeometry(2.02,64,64),fres('#7FA2FF',2.6,1.1)));
-  globe.add(new THREE.Mesh(new THREE.SphereGeometry(2.6,64,64),fres('#3E6BFF',4,.75,THREE.BackSide)));
-  const core=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:0x3b62d6,transparent:true,opacity:.35,depthWrite:false,blending:THREE.AdditiveBlending}));core.scale.set(9,9,1);globe.add(core);
-
-  /* satellite faces */
-  function arc(g,str,r,font,col){g.save();g.translate(256,256);g.font=font;g.fillStyle=col;g.textAlign='center';g.textBaseline='middle';const st=Math.PI*2/str.length;for(let i=0;i<str.length;i++){g.save();g.rotate(i*st);g.translate(0,-r);g.fillText(str[i],0,0);g.restore()}g.restore()}
-  function faceFront(x,img){const c=cnv(512),g=c.getContext('2d');g.fillStyle='#13284A';g.beginPath();g.arc(256,256,256,0,7);g.fill();
-    arc(g,(' KSA · '+x.code+' ·').repeat(3),232,'500 17px "IBM Plex Mono", monospace','#D6B26C');
-    g.fillStyle='#fff';g.beginPath();g.arc(256,256,212,0,7);g.fill();g.strokeStyle='#D6B26C';g.lineWidth=4;g.beginPath();g.arc(256,256,204,0,7);g.stroke();
-    const s=Math.min(290/img.width,220/img.height),w=img.width*s,h=img.height*s;g.imageSmoothingQuality='high';g.drawImage(img,256-w/2,256-h/2,w,h);return tex(turn(c,-Math.PI/2))}
-  function faceBack(x){const c=cnv(512),g=c.getContext('2d');g.fillStyle='#0E1F3D';g.beginPath();g.arc(256,256,256,0,7);g.fill();g.strokeStyle='#D6B26C';g.lineWidth=4;g.beginPath();g.arc(256,256,226,0,7);g.stroke();
-    g.fillStyle='#D6B26C';g.font='700 120px "Noto Serif KR", serif';g.textAlign='center';g.textBaseline='middle';g.fillText('KS',256,240);g.font='500 30px "IBM Plex Mono", monospace';g.fillStyle='#EEF2FA';g.fillText(x.code,256,330);return tex(turn(c,-Math.PI/2))}
-  const panelTex=(()=>{const c=cnv(256,128),g=c.getContext('2d'),gr=g.createLinearGradient(0,0,256,128);gr.addColorStop(0,'#1B3D86');gr.addColorStop(.5,'#2A5BC0');gr.addColorStop(1,'#132C66');g.fillStyle=gr;g.fillRect(0,0,256,128);
-    g.strokeStyle='rgba(190,215,255,.55)';g.lineWidth=2;for(let x=0;x<=256;x+=32){g.beginPath();g.moveTo(x,0);g.lineTo(x,128);g.stroke()}for(let y=0;y<=128;y+=32){g.beginPath();g.moveTo(0,y);g.lineTo(256,y);g.stroke()}
-    g.strokeStyle='#D6B26C';g.lineWidth=6;g.strokeRect(3,3,250,122);return tex(c)})();
-
-  const gold=new THREE.MeshPhongMaterial({color:0xC9A25A,specular:0xfff1c8,shininess:90,emissive:0x2a1d05});
-  const steel=new THREE.MeshPhongMaterial({color:0x8E99AE,specular:0xffffff,shininess:60});
-  const panelMat=new THREE.MeshPhongMaterial({map:panelTex,specular:0x2b4a80,shininess:40,emissive:0x081630});
-  const coinGeo=new THREE.CylinderGeometry(.62,.62,.16,64);
-  const armGeo=new THREE.CylinderGeometry(.025,.025,.42,8);armGeo.rotateZ(Math.PI/2);
-  const panelGeo=new THREE.BoxGeometry(1.15,.46,.03);
-  const mastGeo=new THREE.CylinderGeometry(.02,.02,.36,8);
-  const dishGeo=new THREE.ConeGeometry(.16,.1,24,1,true);
-
-  /* orbits — inner satellites move faster (period ∝ r^1.5, Kepler's third law) */
-  const sats=[],hits=[];
-  function build(imgs){
-    IDX.forEach((x,i)=>{
-      const col=new THREE.Color(x.color),r=3.25+i*.78;
-      const plane=new THREE.Group();plane.rotation.set(1.16+(i%2?.16:-.1)+i*.03,0,(i%2?1:-1)*(.18+i*.07));scene.add(plane);
-      const pts=[];for(let k=0;k<=256;k++){const a=k/256*Math.PI*2;pts.push(new THREE.Vector3(Math.cos(a)*r,Math.sin(a)*r,0))}
-      const ring=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineDashedMaterial({color:0xffffff,transparent:true,opacity:.16,dashSize:.18,gapSize:.12,depthWrite:false}));ring.computeLineDistances();plane.add(ring);
-      /* fading trail along the orbit */
-      const TN=64,tp=new Float32Array(TN*3),tc=new Float32Array(TN*3);
-      for(let k=0;k<TN;k++){const f=Math.pow(1-k/TN,1.6);tc.set([col.r*f,col.g*f,col.b*f],k*3)}
-      const tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.BufferAttribute(tp,3));tg.setAttribute('color',new THREE.BufferAttribute(tc,3));
-      const trail=new THREE.Line(tg,new THREE.LineBasicMaterial({vertexColors:true,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));plane.add(trail);
-      /* the satellite */
-      const sat=new THREE.Group(),body=new THREE.Group();sat.add(body);
-      const coin=new THREE.Mesh(coinGeo,[gold,new THREE.MeshPhongMaterial({map:faceFront(x,imgs[i]),specular:0x333333,shininess:50,emissive:0xffffff,emissiveIntensity:.08}),new THREE.MeshPhongMaterial({map:faceBack(x),specular:0x444444,shininess:60})]);
-      coin.rotation.x=Math.PI/2;body.add(coin);coin.userData.i=i;hits.push(coin);
-      [-1,1].forEach(sd=>{const arm=new THREE.Mesh(armGeo,steel);arm.position.x=sd*.82;body.add(arm);const p=new THREE.Mesh(panelGeo,panelMat);p.position.x=sd*1.6;body.add(p);p.userData.i=i;hits.push(p)});
-      const mast=new THREE.Mesh(mastGeo,steel);mast.position.y=.8;body.add(mast);
-      const dish=new THREE.Mesh(dishGeo,new THREE.MeshPhongMaterial({color:0xdfe5ef,side:THREE.DoubleSide,shininess:70}));dish.position.y=1.0;dish.rotation.x=Math.PI;body.add(dish);
-      const beacon=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:col,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));beacon.position.y=1.06;beacon.scale.set(.5,.5,1);body.add(beacon);
-      const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:col,transparent:true,opacity:.3,depthWrite:false,blending:THREE.AdditiveBlending}));halo.scale.set(3.4,3.4,1);halo.position.z=-1.2;sat.add(halo); /* behind the body: a sprite at the body's depth z-fights and washes out the logo */
-      sat.scale.setScalar(.95);plane.add(sat);
-      const w=.5*Math.pow(3.25/r,1.5);
-      sats.push({x,i,r,plane,sat,body,trail,tp,TN,halo,beacon,w,a:i*1.37+.4,phase:Math.random()*6,hover:0});
-    });
+  const els=IDX.map(x=>{const b=document.createElement('button');b.type='button';b.className='orb-plaque';b.dataset.idx=x.id;b.style.setProperty('--c',x.color);b.setAttribute('aria-label',`${x.name} ${x.code} 평가 기준 보기`);
+    b.innerHTML=`<span class="logo"><img src="${x.logo}" alt="${x.code} 로고"></span><span class="cap"><i></i><b>${x.code}</b></span>`;orbit.appendChild(b);return b});
+  document.getElementById('legendDots').innerHTML=IDX.map(x=>`<i style="--c:${x.color}"></i>`).join('');
+  const [faint,main,gold]=orbit.querySelectorAll('#orbitSvg ellipse'),sat=document.getElementById('orbitSat');
+  let W=0,H=0,rx=0,ry=0,ang=-Math.PI/2+.35,satA=0,paused=false,running=false,last=0,raf=0;
+  function geom(){W=orbit.clientWidth;H=orbit.clientHeight;rx=W*.37;ry=H*.31;
+    const set=(e,a,b)=>{e.setAttribute('cx',W/2);e.setAttribute('cy',H/2);e.setAttribute('rx',a);e.setAttribute('ry',b)};
+    set(faint,rx*1.24,ry*1.36);set(main,rx,ry);set(gold,rx*.6,ry*.56)}
+  function place(){
+    els.forEach((el,i)=>{const a=ang+i*Math.PI*2/N,d=(Math.sin(a)+1)/2,s=.72+.3*d;
+      el.style.transform=`translate(${W/2+Math.cos(a)*rx}px,${H/2+Math.sin(a)*ry}px) translate(-50%,-50%) scale(${s.toFixed(3)})`;
+      el.style.zIndex=d>.5?60+Math.round(d*40):10+Math.round(d*40);el.style.filter=`brightness(${(.62+.38*d).toFixed(3)})`});
+    sat.style.transform=`translate(${W/2+Math.cos(satA)*rx*1.24}px,${H/2+Math.sin(satA)*ry*1.36}px) translate(-50%,-50%)`;
   }
-
-  /* layout: centre projection on the stage and fit the outermost orbit */
-  let W=1,H=1,dist=20;const OUT=3.25+4*.78+1.5;
-  function layout(){
-    W=host.clientWidth;H=host.clientHeight;renderer.setSize(W,H,false);
-    const hr=host.getBoundingClientRect(),sr=stage.getBoundingClientRect(),lh=legend.offsetHeight;
-    const cx=sr.left-hr.left+sr.width/2,cy=sr.top-hr.top+(sr.height-lh)/2,sw=sr.width,sh=sr.height-lh;
-    const ppu=Math.min(sw/(2*OUT)*(W<700?1.12:1),sh/(2*OUT*.6));
-    dist=H/(2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*ppu);
-    camera.aspect=W/H;camera.setViewOffset(W,H,W/2-cx,H/2-cy,W,H);camera.updateProjectionMatrix();
-  }
-
-  /* hover: slow time, label the satellite */
-  const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();let px=0,py=0,spx=0,spy=0,pickIdx=-1;
-  host.addEventListener('pointermove',e=>{
-    const r=host.getBoundingClientRect();px=(e.clientX-r.left)/r.width*2-1;py=(e.clientY-r.top)/r.height*2-1;
-    if(e.target.closest('a,button'))return void(pickIdx=-1);
-    ndc.set(px,-py);ray.setFromCamera(ndc,camera);const h=ray.intersectObjects(hits,false);pickIdx=h.length?h[0].object.userData.i:-1;
-    canvas.classList.toggle('hot',pickIdx>=0);
-  });
-  host.addEventListener('pointerleave',()=>{px=py=0;pickIdx=-1});
-  host.addEventListener('click',e=>{if(pickIdx>=0&&!e.target.closest('a,button'))K.show(IDX[pickIdx].id,true)});
-
-  const v=new THREE.Vector3();
-  let running=false,raf=0,t0=performance.now(),clock=0,timeScale=1;
-  function frame(now){
-    raf=requestAnimationFrame(frame);
-    const dt=Math.min((now-t0)/1000,.05);t0=now;
-    const focus=pickIdx>=0?pickIdx:hoverIdx;
-    timeScale+=((focus>=0?.18:1)-timeScale)*(1-Math.pow(.02,dt));
-    clock+=dt*timeScale*(reduce?.2:1);
-    spx+=(px-spx)*.05;spy+=(py-spy)*.05;
-    camera.position.set(spx*1.2+Math.sin(clock*.05)*.6,3.4-spy*.8,dist);camera.lookAt(0,0,0);
-    planet.rotation.y=clock*.08;stars.rotation.y=clock*.004;core.material.opacity=.3+Math.sin(clock*.8)*.05;
-    sats.forEach(s=>{
-      s.a+=dt*timeScale*s.w*(reduce?.2:1);
-      const ca=Math.cos(s.a),sa=Math.sin(s.a);s.sat.position.set(ca*s.r,sa*s.r,0);
-      for(let k=0;k<s.TN;k++){const b=s.a-k*.022;s.tp[k*3]=Math.cos(b)*s.r;s.tp[k*3+1]=Math.sin(b)*s.r;s.tp[k*3+2]=0}
-      s.trail.geometry.attributes.position.needsUpdate=true;
-      s.sat.updateMatrixWorld();s.sat.getWorldPosition(v);
-      s.sat.lookAt(camera.position);
-      const on=focus===s.i;s.hover+=((on?1:0)-s.hover)*(1-Math.pow(.01,dt));
-      s.body.rotation.set(Math.sin(clock*.9+s.phase)*.12,Math.sin(clock*.6+s.phase)*.35*(1-s.hover),Math.sin(clock*.7+s.phase)*.08);
-      s.sat.scale.setScalar(.95+.25*s.hover);
-      s.halo.material.opacity=.22+.35*s.hover;
-      s.beacon.material.opacity=.55+.45*Math.max(0,Math.sin(clock*4+s.phase*3));
-    });
-    /* label */
-    if(focus>=0){const s=sats[focus];if(s){s.sat.getWorldPosition(v);v.y+=.9;v.project(camera);
-      tag.style.transform=`translate(${(v.x*.5+.5)*W}px,${(-v.y*.5+.5)*H}px) translate(-50%,-100%)`;
-      if(tag.dataset.i!=focus){tag.dataset.i=focus;tag.style.setProperty('--c',s.x.color);tag.querySelector('b').textContent=s.x.code;tag.querySelector('.chip span').textContent=s.x.name}
-      tag.classList.add('show')}}
-    else tag.classList.remove('show');
-    legend.querySelectorAll('button').forEach((b,k)=>b.classList.toggle('on',k===focus));
-    renderer.render(scene,camera);
-  }
-  function start(){if(!running&&sats.length){running=true;t0=performance.now();raf=requestAnimationFrame(frame)}}
+  function frame(t){raf=requestAnimationFrame(frame);const dt=Math.min((t-last)/1000,.05);last=t;
+    if(!paused){ang+=dt*.16;satA+=dt*.5}place()}
+  function start(){if(running||reduce)return;running=true;last=performance.now();raf=requestAnimationFrame(frame)}
   function stop(){running=false;cancelAnimationFrame(raf)}
-  let inView=true;
-  new IntersectionObserver(es=>es.forEach(en=>{inView=en.isIntersecting;inView?start():stop()})).observe(host);
-  new ResizeObserver(()=>{layout();if(!running)renderer.render(scene,camera)}).observe(host);
-  document.addEventListener('visibilitychange',()=>document.hidden?stop():inView&&start());
-
-  const load=src=>new Promise(res=>{const im=new Image();im.onload=()=>res(im);im.onerror=()=>res(null);im.src=src});
-  Promise.all([Promise.all(IDX.map(x=>load((window.KSA_LOGO_DATA||{})[x.id]||x.logo))),document.fonts?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))]):0]).then(([imgs])=>{
-    if(imgs.some(x=>!x))return;
-    try{build(imgs)}catch(e){return}
-    host.classList.add('webgl');layout();if(inView)start();
-  });
+  orbit.addEventListener('pointerover',e=>{if(e.target.closest('.orb-plaque'))paused=true});
+  orbit.addEventListener('pointerout',e=>{if(e.target.closest('.orb-plaque')&&!e.relatedTarget?.closest?.('.orb-plaque'))paused=false});
+  orbit.addEventListener('focusin',()=>paused=true);orbit.addEventListener('focusout',()=>paused=false);
+  new ResizeObserver(()=>{geom();place()}).observe(orbit);
+  new IntersectionObserver(es=>es.forEach(en=>en.isIntersecting?start():stop())).observe(orbit);
+  document.addEventListener('visibilitychange',()=>document.hidden?stop():start());
+  geom();place();
 })();
 </script>
 </body>
