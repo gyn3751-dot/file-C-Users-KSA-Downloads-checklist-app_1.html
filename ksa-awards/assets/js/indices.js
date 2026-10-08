@@ -22,7 +22,7 @@ window.KSA_INDICES=[
    desc:'브랜드가 고객에게 주는 프리미엄 가치를 측정합니다. 브랜드 인지와 이미지, 품질 지각, 충성도를 종합해 업종별 대표 프리미엄 브랜드를 선정합니다.',
    target:'소비재 · 서비스 브랜드',method:'소비자 인식 조사',announce:'4월',
    dims:[['브랜드 인지',20],['브랜드 이미지',30],['지각된 품질',25],['브랜드 충성도',25]]},
-  {id:'well',character:'assets/characters/well.webp',wings:{body:'assets/characters/well-body.webp',l:'assets/characters/well-wl.webp',r:'assets/characters/well-wr.webp',front:false,pl:'44% 60%',pr:'70% 60%'},motion:'flutter',greet:'건강한 하루를 응원해요!',color:'#7DC245',homepage:HOME.well,code:'Wellness',name:'한국웰니스지수',en:'Korean Wellness Index',logo:'assets/logos/wellness.png',
+  {id:'well',character:'assets/characters/well.webp',wings:{body:'assets/characters/well-body.webp',l:'assets/characters/well-wl.webp',r:'assets/characters/well-wr.webp',front:false,pl:'44% 60%',pr:'70% 60%',antennae:true},motion:'flutter',greet:'건강한 하루를 응원해요!',color:'#7DC245',homepage:HOME.well,code:'Wellness',name:'한국웰니스지수',en:'Korean Wellness Index',logo:'assets/logos/wellness.png',
    desc:'건강과 웰빙에 관련된 제품과 서비스가 고객의 신체적 · 정서적 웰니스에 기여하는 정도를 측정합니다. 웰니스 가치를 실현한 기업과 브랜드를 선정합니다.',
    target:'헬스케어 · 식품 · 레저 · 생활',method:'고객 설문 + 전문가 평가',announce:'11월',
    dims:[['신체 건강 기여',30],['정서적 안정',25],['안전 · 신뢰',25],['지속 가능성',20]]},
