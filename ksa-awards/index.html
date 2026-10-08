@@ -106,6 +106,27 @@ p{margin:0}
 .board{--bp:clamp(1.1rem,2.6vw,2rem);position:relative;background:var(--navy);color:var(--on-navy);padding:var(--bp);isolation:isolate;overflow:hidden}
 .board::before{content:"";position:absolute;inset:0;z-index:-1;background-image:linear-gradient(to right,rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.05) 1px,transparent 1px);background-size:calc(100%/12) 44px}
 .board::after{content:"";position:absolute;width:80%;aspect-ratio:1;left:10%;top:12%;z-index:-1;background:radial-gradient(closest-side,var(--navy-2),transparent);opacity:.95}
+.char-pop{position:absolute;left:0;top:0;width:0;height:0;z-index:3;pointer-events:none}
+.char-in{position:absolute;left:0;bottom:0;transform:translateX(-50%);opacity:0;transition:opacity .18s}
+.char-in img{display:block;height:var(--h,180px);width:auto;max-width:none;transform-origin:50% 100%;filter:drop-shadow(0 12px 18px rgba(0,0,0,.45));user-select:none}
+.char-say{position:absolute;left:50%;bottom:calc(100% + 6px);transform:translate(-50%,6px) scale(.9);opacity:0;white-space:nowrap;background:#fff;color:#13284A;font-size:.8rem;font-weight:600;padding:.45em .9em;border-radius:14px;box-shadow:0 10px 24px -10px rgba(0,0,0,.6);transition:opacity .3s .35s,transform .45s .35s cubic-bezier(.3,1.5,.5,1)}
+.char-say::after{content:"";position:absolute;left:50%;top:100%;border:7px solid transparent;border-top-color:#fff;transform:translateX(-50%)}
+.char-pop.on .char-in{opacity:1;animation:char-pop .62s cubic-bezier(.3,1.55,.5,1) both}
+.char-pop.on .char-say{opacity:1;transform:translate(-50%,0) scale(1)}
+@keyframes char-pop{from{transform:translate(-50%,45%) scale(.15)}to{transform:translate(-50%,0) scale(1)}}
+/* each character keeps its own personality once it is out */
+.char-pop.on.m-inspect img{animation:c-inspect 2.6s .6s ease-in-out infinite}
+@keyframes c-inspect{0%,100%{transform:none}20%{transform:rotate(-6deg)}40%{transform:translateY(-7%)}60%{transform:rotate(6deg)}80%{transform:translateY(-3%)}}
+.char-pop.on.m-listen img{animation:c-listen 3.2s .6s ease-in-out infinite}
+@keyframes c-listen{0%,100%{transform:none}25%,45%{transform:rotate(-9deg)}60%{transform:translateY(-6%) rotate(2deg)}70%{transform:none}}
+.char-pop.on.m-bow img{animation:c-bow 3.6s .6s ease-in-out infinite}
+@keyframes c-bow{0%,100%{transform:none;filter:drop-shadow(0 12px 18px rgba(0,0,0,.45))}35%{transform:translateY(4%) rotate(-4deg) scale(.98)}55%{transform:none;filter:drop-shadow(0 0 16px rgba(226,188,116,.85)) drop-shadow(0 12px 18px rgba(0,0,0,.45))}}
+.char-pop.on.m-flutter img{animation:c-float 2.8s .6s ease-in-out infinite,c-flutter .5s .6s ease-in-out infinite}
+@keyframes c-float{0%,100%{translate:0 0}50%{translate:0 -10%}}
+@keyframes c-flutter{0%,100%{scale:1 1}50%{scale:.96 1.01}}
+.char-pop.on.m-glitch img{animation:char-glitch .7s steps(1) both,c-float 3s .7s ease-in-out infinite}
+@keyframes char-glitch{0%{translate:0 0;clip-path:inset(0 0 70% 0);filter:hue-rotate(60deg) drop-shadow(0 12px 18px rgba(0,0,0,.45))}15%{translate:4% 0;clip-path:inset(40% 0 30% 0)}30%{translate:-4% 0;clip-path:inset(10% 0 50% 0);filter:hue-rotate(-40deg) drop-shadow(0 12px 18px rgba(0,0,0,.45))}45%{translate:1% 0;clip-path:inset(60% 0 0 0)}60%{translate:-1% 0;clip-path:inset(0 0 20% 0)}75%,100%{translate:0 0;clip-path:inset(0);filter:drop-shadow(0 12px 18px rgba(0,0,0,.45))}}
+@media (prefers-reduced-motion:reduce){.char-pop .char-in,.char-pop img{animation:none!important}}
 .board-head{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;color:var(--on-navy-2);text-transform:uppercase;padding-bottom:var(--s-4);border-bottom:1px solid rgba(255,255,255,.14)}
 .orbit{position:relative;height:clamp(320px,36vw,500px);margin-block:var(--s-2)}
 .orbit svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
@@ -636,6 +657,11 @@ body.se-open .se-fab{display:none}
   const hint=document.createElement('p');hint.className='drag-hint';hint.innerHTML='<i>←</i> 드래그해서 돌리고, 로고를 누르면 공식 사이트로 <i>→</i>';host.appendChild(hint);
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   let cur=-1;
+  /* index characters pop out of the planet under the pointer (on touch screens: the front planet once it settles) */
+  const chars=IDX.map(x=>{if(!x.character)return null;const el=document.createElement('div');el.className='char-pop m-'+(x.motion||'inspect');el.setAttribute('aria-hidden','true');
+    el.innerHTML=`<div class="char-in"><span class="char-say"></span><img src="${x.character}" alt="" draggable="false"></div>`;el.querySelector('.char-say').textContent=x.greet||x.name;host.appendChild(el);return el});
+  let hovPick=-1,legHover=-1,shown=-1;
+  const touchOnly=matchMedia('(hover: none), (pointer: coarse)').matches;
   legend.innerHTML=IDX.map((x,i)=>`<button type="button" data-i="${i}" style="--c:${x.color}"><i></i>${x.code}</button>`).join('');
   function paint(i){
     if(i===cur)return;cur=i;const x=IDX[i];
@@ -655,6 +681,8 @@ body.se-open .se-fab{display:none}
     if(m==='detail')K.show(IDX[i].id,true);else K.openHome(IDX[i].id)}
   let api={go:i=>paint(((i%N)+N)%N),step:d=>api.go(cur+d)};
   legend.addEventListener('click',e=>{const b=e.target.closest('button');if(b){api.go(+b.dataset.i);poke()}});
+  legend.addEventListener('pointerover',e=>{const b=e.target.closest('button');legHover=b?+b.dataset.i:-1});
+  legend.addEventListener('pointerleave',()=>{legHover=-1});
   let lastPoke=performance.now();
   function poke(){lastPoke=performance.now();hint.classList.add('gone')}
   paint(0);
@@ -758,6 +786,13 @@ body.se-open .se-fab{display:none}
 
   /* layout: centre projection on the stage box and fit the orbit inside it */
   let W=1,H=1,dist=16;
+  let offX=0,offY=0;const cv3=new THREE.Vector3();
+  function placeChar(i){const it=items[i],el=chars[i];if(!it||!el)return;
+    it.grp.getWorldPosition(cv3);const d=camera.position.distanceTo(cv3);cv3.project(camera);
+    const r=1.6*it.grp.scale.x*H/(2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*d);
+    const h=Math.min(r*1.9,host.clientHeight*.6);
+    el.style.setProperty('--h',Math.round(h)+'px');
+    el.style.transform=`translate(${((cv3.x*.5+.5)*W+offX).toFixed(1)}px,${((-cv3.y*.5+.5)*H+offY+r*.55).toFixed(1)}px)`}
   function layout(){
     W=canvas.clientWidth;H=canvas.clientHeight;renderer.setSize(W,H,false);
     const hr=canvas.getBoundingClientRect(),sr=stage.getBoundingClientRect(); /* canvas bleeds past the orbit box; fit and centre on the box */
@@ -766,6 +801,7 @@ body.se-open .se-fab{display:none}
     const ppu=Math.min(sw/(2*R+(W<700?.4:3.2)),sh/(W<700?5.2:8.2));
     dist=Math.max(R+6,H/(2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*ppu));
     camera.aspect=W/H;camera.setViewOffset(W,H,W/2-cx,H/2-cy,W,H);camera.updateProjectionMatrix();
+    offX=hr.left-sr.left;offY=hr.top-sr.top; /* canvas origin inside the orbit box, for placing characters */
     scene.fog.near=dist-R*.2;scene.fog.far=dist+R*2.2;
   }
 
@@ -780,7 +816,7 @@ body.se-open .se-fab{display:none}
   canvas.addEventListener('pointerdown',e=>{if(e.button)return;dragging=true;moved=0;downX=lastX=e.clientX;downY=e.clientY;lastT=performance.now();vel=0;canvas.setPointerCapture(e.pointerId);canvas.classList.add('grabbing');poke()});
   canvas.addEventListener('pointermove',e=>{
     const r=canvas.getBoundingClientRect();px=(e.clientX-r.left)/r.width*2-1;py=(e.clientY-r.top)/r.height*2-1;
-    if(!dragging){canvas.classList.toggle('hover',pick(e)>=0);return}
+    if(!dragging){hovPick=pick(e);canvas.classList.toggle('hover',hovPick>=0);return}
     const dx=e.clientX-lastX,now=performance.now(),k=2.6/Math.max(stage.clientWidth,320);
     if(Math.abs(e.clientX-downX)>Math.abs(e.clientY-downY)||moved>6)e.preventDefault();
     moved=Math.max(moved,Math.abs(e.clientX-downX),Math.abs(e.clientY-downY));
@@ -793,7 +829,7 @@ body.se-open .se-fab{display:none}
     target=Math.round((rot+vel*9)/STEP)*STEP;paint(nearestIdx(target));
   }
   canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);
-  canvas.addEventListener('pointerleave',()=>{if(!dragging){px=py=0}});
+  canvas.addEventListener('pointerleave',()=>{hovPick=-1;if(!dragging){px=py=0}});
   canvas.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){api.step(1);poke();e.preventDefault()}else if(e.key==='ArrowLeft'){api.step(-1);poke();e.preventDefault()}else if(e.key==='Enter'||e.key===' '){if(items[cur])activate(cur);e.preventDefault()}});
 
   /* loop */
@@ -824,6 +860,12 @@ body.se-open .se-fab{display:none}
       }
       it.mp.rotation.z+=dt*(.5+i*.07);it.lat.rotation.y+=dt*.12;
     });
+    let want=dragging?-1:(hovPick>=0?hovPick:legHover);
+    if(want>=0)lastPoke=now; /* hold the carousel still while a character is out */
+    if(want<0&&touchOnly&&!dragging&&Math.abs(target-rot)<.004)want=cur;
+    if(want!==shown){if(shown>=0&&chars[shown])chars[shown].classList.remove('on');shown=want;
+      if(want>=0&&chars[want]){const el=chars[want];placeChar(want);void el.offsetWidth;el.classList.add('on')}}
+    if(shown>=0)placeChar(shown);
     renderer.render(scene,camera);
   }
   function start(){if(!running){running=true;t0=performance.now();raf=requestAnimationFrame(frame)}}
