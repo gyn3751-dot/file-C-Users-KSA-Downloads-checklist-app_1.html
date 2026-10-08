@@ -106,11 +106,6 @@ p{margin:0}
 .board{--bp:clamp(1.1rem,2.6vw,2rem);position:relative;background:var(--navy);color:var(--on-navy);padding:var(--bp);isolation:isolate;overflow:hidden}
 .board::before{content:"";position:absolute;inset:0;z-index:-1;background-image:linear-gradient(to right,rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.05) 1px,transparent 1px);background-size:calc(100%/12) 44px}
 .board::after{content:"";position:absolute;width:80%;aspect-ratio:1;left:10%;top:12%;z-index:-1;background:radial-gradient(closest-side,var(--navy-2),transparent);opacity:.95}
-.hero-board .nebula{position:absolute;inset:0;width:100%;height:100%;z-index:-2;display:block;transform-origin:60% 70%;animation:nebula-drift 70s ease-in-out infinite alternate}
-.hero-board.nebula-on::after{display:none}
-.hero-board.nebula-on::before{opacity:.3}
-@keyframes nebula-drift{to{transform:scale(1.07) translate(-1.6%,-1.2%)}}
-@media (prefers-reduced-motion:reduce){.hero-board .nebula{animation:none}}
 .board-head{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;color:var(--on-navy-2);text-transform:uppercase;padding-bottom:var(--s-4);border-bottom:1px solid rgba(255,255,255,.14)}
 .orbit{position:relative;height:clamp(320px,36vw,500px);margin-block:var(--s-2)}
 .orbit svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
@@ -673,7 +668,7 @@ body.se-open .se-fab{display:none}
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));
   renderer.outputEncoding=THREE.sRGBEncoding;
   const scene=new THREE.Scene();
-  scene.fog=new THREE.Fog(0x1B2433,14,26); /* between the nebula's teal sky and the cliffs' umber */
+  scene.fog=new THREE.Fog(0x0F2244,14,26);
   const camera=new THREE.PerspectiveCamera(34,1,.1,500);
 
   scene.add(new THREE.AmbientLight(0x8fa0c8,.55));
@@ -846,7 +841,6 @@ body.se-open .se-fab{display:none}
   });
 })();
 </script>
-<script src="assets/js/cosmic-cliffs.js"></script>
 <script src="assets/js/site-config.js"></script>
 <script src="assets/js/site-editor.js"></script>
 </body>
