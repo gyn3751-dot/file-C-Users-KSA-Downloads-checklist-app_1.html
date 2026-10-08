@@ -141,6 +141,8 @@
         </div></details>`).join('')}
       </div></details>
       <details><summary>연간 일정</summary><div class="se-fields">
+        <label for="se-sched-title">일정표 제목 <small>줄바꿈 = 엔터</small></label><textarea id="se-sched-title" data-k="sections.schedule.title" rows="2"></textarea>
+        <label for="se-sched-desc">일정표 설명</label><textarea id="se-sched-desc" data-k="sections.schedule.desc" rows="3"></textarea>
         <p class="se-help">지수마다 단계별 시작과 끝을 고르세요. 바꾸면 아래 일정표와 "접수 중" 같은 배지가 바로 바뀝니다.</p>
         ${IDX.map(x=>`<details class="se-sub" data-sched="${x.id}"><summary><i style="background:${x.color}"></i>${esc(x.code)} <small>${esc(x.name)}</small></summary><div class="se-fields">${PHASES.map(([ph,l])=>`<div class="se-sched"><span>${l}</span><select aria-label="${esc(x.code)} ${l} 시작" data-k="schedule.${x.id}.${ph}.0">${monthOpts(1,12.5)}</select><em>~</em><select aria-label="${esc(x.code)} ${l} 끝" data-k="schedule.${x.id}.${ph}.1">${monthOpts(1.5,13)}</select></div>`).join('')}</div></details>`).join('')}
       </div></details>
@@ -166,11 +168,7 @@
       <button type="button" class="se-link" id="seCopy">설정 복사 (JSON)</button>
     </footer>`;
   document.body.append(fab,panel);
-  const schedHead=$('#schedule .sec-head h2');
-  const schedBtn=document.createElement('button');schedBtn.type='button';schedBtn.className='sched-edit';schedBtn.hidden=true;schedBtn.innerHTML='<span aria-hidden="true">✎</span> 일정 편집';
-  if(schedHead)schedHead.after(schedBtn);
-  schedBtn.onclick=()=>{open();const d=$$('#sePanel details').find(x=>x.querySelector(':scope>summary').textContent.trim()==='연간 일정');if(d){d.open=true;d.querySelectorAll('.se-sub').forEach((x,k)=>x.open=k===0);d.scrollIntoView({block:'start'})}};
-  const setEditable=v=>{fab.hidden=!v;schedBtn.hidden=!v};
+  const setEditable=v=>{fab.hidden=!v};
   const status=$('#seStatus');
   $('#seSlogans').innerHTML=SLOGANS.map((s,i)=>`<button type="button" data-s="${i}"><b>${esc(s[0])}</b> ${esc(s[1])}</button>`).join('');
   const SW=[['기본',''],['골드','#9C7A3C'],['로열 블루','#2F5BD3'],['코랄','#D9573B'],['에메랄드','#2E8B6A']];
@@ -206,6 +204,7 @@
         if(!(r[0]>=1&&r[1]<=13&&r[0]<r[1])){el.setAttribute('aria-invalid','true');return}
         el.removeAttribute('aria-invalid');cfg.schedule[ks[1]][ks[2]]=r;changed();return}
       el.removeAttribute('aria-invalid');setPath(cfg,k,Math.max(0,Math.min(100,Math.round(v))));sums();changed();return}
+    panel.querySelectorAll(`[data-k="${k}"]`).forEach(x=>{if(x!==el)x.value=el.value}); /* same setting shown in two groups */
     setPath(cfg,k,el.value);changed()});
   panel.addEventListener('change',e=>{if(e.target.type==='checkbox'){setPath(cfg,e.target.dataset.k,e.target.checked);changed()}});
   $('#seSlogans').addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(!b)return;const s=SLOGANS[+b.dataset.s];cfg.title1=s[0];cfg.title2=s[1];cfg.highlight=s[2];fill();changed()});
