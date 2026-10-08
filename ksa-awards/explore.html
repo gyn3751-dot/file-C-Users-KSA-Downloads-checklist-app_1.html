@@ -239,6 +239,7 @@ img{max-width:100%;display:block}
 </div>
 
 <script src="assets/js/indices.js"></script>
+<script src="assets/js/site-config.js"></script>
 <script src="assets/js/logo-data.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>window.THREE||document.write('<script src="assets/vendor/three.min.js"><\/script>')</script>
@@ -264,7 +265,7 @@ function openDetail(i){
     <div><p class="dr-code">${x.code} · SIGNAL ${String(i+1).padStart(2,'0')}</p><h2 class="dr-name">${x.name}</h2><p class="dr-en">${x.en}</p></div>
     <p class="dr-desc">${x.desc}</p>
     <dl class="dr-meta"><div><dt>평가 대상</dt><dd>${x.target}</dd></div><div><dt>결과 발표</dt><dd>매년 ${x.announce}</dd></div></dl>
-    <div class="dims">${x.dims.map(([n,w])=>`<div class="dim"><span>${n}</span><span class="bar"><i style="width:${w/40*100}%"></i></span><span class="w">${w}%</span></div>`).join('')}</div>`;
+    <div class="dims">${x.dims.map(([n,w])=>`<div class="dim"><span>${n}</span><span class="bar"><i style="width:${w/Math.max(40,Math.ceil(Math.max(...x.dims.map(d=>d[1]))/10)*10)*100}%"></i></span><span class="w">${w}%</span></div>`).join('')}</div>`;
   $('drActions').innerHTML=`<a class="btn" href="${x.homepage}" target="_blank" rel="noopener">${x.code} 공식 홈페이지 <span class="arr">↗</span></a>
     <div class="row"><a class="btn ghost" href="index.html#indices">평가 기준 비교</a><button class="btn ghost" type="button" id="nextSig">다음 신호 찾기</button></div>`;
   $('drBody').scrollTop=0;drawer.classList.add('open');
@@ -559,7 +560,11 @@ function frame(now){
 
 /* boot: fonts + logos, then build */
 const load=src=>new Promise(r=>{const im=new Image();im.onload=()=>r(im);im.onerror=()=>r(null);im.src=src});
-Promise.all([Promise.all(IDX.map(x=>load((window.KSA_LOGO_DATA||{})[x.id]||x.logo))),document.fonts?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))]):0]).then(([imgs])=>{
+/* settings saved from the main site's edit panel (names, copy, weights, homepages, logos) apply here too */
+const SC=window.KSA_SITE_CONFIG;
+const cfgReady=SC?SC.load(2500).then(c=>{SC.applyIndices(c);IDX.forEach(x=>{const im=document.querySelector('#slot-'+x.id+' img');if(im)im.src=x.logo})}):Promise.resolve();
+const texSrc=x=>SC?SC.textureSrc(x):((window.KSA_LOGO_DATA||{})[x.id]||x.logo);
+Promise.all([cfgReady.then(()=>Promise.all(IDX.map(x=>load(texSrc(x)).then(im=>im||load((window.KSA_LOGO_DATA||{})[x.id]))))),document.fonts?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))]):0]).then(([imgs])=>{
   if(imgs.some(x=>!x))return noGL();
   buildBeacons(imgs);
   $('goBtn').disabled=false;$('goLabel').textContent='탐사 시작';

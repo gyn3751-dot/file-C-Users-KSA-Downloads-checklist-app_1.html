@@ -329,6 +329,16 @@ body.se-open .se-fab{display:none}
 .se-radios{display:flex;flex-direction:column;gap:6px;margin-bottom:6px}
 .se-radios label{display:flex;gap:8px;align-items:center;font-size:.82rem!important;color:var(--ink)!important;cursor:pointer;margin:0!important}
 .se-radios input{accent-color:var(--ink);width:16px;height:16px;margin:0;flex:none}
+.se-dim{display:grid;grid-template-columns:minmax(0,1fr) 64px auto;gap:6px;align-items:center;font-size:.8rem;color:var(--ink-3)}
+.se-sched{display:grid;grid-template-columns:minmax(0,1fr) 64px auto 64px;gap:6px;align-items:center;font-size:.78rem;color:var(--ink-2)}
+.se-sched em{font-style:normal;color:var(--ink-3)}
+.se-sum{font-weight:400;color:var(--ok)!important}
+.se-sum[data-bad="1"]{color:#B4432F!important}
+.se-logo{display:flex;gap:12px;align-items:center}
+.se-logo-prev{width:96px;height:64px;flex:none;background:#fff;border:1px solid var(--rule);display:grid;place-items:center;padding:6px}
+.se-logo-prev img{max-width:100%;max-height:100%;object-fit:contain}
+.se-logo>div{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.se-file{display:inline-flex;align-items:center;height:34px;padding-inline:12px;font-size:.78rem;cursor:pointer;margin:0!important;color:var(--ink)!important}
 .se-slogans{display:flex;flex-direction:column;gap:6px}
 .se-slogans button{text-align:left;border:1px solid var(--rule);background:var(--paper);padding:9px 11px;font-size:.8rem;color:var(--ink-2);cursor:pointer;line-height:1.45;transition:border-color .2s}
 .se-slogans button b{color:var(--ink);font-weight:600}
@@ -509,6 +519,7 @@ body.se-open .se-fab{display:none}
   let curId='qei';
   function show(id,scroll){
     const i=byId[id];if(!i)return;curId=id;
+    const mx=Math.max(40,Math.ceil(Math.max(...i.dims.map(d=>d[1]))/10)*10); /* bar scale grows if a weight passes 40% */
     list.querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',b.dataset.idx===id));
     detail.setAttribute('aria-labelledby','tab-'+id);
     detail.closest('.explorer').style.setProperty('--c',i.color);
@@ -516,7 +527,7 @@ body.se-open .se-fab{display:none}
       <div class="d-logo"><img src="${i.logo}" alt="${i.code} 인증 로고"></div></div>
       <p class="d-desc">${i.desc}</p>
       <dl class="d-meta"><div><dt>평가 대상</dt><dd>${i.target}</dd></div><div><dt>평가 방식</dt><dd>${i.method}</dd></div><div><dt>결과 발표</dt><dd>매년 ${i.announce}</dd></div></dl>
-      <div class="d-dims"><h4>측정 차원 · 가중치 (100점 환산)</h4><div class="dims">${i.dims.map(([n,w])=>`<div class="dim"><span>${n}</span><span class="bar"><i style="width:${w/40*100}%"></i></span><span class="w">${w}%</span></div>`).join('')}</div><div class="dim-scale" aria-hidden="true"><span></span><span><span>0</span><span>20%</span><span>40%</span></span><span></span></div></div>
+      <div class="d-dims"><h4>측정 차원 · 가중치 (100점 환산)</h4><div class="dims">${i.dims.map(([n,w])=>`<div class="dim"><span>${n}</span><span class="bar"><i style="width:${w/mx*100}%"></i></span><span class="w">${w}%</span></div>`).join('')}</div><div class="dim-scale" aria-hidden="true"><span></span><span><span>0</span><span>${mx/2}%</span><span>${mx}%</span></span><span></span></div></div>
       <div class="d-actions"><a href="${i.homepage}" class="btn" target="_blank" rel="noopener">${i.code} 공식 홈페이지 <span class="arr">↗</span></a><span class="note">가중치는 업종에 따라 조정될 수 있습니다.</span></div>`;
     detail.classList.remove('swap');void detail.offsetWidth;detail.classList.add('swap');
     if(scroll)document.getElementById('indices').scrollIntoView({behavior:'smooth'});
@@ -536,7 +547,7 @@ body.se-open .se-fab{display:none}
   /* open an index's official site in a new tab from a click (a real link, so it also works inside the claude.ai viewer) */
   function openHome(id){const i=byId[id];if(!i||!i.homepage)return;const a=document.createElement('a');a.href=i.homepage;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove()}
   const hooks=[];
-  window.__ksa={INDICES,show,current:()=>curId,openHome,onRerender:f=>hooks.push(f),
+  window.__ksa={INDICES,show,current:()=>curId,openHome,schedule:SCHED,onRerender:f=>hooks.push(f),
     rerender(){renderList();show(curId);renderSched();hooks.forEach(f=>f())}};
 
   /* schedule */
@@ -632,7 +643,11 @@ body.se-open .se-fab{display:none}
     hintEl.innerHTML=`<b style="color:${x.color}">${x.code}</b> ${x.name} <button type="button" class="hint-link" data-go="home">공식 사이트 ↗</button><button type="button" class="hint-link" data-go="detail">평가 기준 →</button>`;
   }
   hintEl.addEventListener('click',e=>{const b=e.target.closest('.hint-link');if(!b)return;if(b.dataset.go==='home')K.openHome(IDX[cur].id);else K.show(IDX[cur].id,true)});
-  if(K.onRerender)K.onRerender(()=>{const c=cur;cur=-1;paint(c)});
+  /* redraw a coin face when its logo is replaced in the edit panel */
+  const texSrc=x=>window.KSA_SITE_CONFIG?window.KSA_SITE_CONFIG.textureSrc(x):((window.KSA_LOGO_DATA||{})[x.id]||x.logo);
+  function syncLogos(){items.forEach((it,i)=>{const x=IDX[i];if(it.logo===x.logo)return;it.logo=x.logo;
+    load(texSrc(x)).then(img=>{if(!img||it.logo!==x.logo)return;const m=it.coin.material[1];if(m.map)m.map.dispose();m.map=front(x,img);m.needsUpdate=true})})}
+  if(K.onRerender)K.onRerender(()=>{const c=cur;cur=-1;paint(c);syncLogos()});
   /* what a click on a planet does — set in the edit panel (KSA_SITE.planetClick) */
   function activate(i){const m=(window.KSA_SITE||{}).planetClick||'homepage';
     if(m==='flip'){if(i===cur)items[i].flip^=1;else api.go(i);return}
@@ -737,7 +752,7 @@ body.se-open .se-fab{display:none}
         new THREE.MeshPhongMaterial({map:back(x),specular:0x555555,shininess:70})]);
       coin.rotation.x=Math.PI/2;pivot.add(coin);grp.add(pivot);
       ring.add(grp);
-      items.push({grp,pivot,orbit,mp,lat,halo,atmo,spin:Math.random()*6,flip:0,phase:Math.random()*6});
+      items.push({grp,pivot,orbit,mp,lat,halo,atmo,coin,logo:x.logo,spin:Math.random()*6,flip:0,phase:Math.random()*6});
     });
   }
 
@@ -818,13 +833,15 @@ body.se-open .se-fab{display:none}
   document.addEventListener('visibilitychange',()=>document.hidden?stop():start());
 
   const load=src=>new Promise(res=>{const im=new Image();im.onload=()=>res(im);im.onerror=()=>res(null);im.src=src});
-  Promise.all([Promise.all(IDX.map(x=>load((window.KSA_LOGO_DATA||{})[x.id]||x.logo))),document.fonts?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))]):0]).then(([imgs])=>{
+  Promise.all([Promise.all(IDX.map(x=>load(texSrc(x)).then(im=>im||load((window.KSA_LOGO_DATA||{})[x.id])))),document.fonts?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))]):0]).then(([imgs])=>{
     if(imgs.some(x=>!x)){host.classList.remove('gl');return}
     try{build(imgs)}catch(e){host.classList.remove('gl');return}
+    syncLogos();
     layout();rot=target=0;paint(0);running=false;start();
   });
 })();
 </script>
+<script src="assets/js/site-config.js"></script>
 <script src="assets/js/site-editor.js"></script>
 </body>
 </html>

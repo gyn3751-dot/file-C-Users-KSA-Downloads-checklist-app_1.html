@@ -18,6 +18,9 @@
   ];
   const INDEX_FIELDS=[['name','지수 이름'],['en','영문 이름'],['desc','설명','area'],['target','평가 대상'],['method','평가 방식'],['announce','결과 발표 (예: 10월)']];
   const SECTIONS=[['indices','지수 소개'],['process','참여 절차'],['schedule','연간 일정']];
+  const PHASES=[['apply','신청 접수'],['survey','조사 · 평가'],['award','발표 · 인증식']];
+  const SC=window.KSA_SITE_CONFIG||{logoUrl:()=>'',DEFAULT_LOGO:{}};
+  const K0=window.__ksa||{};
 
   /* ── defaults come from the page as written ── */
   const root=document.documentElement,css=getComputedStyle(root);
@@ -40,7 +43,9 @@
     planetClick:'homepage',
     sections:Object.fromEntries(SECTIONS.map(([id])=>{const e=secEls(id);return[id,{title:multi(e.h),desc:text(e.p)}]})),
     steps:stepEls().map(li=>({t:text(li.querySelector('h3')),p:text(li.querySelector('p'))})),
-    indices:Object.fromEntries(IDX.map(x=>[x.id,Object.fromEntries(INDEX_FIELDS.map(([k])=>[k,x[k]||'']))])),
+    indices:Object.fromEntries(IDX.map(x=>[x.id,Object.assign(Object.fromEntries(INDEX_FIELDS.map(([k])=>[k,x[k]||''])),{dims:x.dims.map(d=>[d[0],d[1]])})])),
+    schedule:JSON.parse(JSON.stringify(K0.schedule||{})),
+    logos:Object.fromEntries(IDX.map(x=>[x.id,''])),
     homepages:Object.fromEntries(IDX.map(x=>[x.id,x.homepage]))
   };
   let saved=null,cfg=clone(DEFAULTS),backend='none',db=null,docRef=null;
@@ -56,6 +61,9 @@
   function sanitize(c){
     for(const id of Object.keys(c.homepages))if(!okUrl(c.homepages[id]))c.homepages[id]=DEFAULTS.homepages[id];
     if(!['homepage','detail','flip'].includes(c.planetClick))c.planetClick='homepage';
+    for(const id of Object.keys(c.logos))if(c.logos[id]&&!SC.logoUrl(c.logos[id]))c.logos[id]='';
+    for(const id of Object.keys(c.indices))c.indices[id].dims.forEach(d=>{d[1]=Math.max(0,Math.min(100,Math.round(+d[1]||0)))});
+    for(const id of Object.keys(c.schedule))for(const [ph] of PHASES){const r=c.schedule[id][ph];if(!r||!(r[0]>=1&&r[1]<=13&&r[0]<r[1]))c.schedule[id][ph]=clone(DEFAULTS.schedule[id][ph])}
     return c;
   }
   function deepAssign(t,s){if(!s||typeof s!=='object')return t;for(const k of Object.keys(s)){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])&&t[k]&&typeof t[k]==='object'&&!Array.isArray(t[k]))deepAssign(t[k],s[k]);else t[k]=s[k]}return t}
@@ -80,7 +88,11 @@
     const p=$('#process'),s=$('#schedule');if(p)p.hidden=!c.showProcess;if(s)s.hidden=!c.showSchedule;
     $$('#nav a[href="#process"],footer a[href="#process"]').forEach(a=>a.closest('li,a').hidden=!c.showProcess);
     $$('#nav a[href="#schedule"],footer a[href="#schedule"]').forEach(a=>a.closest('li,a').hidden=!c.showSchedule);
-    IDX.forEach(x=>{Object.assign(x,c.indices[x.id]||{});if(c.homepages[x.id])x.homepage=c.homepages[x.id]});
+    IDX.forEach(x=>{const o=c.indices[x.id]||{};INDEX_FIELDS.forEach(([f])=>{x[f]=o[f]});x.dims=(o.dims||x.dims).map(d=>[d[0],d[1]]);
+      if(c.homepages[x.id])x.homepage=c.homepages[x.id];
+      const u=SC.logoUrl(c.logos[x.id]);x.logo=u||SC.DEFAULT_LOGO[x.id]||x.logo;x.logoCustom=!!u;
+      $$(`.orb-plaque[data-idx="${x.id}"] img`).forEach(im=>{if(im.getAttribute('src')!==x.logo)im.src=x.logo})});
+    if(K0.schedule)for(const id of Object.keys(c.schedule))if(K0.schedule[id])for(const [ph] of PHASES)K0.schedule[id][ph]=c.schedule[id][ph].slice();
     window.KSA_SITE={autoRotate:c.autoRotate,planetClick:c.planetClick};
     const k=window.__ksa;if(k&&k.rerender)k.rerender();
   }
@@ -115,7 +127,19 @@
         ${IDX.map(x=>inp(`homepages.${x.id}`,esc(x.code),{type:'url',hint:esc(x.name)})).join('')}
       </div></details>
       <details><summary>지수별 내용</summary><div class="se-fields">
-        ${IDX.map(x=>`<details class="se-sub"><summary><i style="background:${x.color}"></i>${esc(x.code)}</summary><div class="se-fields">${INDEX_FIELDS.map(([f,l,a])=>inp(`indices.${x.id}.${f}`,l,{area:!!a,rows:4})).join('')}</div></details>`).join('')}
+        ${IDX.map(x=>`<details class="se-sub"><summary><i style="background:${x.color}"></i>${esc(x.code)}</summary><div class="se-fields">
+          <p class="se-help strong">로고 이미지</p>
+          <div class="se-logo"><span class="se-logo-prev"><img id="se-logo-${x.id}" alt="${esc(x.code)} 현재 로고"></span>
+            <div><label class="se-btn ghost se-file" for="se-file-${x.id}">이미지 바꾸기</label><input type="file" id="se-file-${x.id}" accept="image/png,image/jpeg,image/webp,image/gif" data-logo="${x.id}" hidden>
+            <button type="button" class="se-link" data-logo-reset="${x.id}">기본 로고로</button></div></div>
+          ${INDEX_FIELDS.map(([f,l,a])=>inp(`indices.${x.id}.${f}`,l,{area:!!a,rows:4})).join('')}
+          <p class="se-help strong">측정 항목 · 가중치 <small class="se-sum" data-sum="${x.id}"></small></p>
+          ${x.dims.map((_,j)=>`<div class="se-dim"><input aria-label="${esc(x.code)} 측정 항목 ${j+1}" data-k="indices.${x.id}.dims.${j}.0"><input type="number" min="0" max="100" step="1" aria-label="${esc(x.code)} 항목 ${j+1} 가중치" data-k="indices.${x.id}.dims.${j}.1"><span>%</span></div>`).join('')}
+        </div></details>`).join('')}
+      </div></details>
+      <details><summary>연간 일정</summary><div class="se-fields">
+        <p class="se-help">월 단위로 입력합니다. 0.5는 그 달 중순입니다 (예: 3 ~ 5.5 = 3월 초부터 5월 중순까지). 끝은 13(=12월 말)까지.</p>
+        ${IDX.map(x=>`<details class="se-sub"><summary><i style="background:${x.color}"></i>${esc(x.code)}</summary><div class="se-fields">${PHASES.map(([ph,l])=>`<div class="se-sched"><span>${l}</span><input type="number" min="1" max="13" step="0.5" aria-label="${esc(x.code)} ${l} 시작 월" data-k="schedule.${x.id}.${ph}.0"><em>~</em><input type="number" min="1" max="13" step="0.5" aria-label="${esc(x.code)} ${l} 끝 월" data-k="schedule.${x.id}.${ph}.1"></div>`).join('')}</div></details>`).join('')}
       </div></details>
       <details><summary>섹션 제목 · 설명</summary><div class="se-fields">
         ${SECTIONS.map(([id,l])=>`<p class="se-help strong">${l}</p>${inp(`sections.${id}.title`,'제목',{area:1,rows:2,hint:'줄바꿈 = 엔터'})}${inp(`sections.${id}.desc`,'설명',{area:1})}`).join('')}
@@ -151,7 +175,10 @@
       else if(el.type==='color')el.value=hex(v)||toHex(css.getPropertyValue(k==='accent'?'--brass':'--navy'));
       else{el.value=v==null?'':v;el.removeAttribute('aria-invalid')}});
     panel.querySelectorAll('input[name="se-pc"]').forEach(r=>r.checked=r.value===cfg.planetClick);
+    IDX.forEach(x=>{const im=$('#se-logo-'+x.id);if(im)im.src=SC.logoUrl(cfg.logos[x.id])||SC.DEFAULT_LOGO[x.id]||x.logo});
+    sums();
   }
+  function sums(){IDX.forEach(x=>{const el=panel.querySelector(`[data-sum="${x.id}"]`);if(!el)return;const t=cfg.indices[x.id].dims.reduce((a,d)=>a+(+d[1]||0),0);el.textContent=`합계 ${t}%`+(t===100?'':' · 100%가 되도록 맞춰 주세요');el.dataset.bad=t===100?'':'1'})}
   let dirty=false;
   function changed(){dirty=JSON.stringify(cfg)!==JSON.stringify(saved||DEFAULTS);apply(cfg);setStatus(dirty?'저장하지 않은 변경 사항이 있습니다.':'')}
   function setStatus(t,kind){status.textContent=t;status.dataset.kind=kind||''}
@@ -160,6 +187,12 @@
     if(!k)return;
     if(el.type==='checkbox'){setPath(cfg,k,el.checked);changed();return}
     if(k.startsWith('homepages.')){if(el.value&&!okUrl(el.value)){el.setAttribute('aria-invalid','true');return}el.removeAttribute('aria-invalid');setPath(cfg,k,el.value||getPath(DEFAULTS,k));changed();return}
+    if(el.type==='number'){
+      const v=parseFloat(el.value);if(!isFinite(v)){el.setAttribute('aria-invalid','true');return}
+      if(k.startsWith('schedule.')){const ks=k.split('.'),r=cfg.schedule[ks[1]][ks[2]].slice();r[+ks[3]]=Math.round(v*2)/2;
+        if(!(r[0]>=1&&r[1]<=13&&r[0]<r[1])){el.setAttribute('aria-invalid','true');return}
+        el.removeAttribute('aria-invalid');cfg.schedule[ks[1]][ks[2]]=r;changed();return}
+      el.removeAttribute('aria-invalid');setPath(cfg,k,Math.max(0,Math.min(100,Math.round(v))));sums();changed();return}
     setPath(cfg,k,el.value);changed()});
   panel.addEventListener('change',e=>{if(e.target.type==='checkbox'){setPath(cfg,e.target.dataset.k,e.target.checked);changed()}});
   $('#seSlogans').addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(!b)return;const s=SLOGANS[+b.dataset.s];cfg.title1=s[0];cfg.title2=s[1];cfg.highlight=s[2];fill();changed()});
@@ -172,6 +205,21 @@
   addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden)close()});
   function open(){panel.hidden=false;fill();document.body.classList.add('se-open')}
   function close(){panel.hidden=true;document.body.classList.remove('se-open')}
+
+  /* logo upload: downscale in the page, then the viewer's asset store (claude.ai) or this browser (data URI) */
+  let assets=null;
+  function shrink(file,max){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const s=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);const g=c.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c)};im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('decode'))};im.src=u})}
+  panel.addEventListener('change',async e=>{const el=e.target;if(!el.dataset.logo||!el.files||!el.files[0])return;const id=el.dataset.logo,f=el.files[0];el.value='';
+    try{
+      setStatus('로고를 올리는 중…');const c=await shrink(f,800);
+      if(backend==='db'){
+        if(!assets){setStatus('이 화면에서는 이미지를 올릴 수 없습니다. 편집 권한이 있는 계정으로 열어 주세요.','err');return}
+        const blob=await new Promise(r=>c.toBlob(r,'image/png'));const up=await assets.upload(blob,{type:'image/png'});
+        cfg.logos[id]='asset:'+up.id;
+      }else{const d=c.toDataURL('image/png');if(d.length>600000){setStatus('이미지가 너무 큽니다. 더 작은 파일을 골라 주세요.','err');return}cfg.logos[id]=d}
+      fill();changed();setStatus('로고를 바꿨습니다. 저장하면 반영됩니다.');
+    }catch(err){setStatus(err&&err.message==='decode'?'이미지를 읽지 못했습니다. PNG나 JPG 파일인지 확인해 주세요.':'로고를 올리지 못했습니다. 잠시 후 다시 시도해 주세요.','err')}});
+  panel.addEventListener('click',e=>{const b=e.target.closest('[data-logo-reset]');if(!b)return;cfg.logos[b.dataset.logoReset]='';fill();changed()});
 
   async function save(){
     const btn=$('#seSave');btn.disabled=true;setStatus('저장 중…');
@@ -205,7 +253,9 @@ ${JSON.stringify(cfg)}
 - planetClick: 메인 보드의 행성 로고를 눌렀을 때 동작. "homepage"(지수 공식 사이트로 이동), "detail"(지수 소개로 이동), "flip"(메달 뒤집기)
 - sections: {indices|process|schedule: {title(줄바꿈은 \\n), desc}}
 - steps: 참여 절차 6단계 배열 [{t: 제목, p: 설명}] (배열 길이 유지)
-- indices: {qei|cqi|pbi|well|dcxi: {name, en, desc, target, method, announce}}
+- indices: {qei|cqi|pbi|well|dcxi: {name, en, desc, target, method, announce, dims}} — dims는 [항목 이름, 가중치%] 4개 배열(합계 100, 길이 유지)
+- schedule: {qei|...: {apply|survey|award: [시작 월, 끝 월]}} — 1~13, 0.5 단위(0.5 = 중순), 시작 < 끝
+- logos: 바꾸지 마세요
 - homepages: {qei|cqi|pbi|well|dcxi: https 주소}
 
 사용자 요청: ${q}
@@ -237,6 +287,7 @@ JSON 하나만 답하세요: {"patch": {바꿀 필드만, 위와 같은 구조},
 
   const C=window.claude;
   if(!C||!C.use){showLocal();return}
+  C.use('assets').then(a=>{assets=a||null}).catch(()=>{});
   C.use('sample').then(fn=>{if(typeof fn==='function'){sample=fn;$('#seAI').hidden=false}}).catch(()=>{});
   Promise.all([C.use('db'),C.use('user')]).then(async([d,u])=>{
     if(!d){showLocal();return}
