@@ -309,6 +309,8 @@ section[id]{scroll-margin-top:72px}
 .seg.apply{background:var(--brass-soft);color:var(--brass);border:1px solid color-mix(in srgb,var(--brass) 40%,transparent)}
 .seg.survey{background:color-mix(in srgb,var(--ink) 9%,transparent);color:var(--ink-2)}
 .seg.award{background:var(--ink);color:var(--paper);font-weight:500}
+.seg.award.lbl{min-width:max-content;overflow:visible;z-index:2;padding-inline:.55rem;font-size:.7rem;letter-spacing:.01em;box-shadow:0 2px 6px -2px rgba(0,0,0,.35)}
+.seg.award.lbl.end{left:auto}
 .sched .seg{cursor:default;transition:box-shadow .2s,filter .2s}
 .sched .seg.hot{box-shadow:0 0 0 2px var(--brass);filter:brightness(1.08);z-index:3}
 .sched-tip{position:fixed;z-index:90;pointer-events:none;background:var(--ink);color:var(--paper);padding:.6em .85em;font-size:.78rem;line-height:1.45;display:flex;flex-direction:column;gap:2px;box-shadow:0 14px 30px -14px rgba(0,0,0,.55);white-space:nowrap}
@@ -644,7 +646,11 @@ body.se-open .se-fab{display:none}
         if(m>=Math.floor(a)&&m<Math.ceil(b)){
           const L=Math.max(a,m)-m,R=Math.min(b,m+1)-m;
           const first=m===Math.floor(a);
-          segs+=`<span class="seg ${k}" data-i="${i.id}" data-ph="${k}" style="left:${L*100}%;right:${(1-R)*100}%;--d:${(row*.09+(m-1)*.035).toFixed(2)}s">${first?lab:''}</span>`;
+          /* the announcement is often a single day: its label keeps its own width (with the date) instead of being clipped by the bar */
+          const isLbl=first&&k==='award',endSide=isLbl&&b>12.55;
+          const txt=isLbl?`${lab} ${da.getMonth()+1}.${da.getDate()}`:(first?lab:'');
+          const pos=endSide?`right:${(1-R)*100}%`:`left:${L*100}%;right:${(1-R)*100}%`;
+          segs+=`<span class="seg ${k}${isLbl?' lbl':''}${endSide?' end':''}" data-i="${i.id}" data-ph="${k}" style="${pos};--d:${(row*.09+(m-1)*.035).toFixed(2)}s">${txt}</span>`;
         }
       });
       if(m===curM)segs+=`<span class="today" style="left:${(dayFrac*100).toFixed(1)}%"></span>`;
