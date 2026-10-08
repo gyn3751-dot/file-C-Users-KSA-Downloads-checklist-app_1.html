@@ -1,13 +1,13 @@
 /* 한국표준협회 지수 데이터 — index.html, explore.html 공용
- * homepage: 각 지수 공식 홈페이지 주소로 교체하세요. (현재는 협회 메인 주소)
+ * homepage: 각 지수 공식 홈페이지 주소 (사이트 편집 패널에서도 바꿀 수 있습니다)
  */
 (function(){
 const HOME={
-  qei:'https://www.ksa.or.kr',
-  cqi:'https://www.ksa.or.kr',
-  pbi:'https://www.ksa.or.kr',
-  well:'https://www.ksa.or.kr',
-  dcxi:'https://www.ksa.or.kr'
+  qei:'https://ks-qei.ksa.or.kr/ks-qei/index.do',
+  cqi:'https://ks-cqi.ksa.or.kr/ks-cqi/index.do',
+  pbi:'https://ks-pbi.ksa.or.kr/ks-pbi/index.do',
+  well:'https://wellness.ksa.or.kr/',
+  dcxi:'https://www.ksa.or.kr/dcxi/index.do'
 };
 window.KSA_INDICES=[
   {id:'qei',color:'#F2C230',homepage:HOME.qei,code:'KS-QEI',name:'한국품질만족지수',en:'Korean Standard Quality Excellence Index',logo:'assets/logos/ks-qei.png',
