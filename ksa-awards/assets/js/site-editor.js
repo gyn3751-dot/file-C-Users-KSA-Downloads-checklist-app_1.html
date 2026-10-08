@@ -21,6 +21,7 @@
   const PHASES=[['apply','신청 접수'],['survey','조사 · 평가'],['award','발표 · 인증식']];
   const SC=window.KSA_SITE_CONFIG||{logoUrl:()=>'',DEFAULT_LOGO:{}};
   const K0=window.__ksa||{};
+  const ST=K0.schedTools||{normRange:r=>r,year:2026};
 
   /* ── defaults come from the page as written ── */
   const root=document.documentElement,css=getComputedStyle(root);
@@ -58,12 +59,14 @@
     return typeof over===typeof base?over:base;
   }
   const okUrl=v=>/^https?:\/\/[^\s]+$/.test(v);
+  /* settings saved before exact dates stored months as numbers; turn them into dates before the shape check */
+  function upgrade(o){if(o&&o.schedule&&typeof o.schedule==='object')for(const id of Object.keys(o.schedule))for(const ph of Object.keys(o.schedule[id]||{})){const r=ST.normRange(o.schedule[id][ph]);if(r)o.schedule[id][ph]=r}return o}
   function sanitize(c){
     for(const id of Object.keys(c.homepages))if(!okUrl(c.homepages[id]))c.homepages[id]=DEFAULTS.homepages[id];
     if(!['homepage','detail','flip'].includes(c.planetClick))c.planetClick='homepage';
     for(const id of Object.keys(c.logos))if(c.logos[id]&&!SC.logoUrl(c.logos[id]))c.logos[id]='';
     for(const id of Object.keys(c.indices))c.indices[id].dims.forEach(d=>{d[1]=Math.max(0,Math.min(100,Math.round(+d[1]||0)))});
-    for(const id of Object.keys(c.schedule))for(const [ph] of PHASES){const r=c.schedule[id][ph];if(!r||!(r[0]>=1&&r[1]<=13&&r[0]<r[1]))c.schedule[id][ph]=clone(DEFAULTS.schedule[id][ph])}
+    for(const id of Object.keys(c.schedule))for(const [ph] of PHASES){const r=ST.normRange(c.schedule[id][ph]);c.schedule[id][ph]=r||clone(DEFAULTS.schedule[id][ph])}
     return c;
   }
   function deepAssign(t,s){if(!s||typeof s!=='object')return t;for(const k of Object.keys(s)){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])&&t[k]&&typeof t[k]==='object'&&!Array.isArray(t[k]))deepAssign(t[k],s[k]);else t[k]=s[k]}return t}
@@ -143,8 +146,8 @@
       <details><summary>연간 일정</summary><div class="se-fields">
         <label for="se-sched-title">일정표 제목 <small>줄바꿈 = 엔터</small></label><textarea id="se-sched-title" data-k="sections.schedule.title" rows="2"></textarea>
         <label for="se-sched-desc">일정표 설명</label><textarea id="se-sched-desc" data-k="sections.schedule.desc" rows="3"></textarea>
-        <p class="se-help">지수마다 단계별 시작과 끝을 고르세요. 바꾸면 아래 일정표와 "접수 중" 같은 배지가 바로 바뀝니다.</p>
-        ${IDX.map(x=>`<details class="se-sub" data-sched="${x.id}"><summary><i style="background:${x.color}"></i>${esc(x.code)} <small>${esc(x.name)}</small></summary><div class="se-fields">${PHASES.map(([ph,l])=>`<div class="se-sched"><span>${l}</span><select aria-label="${esc(x.code)} ${l} 시작" data-k="schedule.${x.id}.${ph}.0">${monthOpts(1,12.5)}</select><em>~</em><select aria-label="${esc(x.code)} ${l} 끝" data-k="schedule.${x.id}.${ph}.1">${monthOpts(1.5,13)}</select></div>`).join('')}</div></details>`).join('')}
+        <p class="se-help">달력에서 단계별 시작일과 종료일을 고르세요. 사이트 일정표의 막대에 마우스를 올리면 이 날짜가 그대로 보입니다.</p>
+        ${IDX.map(x=>`<details class="se-sub" data-sched="${x.id}"><summary><i style="background:${x.color}"></i>${esc(x.code)} <small>${esc(x.name)}</small></summary><div class="se-fields">${PHASES.map(([ph,l])=>`<div class="se-sched"><span>${l}</span><input type="date" min="${ST.year}-01-01" max="${ST.year}-12-31" aria-label="${esc(x.code)} ${l} 시작일" data-k="schedule.${x.id}.${ph}.0"><em>~</em><input type="date" min="${ST.year}-01-01" max="${ST.year}-12-31" aria-label="${esc(x.code)} ${l} 종료일" data-k="schedule.${x.id}.${ph}.1"></div>`).join('')}</div></details>`).join('')}
       </div></details>
       <details><summary>섹션 제목 · 설명</summary><div class="se-fields">
         ${SECTIONS.map(([id,l])=>`<p class="se-help strong">${l}</p>${inp(`sections.${id}.title`,'제목',{area:1,rows:2,hint:'줄바꿈 = 엔터'})}${inp(`sections.${id}.desc`,'설명',{area:1})}`).join('')}
@@ -194,9 +197,9 @@
     if(el.type==='checkbox'){setPath(cfg,k,el.checked);changed();return}
     if(k.startsWith('homepages.')){if(el.value&&!okUrl(el.value)){el.setAttribute('aria-invalid','true');return}el.removeAttribute('aria-invalid');setPath(cfg,k,el.value||getPath(DEFAULTS,k));changed();return}
     if(k.startsWith('schedule.')){
-      const v=parseFloat(el.value);const ks=k.split('.'),r=cfg.schedule[ks[1]][ks[2]].slice();r[+ks[3]]=v;
+      const ks=k.split('.'),r=cfg.schedule[ks[1]][ks[2]].slice();r[+ks[3]]=el.value;
       const pair=panel.querySelectorAll(`[data-k^="schedule.${ks[1]}.${ks[2]}."]`);
-      if(!(r[0]>=1&&r[1]<=13&&r[0]<r[1])){pair.forEach(x=>x.setAttribute('aria-invalid','true'));setStatus('시작이 끝보다 앞서야 합니다.','err');return}
+      if(!ST.normRange(r)){pair.forEach(x=>x.setAttribute('aria-invalid','true'));setStatus(el.value?'시작일이 종료일보다 늦을 수 없습니다.':'날짜를 골라 주세요.','err');return}
       pair.forEach(x=>x.removeAttribute('aria-invalid'));cfg.schedule[ks[1]][ks[2]]=r;changed();return}
     if(el.type==='number'){
       const v=parseFloat(el.value);if(!isFinite(v)){el.setAttribute('aria-invalid','true');return}
@@ -266,7 +269,7 @@ ${JSON.stringify(cfg)}
 - sections: {indices|process|schedule: {title(줄바꿈은 \\n), desc}}
 - steps: 참여 절차 6단계 배열 [{t: 제목, p: 설명}] (배열 길이 유지)
 - indices: {qei|cqi|pbi|well|dcxi: {name, en, desc, target, method, announce, dims}} — dims는 [항목 이름, 가중치%] 4개 배열(합계 100, 길이 유지)
-- schedule: {qei|...: {apply|survey|award: [시작 월, 끝 월]}} — 1~13, 0.5 단위(0.5 = 중순), 시작 < 끝
+- schedule: {qei|...: {apply|survey|award: ["YYYY-MM-DD" 시작일, "YYYY-MM-DD" 종료일]}} — 종료일 포함, 시작일 ≤ 종료일
 - logos: 바꾸지 마세요
 - homepages: {qei|cqi|pbi|well|dcxi: https 주소}
 
@@ -277,7 +280,7 @@ JSON 하나만 답하세요: {"patch": {바꿀 필드만, 위와 같은 구조},
     try{
       const r=await sample.json(prompt,{signal:askCtl.signal});
       const patch=r&&typeof r.patch==='object'&&r.patch&&!Array.isArray(r.patch)?r.patch:{};
-      cfg=sanitize(merge(DEFAULTS,deepAssign(clone(cfg),patch)));fill();changed();
+      cfg=sanitize(merge(DEFAULTS,upgrade(deepAssign(clone(cfg),patch))));fill();changed();
       const n=Object.keys(patch).length;
       note.textContent=(r&&r.note?String(r.note):'')+(n?' 마음에 들면 저장을 눌러 주세요.':'');
     }catch(e){
@@ -292,7 +295,7 @@ JSON 하나만 답하세요: {"patch": {바꿀 필드만, 위와 같은 구조},
 
   /* ── boot: local first, then the shared store when the viewer provides it ── */
   window.KSA_SITE={autoRotate:true,planetClick:DEFAULTS.planetClick};
-  try{const raw=localStorage.getItem(LS_KEY);if(raw){saved=sanitize(merge(DEFAULTS,JSON.parse(raw)));cfg=clone(saved);apply(cfg)}}catch(_){}
+  try{const raw=localStorage.getItem(LS_KEY);if(raw){saved=sanitize(merge(DEFAULTS,upgrade(JSON.parse(raw))));cfg=clone(saved);apply(cfg)}}catch(_){}
   const wantsEdit=()=>{try{if(location.hash==='#edit')localStorage.setItem(LS_EDIT,'1');return location.hash==='#edit'||localStorage.getItem(LS_EDIT)==='1'}catch(_){return location.hash==='#edit'}};
   function showLocal(){backend='local';$('#seMode').textContent='이 브라우저에만 저장';setEditable(wantsEdit())}
   addEventListener('hashchange',()=>{if(backend!=='db'&&wantsEdit()){setEditable(true);open()}});
@@ -305,7 +308,7 @@ JSON 하나만 답하세요: {"patch": {바꿀 필드만, 위와 같은 구조},
     if(!d){showLocal();return}
     db=d;docRef=db.doc('site/config');
     docRef.onSnapshot(snap=>{
-      if(snap.exists){saved=sanitize(merge(DEFAULTS,snap.data()));if(!dirty){cfg=clone(saved);apply(cfg);if(!panel.hidden)fill()}}
+      if(snap.exists){saved=sanitize(merge(DEFAULTS,upgrade(snap.data())));if(!dirty){cfg=clone(saved);apply(cfg);if(!panel.hidden)fill()}}
       else if(!saved)saved=clone(DEFAULTS);
     },()=>{});
     const canEdit=u?(await u.canEdit().catch(()=>false))||(await u.isOwner().catch(()=>false)):false;

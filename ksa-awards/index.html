@@ -309,6 +309,14 @@ section[id]{scroll-margin-top:72px}
 .seg.apply{background:var(--brass-soft);color:var(--brass);border:1px solid color-mix(in srgb,var(--brass) 40%,transparent)}
 .seg.survey{background:color-mix(in srgb,var(--ink) 9%,transparent);color:var(--ink-2)}
 .seg.award{background:var(--ink);color:var(--paper);font-weight:500}
+.sched .seg{cursor:default;transition:box-shadow .2s,filter .2s}
+.sched .seg.hot{box-shadow:0 0 0 2px var(--brass);filter:brightness(1.08);z-index:3}
+.sched-tip{position:fixed;z-index:90;pointer-events:none;background:var(--ink);color:var(--paper);padding:.6em .85em;font-size:.78rem;line-height:1.45;display:flex;flex-direction:column;gap:2px;box-shadow:0 14px 30px -14px rgba(0,0,0,.55);white-space:nowrap}
+.sched-tip .tt-h{display:flex;align-items:center;gap:6px}
+.sched-tip .tt-d{font-family:var(--f-mono);font-size:.76rem;font-variant-numeric:tabular-nums}
+.sched-tip .tt-n{font-size:.7rem;opacity:.7}
+.tt-dot{width:8px;height:8px;border-radius:2px;display:inline-block}
+.tt-dot.apply{background:var(--brass-soft);border:1px solid var(--brass)}.tt-dot.survey{background:color-mix(in srgb,var(--paper) 45%,transparent)}.tt-dot.award{background:var(--paper)}
 .now-col{background:color-mix(in srgb,var(--brass) 6%,transparent)}
 .sched .today{position:absolute;top:0;bottom:0;width:0;border-left:1.5px solid var(--brass);z-index:2;pointer-events:none}
 .sched .today::before{content:"";position:absolute;top:-1px;left:-4.5px;width:8px;height:8px;border-radius:50%;background:var(--brass)}
@@ -382,7 +390,9 @@ body.se-open .se-fab{display:none}
 .se-radios label{display:flex;gap:8px;align-items:center;font-size:.82rem!important;color:var(--ink)!important;cursor:pointer;margin:0!important}
 .se-radios input{accent-color:var(--ink);width:16px;height:16px;margin:0;flex:none}
 .se-dim{display:grid;grid-template-columns:minmax(0,1fr) 64px auto;gap:6px;align-items:center;font-size:.8rem;color:var(--ink-3)}
-.se-sched{display:grid;grid-template-columns:minmax(0,1fr) 92px auto 92px;gap:6px;align-items:center;font-size:.78rem;color:var(--ink-2)}
+.se-sched{display:grid;grid-template-columns:minmax(0,4.2em) minmax(0,1fr) auto minmax(0,1fr);gap:6px;align-items:center;font-size:.78rem;color:var(--ink-2)}
+.se-sched input[type=date]{width:100%;height:36px;border:1px solid var(--rule);background:var(--paper);font-size:.78rem;padding:0 4px;border-radius:0;min-width:0}
+.se-sched input[aria-invalid=true]{border-color:#B4432F}
 .se-sched select{width:100%;height:36px;border:1px solid var(--rule);background:var(--paper);font-size:.8rem;padding:0 6px;border-radius:0}
 .se-sched select[aria-invalid=true]{border-color:#B4432F}
 .se-sched em{font-style:normal;color:var(--ink-3)}
@@ -547,13 +557,26 @@ body.se-open .se-fab{display:none}
 (function(){
   const INDICES=window.KSA_INDICES;
   /* month index 1–12: [start,end] (fractional = mid-month) */
+  /* exact dates per phase, both ends inclusive (editable in the site editor) */
+  const SCHED_YEAR=2026;
   const SCHED={
-    qei:{apply:[3,5],survey:[5,8.5],award:[10,10.5]},
-    cqi:{apply:[1,2],survey:[2,5],award:[6,6.5]},
-    pbi:{apply:[11,12],survey:[1,3],award:[4,4.5]},
-    well:{apply:[4,6],survey:[6,10],award:[11,11.5]},
-    dcxi:{apply:[6,7.5],survey:[7.5,11],award:[12,12.5]}
+    qei:{apply:['2026-03-02','2026-04-30'],survey:['2026-05-01','2026-08-14'],award:['2026-10-01','2026-10-15']},
+    cqi:{apply:['2026-01-05','2026-01-30'],survey:['2026-02-02','2026-04-30'],award:['2026-06-01','2026-06-15']},
+    pbi:{apply:['2026-11-02','2026-11-30'],survey:['2026-01-05','2026-02-27'],award:['2026-04-01','2026-04-15']},
+    well:{apply:['2026-04-01','2026-05-29'],survey:['2026-06-01','2026-09-30'],award:['2026-11-02','2026-11-16']},
+    dcxi:{apply:['2026-06-01','2026-07-15'],survey:['2026-07-16','2026-10-30'],award:['2026-12-01','2026-12-15']}
   };
+  const ISO=/^\d{4}-\d{2}-\d{2}$/;
+  const parseD=v=>{if(!ISO.test(v||''))return null;const [y,m,d]=v.split('-').map(Number),t=new Date(y,m-1,d);return t.getMonth()===m-1?t:null};
+  const isoD=t=>`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+  /* older settings stored months as numbers (3 = early March, 3.5 = mid-March, 13 = end of December) */
+  function fromLegacy([a,b]){const s=new Date(SCHED_YEAR,Math.floor(a)-1,a%1?16:1);
+    const e=b>=13?new Date(SCHED_YEAR,11,31):b%1?new Date(SCHED_YEAR,Math.floor(b)-1,15):new Date(SCHED_YEAR,b-1,0);return [isoD(s),isoD(e)]}
+  function normRange(r){if(Array.isArray(r)&&typeof r[0]==='number')return fromLegacy(r);const a=parseD(r&&r[0]),b=parseD(r&&r[1]);return a&&b&&a<=b?[r[0],r[1]]:null}
+  /* position on the Jan–Dec grid: 1.0 = 1 Jan, 13.0 = after 31 Dec */
+  function gridPos(t,end){if(t.getFullYear()<SCHED_YEAR)return 1;if(t.getFullYear()>SCHED_YEAR)return 13;const dim=new Date(t.getFullYear(),t.getMonth()+1,0).getDate();return t.getMonth()+1+(t.getDate()-1+(end?1:0))/dim}
+  const WD=['일','월','화','수','목','금','토'];
+  const fmtD=t=>`${t.getFullYear()}.${String(t.getMonth()+1).padStart(2,'0')}.${String(t.getDate()).padStart(2,'0')}(${WD[t.getDay()]})`;
   const $=s=>document.querySelector(s);
   const byId=Object.fromEntries(INDICES.map(i=>[i.id,i]));
 
@@ -601,13 +624,14 @@ body.se-open .se-fab{display:none}
   /* open an index's official site in a new tab from a click (a real link, so it also works inside the claude.ai viewer) */
   function openHome(id){const i=byId[id];if(!i||!i.homepage)return;const a=document.createElement('a');a.href=i.homepage;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove()}
   const hooks=[];
-  window.__ksa={INDICES,show,current:()=>curId,openHome,schedule:SCHED,onRerender:f=>hooks.push(f),
+  window.__ksa={INDICES,show,current:()=>curId,openHome,schedule:SCHED,schedTools:{normRange,year:SCHED_YEAR},onRerender:f=>hooks.push(f),
     rerender(){renderList();show(curId);renderSched();hooks.forEach(f=>f())}};
 
   /* schedule */
   const now=new Date(),curM=now.getFullYear()===2026?now.getMonth()+1:0;
   const dayFrac=(now.getDate()-1)/new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),pos=curM?curM+dayFrac:0;
-  const inR=([a,b])=>pos>=a&&pos<b;
+  const today0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const inR=r=>{const a=parseD(r[0]),b=parseD(r[1]);return a&&b&&today0>=a&&today0<=b};
   const thead=$('#sched thead tr');
   for(let m=1;m<=12;m++){const th=document.createElement('th');th.scope='col';th.textContent=String(m).padStart(2,'0')+'월';if(m===curM){th.className='now-col';th.innerHTML='<span class="today-lab">TODAY</span>'+th.textContent}thead.appendChild(th)}
   function renderSched(){$('#sched tbody').innerHTML=INDICES.map((i,row)=>{
@@ -615,21 +639,37 @@ body.se-open .se-fab{display:none}
     for(let m=1;m<=12;m++){
       let segs='';
       [['apply','신청'],['survey','조사·평가'],['award','발표']].forEach(([k,lab])=>{
-        const [a,b]=s[k];
+        const da=parseD(s[k][0]),db=parseD(s[k][1]);if(!da||!db)return;
+        const a=gridPos(da,false),b=gridPos(db,true);if(b<=a)return;
         if(m>=Math.floor(a)&&m<Math.ceil(b)){
           const L=Math.max(a,m)-m,R=Math.min(b,m+1)-m;
           const first=m===Math.floor(a);
-          segs+=`<span class="seg ${k}" style="left:${L*100}%;right:${(1-R)*100}%;--d:${(row*.09+(m-1)*.035).toFixed(2)}s">${first?lab:''}</span>`;
+          segs+=`<span class="seg ${k}" data-i="${i.id}" data-ph="${k}" style="left:${L*100}%;right:${(1-R)*100}%;--d:${(row*.09+(m-1)*.035).toFixed(2)}s">${first?lab:''}</span>`;
         }
       });
       if(m===curM)segs+=`<span class="today" style="left:${(dayFrac*100).toFixed(1)}%"></span>`;
       cells+=`<td class="${m===curM?'now-col':''}">${segs}</td>`;
     }
     let st='';
-    if(pos){if(inR(s.apply))st='<em class="st st-apply">접수 중</em>';else if(inR(s.survey))st='<em class="st st-survey">조사 · 평가 중</em>';else if(inR(s.award))st='<em class="st st-award">발표 시즌</em>';else st=`<em class="st st-next">다음 접수 ${Math.floor(s.apply[0])}월</em>`}
+    if(pos){if(inR(s.apply))st='<em class="st st-apply">접수 중</em>';else if(inR(s.survey))st='<em class="st st-survey">조사 · 평가 중</em>';else if(inR(s.award))st='<em class="st st-award">발표 시즌</em>';else{const n=parseD(s.apply[0]);st=n&&n>today0?`<em class="st st-next">다음 접수 ${n.getMonth()+1}월 ${n.getDate()}일</em>`:''}}
     return `<tr><th scope="row">${i.name}<span>${i.code}</span>${st}</th>${cells}</tr>`;
   }).join('')}
   renderSched();
+  /* hover a bar: every piece of it lights up and a tooltip gives the exact dates */
+  const PH={apply:'신청 접수',survey:'고객 조사 · 평가',award:'발표 · 인증식'};
+  const tip=document.createElement('div');tip.className='sched-tip';tip.setAttribute('role','tooltip');tip.hidden=true;document.body.appendChild(tip);
+  let tipKey='';
+  function showTip(seg,x,y){const id=seg.dataset.i,ph=seg.dataset.ph,key=id+ph,r=SCHED[id][ph],a=parseD(r[0]),b=parseD(r[1]),ix=byId[id];
+    if(key!==tipKey){tipKey=key;document.querySelectorAll('#sched .seg.hot').forEach(e=>e.classList.remove('hot'));document.querySelectorAll(`#sched .seg[data-i="${id}"][data-ph="${ph}"]`).forEach(e=>e.classList.add('hot'));
+      const days=Math.round((b-a)/864e5)+1;
+      tip.innerHTML=`<span class="tt-h"><i class="tt-dot ${ph}"></i><b>${ix.code}</b> ${PH[ph]}</span><span class="tt-d">${fmtD(a)} – ${fmtD(b)}</span><span class="tt-n">${days}일간</span>`}
+    tip.hidden=false;const w=tip.offsetWidth,h=tip.offsetHeight;tip.style.left=Math.min(innerWidth-w-8,Math.max(8,x-w/2))+'px';tip.style.top=(y-h-14<8?y+18:y-h-14)+'px'}
+  function hideTip(){tip.hidden=true;tipKey='';document.querySelectorAll('#sched .seg.hot').forEach(e=>e.classList.remove('hot'))}
+  const schedT=$('#sched');
+  schedT.addEventListener('pointermove',e=>{const seg=e.target.closest('.seg');if(seg)showTip(seg,e.clientX,e.clientY);else hideTip()});
+  schedT.addEventListener('pointerleave',hideTip);
+  schedT.addEventListener('click',e=>{const seg=e.target.closest('.seg');if(seg)showTip(seg,e.clientX,e.clientY)});
+  addEventListener('scroll',()=>{if(!tip.hidden&&matchMedia('(hover: hover)').matches)hideTip()},{passive:true});
 
   /* scroll reveal, schedule draw-in, hero count-up (content is fully visible without JS or with reduced motion) */
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
