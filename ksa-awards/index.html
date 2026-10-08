@@ -298,20 +298,21 @@ section[id]{scroll-margin-top:72px}
 
 /* ── Schedule ── */
 .sched-wrap{overflow-x:auto;border:1px solid var(--rule);background:var(--sheet)}
-.sched{width:100%;min-width:760px;border-collapse:collapse;font-size:.86rem}
+.sched{width:100%;min-width:760px;border-collapse:collapse;font-size:.86rem;table-layout:fixed}
+.sched thead th:first-child{width:190px}
 .sched th,.sched td{border-bottom:1px solid var(--rule);padding:0;height:76px}
 .sched thead th{height:44px;font-family:var(--f-mono);font-weight:400;font-size:.72rem;color:var(--ink-3);letter-spacing:.06em;text-align:center}
 .sched tbody th{text-align:left;padding:var(--s-2) var(--s-5);font-weight:500;white-space:nowrap;width:190px;line-height:1.35}
 .sched tbody th span{display:block;font-family:var(--f-mono);font-size:.7rem;color:var(--ink-3);font-weight:400}
 .sched td{position:relative;border-left:1px solid color-mix(in srgb,var(--rule) 60%,transparent)}
 .sched tbody tr:last-child th,.sched tbody tr:last-child td{border-bottom:0}
-.seg{position:absolute;top:50%;height:22px;transform:translateY(-50%);font-size:.68rem;display:flex;align-items:center;padding-inline:.5rem;white-space:nowrap;overflow:hidden}
+.seg{position:absolute;top:50%;z-index:1;height:22px;transform:translateY(-50%);font-size:.68rem;display:flex;align-items:center;padding-inline:.5rem;white-space:nowrap;overflow:hidden;text-overflow:clip;border-radius:2px}
 .seg.apply{background:var(--brass-soft);color:var(--brass);border:1px solid color-mix(in srgb,var(--brass) 40%,transparent)}
 .seg.survey{background:color-mix(in srgb,var(--ink) 9%,transparent);color:var(--ink-2)}
 .seg.notice{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--ink) 26%,transparent) 0 5px,color-mix(in srgb,var(--ink) 16%,transparent) 5px 10px);color:var(--ink);font-weight:500}
 .seg.award{background:var(--ink);color:var(--paper);font-weight:500}
 .seg.award.lbl{min-width:max-content;overflow:visible;z-index:2;padding-inline:.55rem;font-size:.7rem;letter-spacing:.01em;box-shadow:0 2px 6px -2px rgba(0,0,0,.35)}
-.seg.award.lbl.end{left:auto}
+.seg.award.lbl.end{left:auto;transform-origin:right center}
 .sched .seg{cursor:default;transition:box-shadow .2s,filter .2s}
 .sched .seg.hot{box-shadow:0 0 0 2px var(--brass);filter:brightness(1.08);z-index:3}
 .sched-tip{position:fixed;z-index:90;pointer-events:none;background:var(--ink);color:var(--paper);padding:.6em .85em;font-size:.78rem;line-height:1.45;display:flex;flex-direction:column;gap:2px;box-shadow:0 14px 30px -14px rgba(0,0,0,.55);white-space:nowrap}
@@ -642,22 +643,18 @@ body.se-open .se-fab{display:none}
   const thead=$('#sched thead tr');
   for(let m=1;m<=12;m++){const th=document.createElement('th');th.scope='col';th.textContent=String(m).padStart(2,'0')+'월';if(m===curM){th.className='now-col';th.innerHTML='<span class="today-lab">TODAY</span>'+th.textContent}thead.appendChild(th)}
   function renderSched(){$('#sched tbody').innerHTML=INDICES.map((i,row)=>{
-    const s=SCHED[i.id];let cells='';
+    const s=SCHED[i.id];let cells='',bars='';
+    /* one continuous bar per phase, laid over the month grid (placed in the January cell; 100% = one month) */
+    [['apply','조사부문'],['survey','조사평가'],['notice','결과안내'],['award','발표']].forEach(([k,lab])=>{
+      const da=parseD(s[k][0]),db=parseD(s[k][1]);if(!da||!db)return;
+      const a=gridPos(da,false),b=gridPos(db,true);if(b<=a)return;
+      /* the announcement is often a single day: its label keeps its own width instead of being clipped by the bar */
+      const isLbl=k==='award',endSide=isLbl&&b>12.55;
+      const pos=endSide?`right:${((1-b+1)*100).toFixed(2)}%`:`left:${((a-1)*100).toFixed(2)}%;width:${((b-a)*100).toFixed(2)}%`;
+      bars+=`<span class="seg ${k}${isLbl?' lbl':''}${endSide?' end':''}" data-i="${i.id}" data-ph="${k}" style="${pos};--d:${(row*.09+(a-1)*.035).toFixed(2)}s">${lab}</span>`;
+    });
     for(let m=1;m<=12;m++){
-      let segs='';
-      [['apply','부문 설정'],['survey','조사·평가'],['notice','결과 안내'],['award','발표']].forEach(([k,lab])=>{
-        const da=parseD(s[k][0]),db=parseD(s[k][1]);if(!da||!db)return;
-        const a=gridPos(da,false),b=gridPos(db,true);if(b<=a)return;
-        if(m>=Math.floor(a)&&m<Math.ceil(b)){
-          const L=Math.max(a,m)-m,R=Math.min(b,m+1)-m;
-          const first=m===Math.floor(a);
-          /* the announcement is often a single day: its label keeps its own width (with the date) instead of being clipped by the bar */
-          const isLbl=first&&k==='award',endSide=isLbl&&b>12.55;
-          const txt=isLbl?`${lab} ${da.getMonth()+1}.${da.getDate()}`:(first?lab:'');
-          const pos=endSide?`right:${(1-R)*100}%`:`left:${L*100}%;right:${(1-R)*100}%`;
-          segs+=`<span class="seg ${k}${isLbl?' lbl':''}${endSide?' end':''}" data-i="${i.id}" data-ph="${k}" style="${pos};--d:${(row*.09+(m-1)*.035).toFixed(2)}s">${txt}</span>`;
-        }
-      });
+      let segs=m===1?bars:'';
       if(m===curM)segs+=`<span class="today" style="left:${(dayFrac*100).toFixed(1)}%"></span>`;
       cells+=`<td class="${m===curM?'now-col':''}">${segs}</td>`;
     }
