@@ -154,7 +154,7 @@ p{margin:0}
 .orbit .drag-hint.gone{opacity:0;transform:translate(-50%,-6px)}
 @keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(-4px)}}
 .board-foot .hint b{font-family:var(--f-mono);font-weight:500;margin-right:4px}
-.hint-link{background:none;border:0;color:var(--brass);font:inherit;cursor:pointer;padding:0;margin-left:6px}
+.hint-link{background:none;border:0;color:var(--brass);font:inherit;cursor:pointer;padding:0;margin-left:10px}
 .hint-link:hover{text-decoration:underline}
 .board-foot{display:flex;align-items:center;gap:var(--s-4);padding-top:var(--s-4);border-top:1px solid rgba(255,255,255,.14);font-size:.8rem;color:var(--on-navy-2)}
 .board-foot .legend-dots{display:flex;gap:6px;flex:none}
@@ -303,7 +303,7 @@ body.se-open .se-fab{display:none}
 .se-body h3{margin:0 0 4px;font-family:var(--f-body);font-size:.82rem;font-weight:600;letter-spacing:0}
 .se-body h3 small,.se-body label small{font-weight:400;color:var(--ink-3);margin-left:4px;font-size:.72rem}
 .se-body label{font-size:.74rem;color:var(--ink-2);margin-top:4px}
-.se-body input:not([type=checkbox]):not([type=color]),.se-body textarea,.se-foot textarea{width:100%;border:1px solid var(--rule);background:var(--paper);padding:8px 10px;font-size:.86rem;border-radius:0;resize:vertical}
+.se-body input:not([type=checkbox]):not([type=color]):not([type=radio]),.se-body textarea,.se-foot textarea{width:100%;border:1px solid var(--rule);background:var(--paper);padding:8px 10px;font-size:.86rem;border-radius:0;resize:vertical}
 .se-body input:focus,.se-body textarea:focus{outline:2px solid var(--brass);outline-offset:-1px}
 .se-body input[aria-invalid=true]{border-color:#B4432F}
 .se-body input[type=color]{width:100%;height:38px;border:1px solid var(--rule);background:var(--paper);padding:3px;cursor:pointer}
@@ -314,6 +314,21 @@ body.se-open .se-fab{display:none}
 .se-ai{background:color-mix(in srgb,var(--brass) 8%,transparent);margin-inline:-18px;padding-inline:18px!important}
 .se-ai textarea{background:var(--sheet)!important}
 .se-ai-note{margin:0;font-size:.76rem;color:var(--ink-2);min-height:1em}
+.se-body details{border-bottom:1px solid var(--rule)}
+.se-body details>summary{list-style:none;cursor:pointer;padding:14px 0;font-size:.84rem;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.se-body details>summary::-webkit-details-marker{display:none}
+.se-body details>summary::after{content:"+";font-family:var(--f-mono);color:var(--ink-3);font-weight:400}
+.se-body details[open]>summary::after{content:"–"}
+.se-fields{display:flex;flex-direction:column;gap:6px;padding-bottom:14px}
+.se-sub{border:1px solid var(--rule)!important;padding-inline:10px;margin-top:6px}
+.se-sub>summary{padding:9px 0!important;font-size:.8rem!important;justify-content:flex-start!important;gap:8px}
+.se-sub>summary::after{margin-left:auto}
+.se-sub>summary i{width:8px;height:8px;border-radius:50%}
+.se-help{margin:4px 0 0;font-size:.74rem;color:var(--ink-3)}
+.se-help.strong{color:var(--ink);font-weight:600;margin-top:10px}
+.se-radios{display:flex;flex-direction:column;gap:6px;margin-bottom:6px}
+.se-radios label{display:flex;gap:8px;align-items:center;font-size:.82rem!important;color:var(--ink)!important;cursor:pointer;margin:0!important}
+.se-radios input{accent-color:var(--ink);width:16px;height:16px;margin:0;flex:none}
 .se-slogans{display:flex;flex-direction:column;gap:6px}
 .se-slogans button{text-align:left;border:1px solid var(--rule);background:var(--paper);padding:9px 11px;font-size:.8rem;color:var(--ink-2);cursor:pointer;line-height:1.45;transition:border-color .2s}
 .se-slogans button b{color:var(--ink);font-weight:600}
@@ -487,9 +502,10 @@ body.se-open .se-fab{display:none}
 
   /* explorer */
   const list=$('#idxList'),detail=$('#idxDetail');
-  list.innerHTML=INDICES.map(i=>`<li><button type="button" role="tab" id="tab-${i.id}" data-idx="${i.id}" aria-selected="false" style="--c:${i.color}">
+  function renderList(){list.innerHTML=INDICES.map(i=>`<li><button type="button" role="tab" id="tab-${i.id}" data-idx="${i.id}" aria-selected="false" style="--c:${i.color}">
     <span class="thumb"><img src="${i.logo}" alt=""></span>
-    <span class="t"><b>${i.name}</b><span>${i.code}</span></span><span class="chev">→</span></button></li>`).join('');
+    <span class="t"><b>${i.name}</b><span>${i.code}</span></span><span class="chev">→</span></button></li>`).join('')}
+  renderList();
   let curId='qei';
   function show(id,scroll){
     const i=byId[id];if(!i)return;curId=id;
@@ -513,10 +529,15 @@ body.se-open .se-fab{display:none}
   });
   document.addEventListener('click',e=>{
     const p=e.target.closest('.plaque,[data-idx]:not([role="tab"])');
-    if(p&&!p.closest('#idxList')){if(p.tagName==='A')e.preventDefault();show(p.dataset.idx,true)}
+    if(p&&!p.closest('#idxList')){if(p.tagName==='A')e.preventDefault();
+      if(p.classList.contains('orb-plaque')&&(window.KSA_SITE||{}).planetClick!=='detail')openHome(p.dataset.idx);else show(p.dataset.idx,true)}
   });
   show('qei');
-  window.__ksa={INDICES,show,current:()=>curId};
+  /* open an index's official site in a new tab from a click (a real link, so it also works inside the claude.ai viewer) */
+  function openHome(id){const i=byId[id];if(!i||!i.homepage)return;const a=document.createElement('a');a.href=i.homepage;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove()}
+  const hooks=[];
+  window.__ksa={INDICES,show,current:()=>curId,openHome,onRerender:f=>hooks.push(f),
+    rerender(){renderList();show(curId);renderSched();hooks.forEach(f=>f())}};
 
   /* schedule */
   const now=new Date(),curM=now.getFullYear()===2026?now.getMonth()+1:0;
@@ -524,7 +545,7 @@ body.se-open .se-fab{display:none}
   const inR=([a,b])=>pos>=a&&pos<b;
   const thead=$('#sched thead tr');
   for(let m=1;m<=12;m++){const th=document.createElement('th');th.scope='col';th.textContent=String(m).padStart(2,'0')+'월';if(m===curM){th.className='now-col';th.innerHTML='<span class="today-lab">TODAY</span>'+th.textContent}thead.appendChild(th)}
-  $('#sched tbody').innerHTML=INDICES.map((i,row)=>{
+  function renderSched(){$('#sched tbody').innerHTML=INDICES.map((i,row)=>{
     const s=SCHED[i.id];let cells='';
     for(let m=1;m<=12;m++){
       let segs='';
@@ -542,7 +563,8 @@ body.se-open .se-fab{display:none}
     let st='';
     if(pos){if(inR(s.apply))st='<em class="st st-apply">접수 중</em>';else if(inR(s.survey))st='<em class="st st-survey">조사 · 평가 중</em>';else if(inR(s.award))st='<em class="st st-award">발표 시즌</em>';else st=`<em class="st st-next">다음 접수 ${Math.floor(s.apply[0])}월</em>`}
     return `<tr><th scope="row">${i.name}<span>${i.code}</span>${st}</th>${cells}</tr>`;
-  }).join('');
+  }).join('')}
+  renderSched();
 
   /* scroll reveal, schedule draw-in, hero count-up (content is fully visible without JS or with reduced motion) */
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -600,16 +622,22 @@ body.se-open .se-fab{display:none}
   /* drag carousel of glass planets inside the certificate board; the DOM plaque orbit stays as the no-WebGL fallback */
   const host=document.getElementById('orbit'),stage=host,legend=document.getElementById('satLegend'),hintEl=document.getElementById('boardHint');if(!host)return;
   const canvas=document.createElement('canvas');canvas.tabIndex=0;canvas.setAttribute('aria-label','지수 행성 궤도. 드래그하거나 좌우 방향키로 돌립니다.');host.appendChild(canvas);
-  const hint=document.createElement('p');hint.className='drag-hint';hint.innerHTML='<i>←</i> 드래그해서 행성을 돌려보세요 <i>→</i>';host.appendChild(hint);
+  const hint=document.createElement('p');hint.className='drag-hint';hint.innerHTML='<i>←</i> 드래그해서 돌리고, 로고를 누르면 공식 사이트로 <i>→</i>';host.appendChild(hint);
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   let cur=-1;
   legend.innerHTML=IDX.map((x,i)=>`<button type="button" data-i="${i}" style="--c:${x.color}"><i></i>${x.code}</button>`).join('');
   function paint(i){
     if(i===cur)return;cur=i;const x=IDX[i];
     legend.querySelectorAll('button').forEach((b,k)=>{b.classList.toggle('on',k===i);b.setAttribute('aria-current',k===i)});
-    hintEl.innerHTML=`<b style="color:${x.color}">${x.code}</b> ${x.name} <button type="button" class="hint-link">평가 기준 →</button>`;
+    hintEl.innerHTML=`<b style="color:${x.color}">${x.code}</b> ${x.name} <button type="button" class="hint-link" data-go="home">공식 사이트 ↗</button><button type="button" class="hint-link" data-go="detail">평가 기준 →</button>`;
   }
-  hintEl.addEventListener('click',e=>{if(e.target.closest('.hint-link'))K.show(IDX[cur].id,true)});
+  hintEl.addEventListener('click',e=>{const b=e.target.closest('.hint-link');if(!b)return;if(b.dataset.go==='home')K.openHome(IDX[cur].id);else K.show(IDX[cur].id,true)});
+  if(K.onRerender)K.onRerender(()=>{const c=cur;cur=-1;paint(c)});
+  /* what a click on a planet does — set in the edit panel (KSA_SITE.planetClick) */
+  function activate(i){const m=(window.KSA_SITE||{}).planetClick||'homepage';
+    if(m==='flip'){if(i===cur)items[i].flip^=1;else api.go(i);return}
+    if(i!==cur)api.go(i);
+    if(m==='detail')K.show(IDX[i].id,true);else K.openHome(IDX[i].id)}
   let api={go:i=>paint(((i%N)+N)%N),step:d=>api.go(cur+d)};
   legend.addEventListener('click',e=>{const b=e.target.closest('button');if(b){api.go(+b.dataset.i);poke()}});
   let lastPoke=performance.now();
@@ -746,12 +774,12 @@ body.se-open .se-fab{display:none}
   });
   function release(e){
     if(!dragging)return;dragging=false;canvas.classList.remove('grabbing');
-    if(moved<6){const i=pick(e);if(i>=0){if(i===cur){items[i].flip^=1}else api.go(i)}target=Math.round(target/STEP)*STEP;return}
+    if(moved<6){const i=pick(e);if(i>=0){activate(i);poke()}target=Math.round(target/STEP)*STEP;return}
     target=Math.round((rot+vel*9)/STEP)*STEP;paint(nearestIdx(target));
   }
   canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);
   canvas.addEventListener('pointerleave',()=>{if(!dragging){px=py=0}});
-  canvas.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){api.step(1);poke();e.preventDefault()}else if(e.key==='ArrowLeft'){api.step(-1);poke();e.preventDefault()}else if(e.key==='Enter'||e.key===' '){items[cur]&&(items[cur].flip^=1);e.preventDefault()}});
+  canvas.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){api.step(1);poke();e.preventDefault()}else if(e.key==='ArrowLeft'){api.step(-1);poke();e.preventDefault()}else if(e.key==='Enter'||e.key===' '){if(items[cur])activate(cur);e.preventDefault()}});
 
   /* loop */
   let running=true,t0=performance.now(),raf=0,lastAuto=performance.now();
