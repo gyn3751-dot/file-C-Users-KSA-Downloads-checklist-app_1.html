@@ -293,7 +293,6 @@ section[id]{scroll-margin-top:72px}
 .steps li::after{content:"";position:absolute;top:-4px;left:0;width:7px;height:7px;background:var(--paper);border:1px solid var(--ink);border-radius:50%}
 .steps h3{font-family:var(--f-body);font-weight:600;font-size:1rem;margin-block:var(--s-3) var(--s-2);letter-spacing:-.01em}
 .steps p{font-size:.86rem;color:var(--ink-2)}
-.steps .when{display:block;margin-top:var(--s-3);font-family:var(--f-mono);font-size:.72rem;color:var(--ink-3)}
 @media (max-width:960px){.steps{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:var(--s-6)}}
 @media (max-width:560px){.steps{grid-template-columns:minmax(0,1fr);border-top:0;border-left:1px solid var(--ink);row-gap:var(--s-5)}.steps li{padding:0 0 0 var(--s-5)}.steps li::after{top:6px;left:-4px}}
 
@@ -383,7 +382,11 @@ body.se-open .se-fab{display:none}
 .se-radios label{display:flex;gap:8px;align-items:center;font-size:.82rem!important;color:var(--ink)!important;cursor:pointer;margin:0!important}
 .se-radios input{accent-color:var(--ink);width:16px;height:16px;margin:0;flex:none}
 .se-dim{display:grid;grid-template-columns:minmax(0,1fr) 64px auto;gap:6px;align-items:center;font-size:.8rem;color:var(--ink-3)}
-.se-sched{display:grid;grid-template-columns:minmax(0,1fr) 64px auto 64px;gap:6px;align-items:center;font-size:.78rem;color:var(--ink-2)}
+.se-sched{display:grid;grid-template-columns:minmax(0,1fr) 92px auto 92px;gap:6px;align-items:center;font-size:.78rem;color:var(--ink-2)}
+.se-sched select{width:100%;height:36px;border:1px solid var(--rule);background:var(--paper);font-size:.8rem;padding:0 6px;border-radius:0}
+.se-sched select[aria-invalid=true]{border-color:#B4432F}
+.sched-edit{margin-top:var(--s-4);display:inline-flex;align-items:center;gap:.4em;height:36px;padding-inline:1em;border:1px solid var(--ink);background:none;color:var(--ink);font-size:.82rem;cursor:pointer}
+.sched-edit:hover{background:var(--ink);color:var(--paper)}
 .se-sched em{font-style:normal;color:var(--ink-3)}
 .se-sum{font-weight:400;color:var(--ok)!important}
 .se-sum[data-bad="1"]{color:#B4432F!important}
@@ -487,12 +490,12 @@ body.se-open .se-fab{display:none}
         <p>모든 지수는 같은 여섯 단계를 거칩니다. 조사 기간과 평가 방식은 지수별로 다르며, 참여 문의 시 일정과 준비 서류를 안내해 드립니다.</p>
       </div>
       <ol class="steps">
-        <li><h3>참여 문의</h3><p>참여 지수와 업종을 확인하고 담당 연구원과 진행 일정을 정합니다.</p><span class="when">D-120</span></li>
-        <li><h3>참여 신청</h3><p>신청서와 기업 기본자료를 제출하고 조사 대상 브랜드를 확정합니다.</p><span class="when">D-90</span></li>
-        <li><h3>고객 조사</h3><p>실사용 고객 대상 설문, 미스터리 콜, 디지털 채널 진단을 수행합니다.</p><span class="when">D-60</span></li>
-        <li><h3>평가·심의</h3><p>측정모델로 지수를 산출하고 외부 전문가 위원회가 결과를 심의합니다.</p><span class="when">D-20</span></li>
-        <li><h3>결과 발표</h3><p>업종별 지수와 순위를 발표하고 기업별 상세 진단 보고서를 제공합니다.</p><span class="when">D-7</span></li>
-        <li><h3>인증 수여</h3><p>인증식에서 인증서를 수여하며, 1년간 인증 로고를 사용할 수 있습니다.</p><span class="when">D-day</span></li>
+        <li><h3>참여 문의</h3><p>참여 지수와 업종을 확인하고 담당 연구원과 진행 일정을 정합니다.</p></li>
+        <li><h3>참여 신청</h3><p>신청서와 기업 기본자료를 제출하고 조사 대상 브랜드를 확정합니다.</p></li>
+        <li><h3>고객 조사</h3><p>실사용 고객 대상 설문, 미스터리 콜, 디지털 채널 진단을 수행합니다.</p></li>
+        <li><h3>평가·심의</h3><p>측정모델로 지수를 산출하고 외부 전문가 위원회가 결과를 심의합니다.</p></li>
+        <li><h3>결과 발표</h3><p>업종별 지수와 순위를 발표하고 기업별 상세 진단 보고서를 제공합니다.</p></li>
+        <li><h3>인증 수여</h3><p>인증식에서 인증서를 수여하며, 1년간 인증 로고를 사용할 수 있습니다.</p></li>
       </ol>
     </div>
   </section>

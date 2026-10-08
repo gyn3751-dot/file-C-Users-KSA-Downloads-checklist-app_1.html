@@ -101,6 +101,9 @@
   const fab=document.createElement('button');fab.type='button';fab.className='se-fab';fab.hidden=true;
   fab.innerHTML='<span aria-hidden="true">✎</span> 사이트 편집';fab.setAttribute('aria-controls','sePanel');
   const panel=document.createElement('aside');panel.className='se-panel';panel.id='sePanel';panel.setAttribute('aria-label','사이트 편집');panel.hidden=true;
+  /* half-month steps: 3 = 3월 초, 3.5 = 3월 중순, 13 = 12월 말 */
+  const monthLabel=v=>v===13?'12월 말':`${Math.floor(v)}월 ${v%1?'중순':'초'}`;
+  const monthOpts=(a,b)=>{let o='';for(let v=a;v<=b;v+=.5)o+=`<option value="${v}">${monthLabel(v)}</option>`;return o};
   const inp=(k,lab,opt={})=>`<label for="se-${k}">${lab}${opt.hint?` <small>${opt.hint}</small>`:''}</label>`+(opt.area?`<textarea id="se-${k}" data-k="${k}" rows="${opt.rows||3}"></textarea>`:`<input id="se-${k}" data-k="${k}"${opt.type?` type="${opt.type}" inputmode="url" placeholder="https://"`:''}>`);
   panel.innerHTML=`
     <header class="se-head"><div><b>사이트 편집</b><span id="seMode"></span></div><button type="button" class="se-x" id="seClose" aria-label="닫기">✕</button></header>
@@ -138,8 +141,8 @@
         </div></details>`).join('')}
       </div></details>
       <details><summary>연간 일정</summary><div class="se-fields">
-        <p class="se-help">월 단위로 입력합니다. 0.5는 그 달 중순입니다 (예: 3 ~ 5.5 = 3월 초부터 5월 중순까지). 끝은 13(=12월 말)까지.</p>
-        ${IDX.map(x=>`<details class="se-sub"><summary><i style="background:${x.color}"></i>${esc(x.code)}</summary><div class="se-fields">${PHASES.map(([ph,l])=>`<div class="se-sched"><span>${l}</span><input type="number" min="1" max="13" step="0.5" aria-label="${esc(x.code)} ${l} 시작 월" data-k="schedule.${x.id}.${ph}.0"><em>~</em><input type="number" min="1" max="13" step="0.5" aria-label="${esc(x.code)} ${l} 끝 월" data-k="schedule.${x.id}.${ph}.1"></div>`).join('')}</div></details>`).join('')}
+        <p class="se-help">지수마다 단계별 시작과 끝을 고르세요. 바꾸면 아래 일정표와 "접수 중" 같은 배지가 바로 바뀝니다.</p>
+        ${IDX.map(x=>`<details class="se-sub" data-sched="${x.id}"><summary><i style="background:${x.color}"></i>${esc(x.code)} <small>${esc(x.name)}</small></summary><div class="se-fields">${PHASES.map(([ph,l])=>`<div class="se-sched"><span>${l}</span><select aria-label="${esc(x.code)} ${l} 시작" data-k="schedule.${x.id}.${ph}.0">${monthOpts(1,12.5)}</select><em>~</em><select aria-label="${esc(x.code)} ${l} 끝" data-k="schedule.${x.id}.${ph}.1">${monthOpts(1.5,13)}</select></div>`).join('')}</div></details>`).join('')}
       </div></details>
       <details><summary>섹션 제목 · 설명</summary><div class="se-fields">
         ${SECTIONS.map(([id,l])=>`<p class="se-help strong">${l}</p>${inp(`sections.${id}.title`,'제목',{area:1,rows:2,hint:'줄바꿈 = 엔터'})}${inp(`sections.${id}.desc`,'설명',{area:1})}`).join('')}
@@ -163,6 +166,11 @@
       <button type="button" class="se-link" id="seCopy">설정 복사 (JSON)</button>
     </footer>`;
   document.body.append(fab,panel);
+  const schedHead=$('#schedule .sec-head h2');
+  const schedBtn=document.createElement('button');schedBtn.type='button';schedBtn.className='sched-edit';schedBtn.hidden=true;schedBtn.innerHTML='<span aria-hidden="true">✎</span> 일정 편집';
+  if(schedHead)schedHead.after(schedBtn);
+  schedBtn.onclick=()=>{open();const d=$$('#sePanel details').find(x=>x.querySelector(':scope>summary').textContent.trim()==='연간 일정');if(d){d.open=true;d.querySelectorAll('.se-sub').forEach((x,k)=>x.open=k===0);d.scrollIntoView({block:'start'})}};
+  const setEditable=v=>{fab.hidden=!v;schedBtn.hidden=!v};
   const status=$('#seStatus');
   $('#seSlogans').innerHTML=SLOGANS.map((s,i)=>`<button type="button" data-s="${i}"><b>${esc(s[0])}</b> ${esc(s[1])}</button>`).join('');
   const SW=[['기본',''],['골드','#9C7A3C'],['로열 블루','#2F5BD3'],['코랄','#D9573B'],['에메랄드','#2E8B6A']];
@@ -173,7 +181,7 @@
     panel.querySelectorAll('[data-k]').forEach(el=>{const k=el.dataset.k,v=getPath(cfg,k);
       if(el.type==='checkbox')el.checked=!!v;
       else if(el.type==='color')el.value=hex(v)||toHex(css.getPropertyValue(k==='accent'?'--brass':'--navy'));
-      else{el.value=v==null?'':v;el.removeAttribute('aria-invalid')}});
+      else{el.value=v==null?'':String(v);el.removeAttribute('aria-invalid')}});
     panel.querySelectorAll('input[name="se-pc"]').forEach(r=>r.checked=r.value===cfg.planetClick);
     IDX.forEach(x=>{const im=$('#se-logo-'+x.id);if(im)im.src=SC.logoUrl(cfg.logos[x.id])||SC.DEFAULT_LOGO[x.id]||x.logo});
     sums();
@@ -187,6 +195,11 @@
     if(!k)return;
     if(el.type==='checkbox'){setPath(cfg,k,el.checked);changed();return}
     if(k.startsWith('homepages.')){if(el.value&&!okUrl(el.value)){el.setAttribute('aria-invalid','true');return}el.removeAttribute('aria-invalid');setPath(cfg,k,el.value||getPath(DEFAULTS,k));changed();return}
+    if(k.startsWith('schedule.')){
+      const v=parseFloat(el.value);const ks=k.split('.'),r=cfg.schedule[ks[1]][ks[2]].slice();r[+ks[3]]=v;
+      const pair=panel.querySelectorAll(`[data-k^="schedule.${ks[1]}.${ks[2]}."]`);
+      if(!(r[0]>=1&&r[1]<=13&&r[0]<r[1])){pair.forEach(x=>x.setAttribute('aria-invalid','true'));setStatus('시작이 끝보다 앞서야 합니다.','err');return}
+      pair.forEach(x=>x.removeAttribute('aria-invalid'));cfg.schedule[ks[1]][ks[2]]=r;changed();return}
     if(el.type==='number'){
       const v=parseFloat(el.value);if(!isFinite(v)){el.setAttribute('aria-invalid','true');return}
       if(k.startsWith('schedule.')){const ks=k.split('.'),r=cfg.schedule[ks[1]][ks[2]].slice();r[+ks[3]]=Math.round(v*2)/2;
@@ -282,8 +295,8 @@ JSON 하나만 답하세요: {"patch": {바꿀 필드만, 위와 같은 구조},
   window.KSA_SITE={autoRotate:true,planetClick:DEFAULTS.planetClick};
   try{const raw=localStorage.getItem(LS_KEY);if(raw){saved=sanitize(merge(DEFAULTS,JSON.parse(raw)));cfg=clone(saved);apply(cfg)}}catch(_){}
   const wantsEdit=()=>{try{if(location.hash==='#edit')localStorage.setItem(LS_EDIT,'1');return location.hash==='#edit'||localStorage.getItem(LS_EDIT)==='1'}catch(_){return location.hash==='#edit'}};
-  function showLocal(){backend='local';$('#seMode').textContent='이 브라우저에만 저장';fab.hidden=!wantsEdit()}
-  addEventListener('hashchange',()=>{if(backend!=='db'&&wantsEdit()){fab.hidden=false;open()}});
+  function showLocal(){backend='local';$('#seMode').textContent='이 브라우저에만 저장';setEditable(wantsEdit())}
+  addEventListener('hashchange',()=>{if(backend!=='db'&&wantsEdit()){setEditable(true);open()}});
 
   const C=window.claude;
   if(!C||!C.use){showLocal();return}
@@ -298,6 +311,6 @@ JSON 하나만 답하세요: {"patch": {바꿀 필드만, 위와 같은 구조},
     },()=>{});
     const canEdit=u?(await u.canEdit().catch(()=>false))||(await u.isOwner().catch(()=>false)):false;
     backend='db';$('#seMode').textContent=canEdit?'저장 시 모든 방문자에게 반영':'보기 전용';
-    fab.hidden=!canEdit;$('#seSave').hidden=!canEdit;
+    setEditable(canEdit);$('#seSave').hidden=!canEdit;
   }).catch(showLocal);
 })();
