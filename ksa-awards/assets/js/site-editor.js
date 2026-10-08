@@ -18,7 +18,7 @@
   ];
   const INDEX_FIELDS=[['name','지수 이름'],['en','영문 이름'],['desc','설명','area'],['target','평가 대상'],['method','평가 방식'],['announce','결과 발표 (예: 10월)']];
   const SECTIONS=[['indices','지수 소개'],['process','참여 절차'],['schedule','연간 일정']];
-  const PHASES=[['apply','신청 접수'],['survey','조사 · 평가'],['award','발표 · 인증식']];
+  const PHASES=[['apply','조사 부문 설정'],['survey','조사 · 평가'],['notice','조사결과 안내'],['award','발표 · 인증식']];
   const SC=window.KSA_SITE_CONFIG||{logoUrl:()=>'',DEFAULT_LOGO:{}};
   const K0=window.__ksa||{};
   const ST=K0.schedTools||{normRange:r=>r,year:2026};
@@ -60,7 +60,10 @@
   }
   const okUrl=v=>/^https?:\/\/[^\s]+$/.test(v);
   /* settings saved before exact dates stored months as numbers; turn them into dates before the shape check */
-  function upgrade(o){if(o&&o.schedule&&typeof o.schedule==='object')for(const id of Object.keys(o.schedule))for(const ph of Object.keys(o.schedule[id]||{})){const r=ST.normRange(o.schedule[id][ph]);if(r)o.schedule[id][ph]=r}return o}
+  function upgrade(o){
+    /* the process gained a 5th step (조사결과 안내); a saved 6-step list keeps its texts in the right places */
+    if(o&&Array.isArray(o.steps)&&o.steps.length===6&&DEFAULTS.steps.length===7)o.steps.splice(4,0,clone(DEFAULTS.steps[4]));
+    if(o&&o.schedule&&typeof o.schedule==='object')for(const id of Object.keys(o.schedule))for(const ph of Object.keys(o.schedule[id]||{})){const r=ST.normRange(o.schedule[id][ph]);if(r)o.schedule[id][ph]=r}return o}
   function sanitize(c){
     for(const id of Object.keys(c.homepages))if(!okUrl(c.homepages[id]))c.homepages[id]=DEFAULTS.homepages[id];
     if(!['homepage','detail','flip'].includes(c.planetClick))c.planetClick='homepage';
@@ -267,9 +270,9 @@ ${JSON.stringify(cfg)}
 - autoRotate, showProcess, showSchedule: true/false
 - planetClick: 메인 보드의 행성 로고를 눌렀을 때 동작. "homepage"(지수 공식 사이트로 이동), "detail"(지수 소개로 이동), "flip"(메달 뒤집기)
 - sections: {indices|process|schedule: {title(줄바꿈은 \\n), desc}}
-- steps: 참여 절차 6단계 배열 [{t: 제목, p: 설명}] (배열 길이 유지)
+- steps: 참여 절차 7단계 배열 [{t: 제목, p: 설명}] (배열 길이 유지)
 - indices: {qei|cqi|pbi|well|dcxi: {name, en, desc, target, method, announce, dims}} — dims는 [항목 이름, 가중치%] 4개 배열(합계 100, 길이 유지)
-- schedule: {qei|...: {apply|survey|award: ["YYYY-MM-DD" 시작일, "YYYY-MM-DD" 종료일]}} — 종료일 포함, 시작일 ≤ 종료일
+- schedule: {qei|...: {apply(조사 부문 설정)|survey(조사·평가)|notice(조사결과 안내)|award(발표·인증식): ["YYYY-MM-DD" 시작일, "YYYY-MM-DD" 종료일]}} — 종료일 포함, 시작일 ≤ 종료일
 - logos: 바꾸지 마세요
 - homepages: {qei|cqi|pbi|well|dcxi: https 주소}
 
