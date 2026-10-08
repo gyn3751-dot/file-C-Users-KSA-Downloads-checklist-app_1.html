@@ -71,6 +71,11 @@
   panel.innerHTML=`
     <header class="se-head"><div><b>사이트 편집</b><span id="seMode"></span></div><button type="button" class="se-x" id="seClose" aria-label="닫기">✕</button></header>
     <div class="se-body">
+      <section class="se-ai" id="seAI" hidden><h3>Claude에게 요청 <small>바꾸고 싶은 내용을 문장으로 적어 주세요</small></h3>
+        <textarea id="se-ask" rows="3" aria-label="Claude에게 요청할 내용" placeholder="예: 제목을 소비자 만족 1위를 강조하는 문구로 바꾸고 포인트 색은 블루로 해줘"></textarea>
+        <button type="button" class="se-btn" id="seAsk">Claude에게 적용 요청</button>
+        <p class="se-ai-note" id="seAiNote" aria-live="polite"></p>
+      </section>
       <section><h3>메인 문구</h3>
         <label for="se-eyebrow">영문 소제목</label><input id="se-eyebrow" data-k="eyebrow">
         <label for="se-title1">제목 첫째 줄</label><input id="se-title1" data-k="title1">
@@ -140,6 +145,48 @@
     }finally{btn.disabled=false}
   }
 
+  /* ── Claude request: turn a sentence into a settings patch, preview it, let the editor save ── */
+  let sample=null,askCtl=null;
+  async function ask(){
+    const q=$('#se-ask').value.trim(),note=$('#seAiNote'),btn=$('#seAsk');
+    if(!q){note.textContent='요청할 내용을 적어 주세요.';return}
+    if(askCtl)askCtl.abort();askCtl=new AbortController();
+    btn.disabled=true;note.textContent='Claude가 설정을 고치는 중입니다…';
+    const prompt=`당신은 한국표준협회 지수 소개 웹사이트의 설정을 고치는 편집 도우미입니다.
+현재 설정(JSON):
+${JSON.stringify(cfg)}
+
+필드 설명:
+- eyebrow: 제목 위 영문 소제목 (짧은 영어)
+- title1, title2: 메인 제목 첫째·둘째 줄 (한국어, 각 줄 20자 안팎)
+- highlight: 금색으로 강조할 단어. 반드시 title1 또는 title2 안에 그대로 들어 있는 단어
+- lede: 제목 아래 소개 문구 (한국어 1~2문장)
+- cta1, cta2: 버튼 두 개의 글자 (짧게)
+- accent: 포인트 색 "#rrggbb" ("" = 기본 금색), navy: 보드 배경 남색 "#rrggbb" ("" = 기본)
+- autoRotate: 행성 자동 회전, showProcess: 참여 절차 섹션 표시, showSchedule: 연간 일정 섹션 표시 (true/false)
+- homepages: {qei, cqi, pbi, well, dcxi} 각 지수 공식 홈페이지 https 주소
+
+사용자 요청: ${q}
+
+규칙: 요청과 관련된 필드만 바꾸세요. 사용자가 주지 않은 홈페이지 주소는 만들지 마세요. 문구는 간결하고 격식 있게 쓰세요. 이 필드들로 할 수 없는 요청이면 patch를 비우고 note에 이유를 쓰세요.
+JSON 하나만 답하세요: {"patch": {바꿀 필드만}, "note": "무엇을 바꿨는지 한국어 한 문장"}`;
+    try{
+      const r=await sample.json(prompt,{signal:askCtl.signal});
+      const patch=r&&typeof r.patch==='object'&&r.patch?r.patch:{};
+      const next=Object.assign(clone(cfg),patch,{homepages:Object.assign(clone(cfg.homepages),patch.homepages||{})});
+      cfg=merge(DEFAULTS,next);fill();changed();
+      const n=Object.keys(patch).length;
+      note.textContent=(r&&r.note?String(r.note):'')+(n?' 마음에 들면 저장을 눌러 주세요.':'');
+    }catch(e){
+      const code=e&&e.code;
+      if(code==='cancelled')return;
+      if(['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(code)){$('#seAI').hidden=true;return}
+      note.textContent=code==='rate_limited'?'요청이 많아 잠시 후 다시 시도해 주세요.':code==='invalid_json'?'답을 해석하지 못했습니다. 요청을 조금 더 구체적으로 적어 주세요.':'요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.';
+    }finally{btn.disabled=false}
+  }
+  $('#seAsk').onclick=ask;
+  $('#se-ask').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();ask()}});
+
   /* ── boot: local first, then the shared store when the viewer provides it ── */
   try{const raw=localStorage.getItem(LS_KEY);if(raw){saved=merge(DEFAULTS,JSON.parse(raw));cfg=clone(saved);apply(cfg)}}catch(_){}
   const wantsEdit=()=>{try{if(location.hash==='#edit')localStorage.setItem(LS_EDIT,'1');return location.hash==='#edit'||localStorage.getItem(LS_EDIT)==='1'}catch(_){return location.hash==='#edit'}};
@@ -148,6 +195,7 @@
 
   const C=window.claude;
   if(!C||!C.use){showLocal();return}
+  C.use('sample').then(fn=>{if(typeof fn==='function'){sample=fn;$('#seAI').hidden=false}}).catch(()=>{});
   Promise.all([C.use('db'),C.use('user')]).then(async([d,u])=>{
     if(!d){showLocal();return}
     db=d;docRef=db.doc('site/config');
@@ -157,7 +205,7 @@
       else if(first&&!saved){saved=clone(DEFAULTS)}
       first=false;
     },()=>{});
-    const canEdit=u?await u.canEdit().catch(()=>false):false;
+    const canEdit=u?(await u.canEdit().catch(()=>false))||(await u.isOwner().catch(()=>false)):false;
     backend='db';$('#seMode').textContent=canEdit?'저장 시 모든 방문자에게 반영':'보기 전용';
     fab.hidden=!canEdit;$('#seSave').hidden=!canEdit;
   }).catch(showLocal);
