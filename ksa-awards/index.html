@@ -92,24 +92,22 @@ p{margin:0}
 }
 
 /* ── Hero: certificate board with orbiting logo plaques ── */
-.hero{padding-block:var(--s-7) var(--s-8)}
-.hero-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(2rem,5vw,4.5rem);align-items:center}
-.hero h1{font-size:clamp(2rem,3.6vw,3.05rem);line-height:1.22;margin-block:var(--s-5)}
+.hero{padding-block:var(--s-8) var(--s-6)}
+.hero-head{text-align:center;max-width:1080px;margin-inline:auto;display:flex;flex-direction:column;align-items:center}
+.hero-head .eyebrow{justify-content:center}
+.hero-head .eyebrow::after{content:"";width:24px;height:1px;background:currentColor}
+@media (max-width:520px){.hero-head .eyebrow::before,.hero-head .eyebrow::after{display:none}}
+.hero h1{font-size:clamp(2.1rem,4.6vw,3.7rem);line-height:1.22;margin-block:var(--s-5)}
+.hero-board{margin-top:clamp(2.5rem,5vw,4rem)}
 .hero h1 em{font-style:normal;color:var(--brass);background:linear-gradient(var(--brass),var(--brass)) no-repeat 0 94%/0% 2px;animation:underline 1.1s .6s var(--ease) forwards}
 @keyframes underline{to{background-size:100% 2px}}
-.hero-lede{color:var(--ink-2);font-size:1.04rem;max-width:32em}
-.hero-cta{display:flex;flex-wrap:wrap;gap:var(--s-3);margin-top:var(--s-6)}
-.hero-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:var(--s-7) 0 0;border-top:1px solid var(--rule)}
-.hero-facts div{padding:var(--s-4) var(--s-4) 0 0}
-.hero-facts dt{font-size:.75rem;color:var(--ink-3)}
-.hero-facts dd{margin:var(--s-1) 0 0;font-family:var(--f-display);font-size:1.5rem;font-weight:600;font-variant-numeric:tabular-nums}
-.hero-facts dd small{font-family:var(--f-body);font-size:.8rem;font-weight:400;color:var(--ink-2);margin-left:2px}
-
+.hero-lede{color:var(--ink-2);font-size:1.06rem;max-width:36em}
+.hero-cta{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--s-3);margin-top:var(--s-6)}
 .board{--bp:clamp(1.1rem,2.6vw,2rem);position:relative;background:var(--navy);color:var(--on-navy);padding:var(--bp);isolation:isolate;overflow:hidden}
 .board::before{content:"";position:absolute;inset:0;z-index:-1;background-image:linear-gradient(to right,rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.05) 1px,transparent 1px);background-size:calc(100%/12) 44px}
 .board::after{content:"";position:absolute;width:80%;aspect-ratio:1;left:10%;top:12%;z-index:-1;background:radial-gradient(closest-side,var(--navy-2),transparent);opacity:.95}
 .board-head{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;color:var(--on-navy-2);text-transform:uppercase;padding-bottom:var(--s-4);border-bottom:1px solid rgba(255,255,255,.14)}
-.orbit{position:relative;height:clamp(300px,28vw,390px);margin-block:var(--s-2)}
+.orbit{position:relative;height:clamp(320px,36vw,500px);margin-block:var(--s-2)}
 .orbit svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .orbit ellipse{fill:none;stroke:rgba(255,255,255,.2);stroke-width:1;stroke-dasharray:3 6}
 .orbit ellipse.faint{stroke:rgba(255,255,255,.08);stroke-dasharray:none}
@@ -161,17 +159,10 @@ p{margin:0}
 .board-foot{display:flex;align-items:center;gap:var(--s-4);padding-top:var(--s-4);border-top:1px solid rgba(255,255,255,.14);font-size:.8rem;color:var(--on-navy-2)}
 .board-foot .legend-dots{display:flex;gap:6px;flex:none}
 .board-foot .legend-dots i{width:7px;height:7px;border-radius:50%;background:var(--c)}
-@media (max-width:960px){.hero-grid{grid-template-columns:minmax(0,1fr)}}
-@media (max-width:520px){.orbit{height:300px}.orb-plaque{--pw:92px}.core{width:96px;height:96px}.core b{font-size:1.5rem}.hero-facts dd{font-size:1.2rem}}
-/* ── Marquee strip ── */
-.strip{border-block:1px solid var(--rule);overflow:hidden;background:var(--sheet)}
-.strip-track{display:flex;gap:var(--s-8);width:max-content;padding-block:var(--s-4);animation:slide 40s linear infinite;font-family:var(--f-mono);font-size:.78rem;letter-spacing:.12em;color:var(--ink-3);text-transform:uppercase}
-.strip-track span{display:flex;align-items:center;gap:var(--s-8)}
-.strip-track span::after{content:"◆";font-size:.5rem;color:var(--brass)}
-@keyframes slide{to{transform:translateX(-50%)}}
-
+@media (max-width:520px){.orbit{height:300px}.orb-plaque{--pw:92px}.core{width:96px;height:96px}.core b{font-size:1.5rem}}
 /* ── Sections ── */
 section.block{padding-block:var(--s-9)}
+#indices{padding-top:var(--s-7)}
 section[id]{scroll-margin-top:72px}
 .sec-head{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(1.5rem,5vw,5rem);align-items:end;margin-bottom:var(--s-7)}
 .sec-head h2{margin-top:var(--s-4)}
@@ -319,25 +310,19 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
 </header>
 
 <main>
-  <!-- Hero -->
+  <!-- Hero: title, then the moving index planets, then the five indices -->
   <section class="hero">
-    <div class="wrap hero-grid">
-      <div>
+    <div class="wrap">
+      <div class="hero-head">
         <p class="eyebrow">Korean Standards Association · Index &amp; Awards</p>
-        <h1>고객이 증명한 품질,<br>국가 <em>표준</em>의 이름으로<br>인정받습니다.</h1>
-        <p class="hero-lede">한국표준협회는 KS 표준에 기반한 측정모델로 제품과 서비스의 품질, 브랜드 가치, 고객경험을 객관적으로 평가합니다. 다섯 개 지수의 평가 기준을 살펴보세요.</p>
+        <h1>고객이 증명한 품질,<br>국가 <em>표준</em>의 이름으로 인정받습니다.</h1>
+        <p class="hero-lede">한국표준협회는 KS 표준에 기반한 측정모델로 제품과 서비스의 품질, 브랜드 가치, 고객경험을 객관적으로 평가합니다.</p>
         <div class="hero-cta">
-          <a href="#indices" class="btn">지수 살펴보기 <span class="arr">→</span></a>
+          <a href="#indices" class="btn">다섯 개 지수 보기 <span class="arr">→</span></a>
           <a href="explore.html" class="btn ghost">화성에서 지수 찾기 <span class="arr">↗</span></a>
         </div>
-        <dl class="hero-facts">
-          <div><dt>운영 지수</dt><dd><span data-count="5">5</span><small>개</small></dd></div>
-          <div><dt>평가 척도</dt><dd><span data-count="100">100</span><small>점 만점</small></dd></div>
-          <div><dt>조사 주기</dt><dd>연 1<small>회</small></dd></div>
-        </dl>
       </div>
-
-      <div class="board" aria-label="한국표준협회 지수 인증 로고">
+      <div class="board hero-board" aria-label="한국표준협회 지수 인증 로고">
         <div class="board-head"><span>KSA Index Portfolio</span><span class="mono">2026</span></div>
         <div class="orbit" id="orbit">
           <svg id="orbitSvg" aria-hidden="true"><ellipse class="faint"/><ellipse class="main"/><ellipse class="gold"/></svg>
@@ -351,13 +336,6 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
       </div>
     </div>
   </section>
-
-  <div class="strip" aria-hidden="true">
-    <div class="strip-track">
-      <span>KS-QEI 한국품질만족지수</span><span>KS-CQI 콜센터품질지수</span><span>KS-PBI 프리미엄브랜드지수</span><span>Wellness 한국웰니스지수</span><span>DCXI 디지털고객경험지수</span>
-      <span>KS-QEI 한국품질만족지수</span><span>KS-CQI 콜센터품질지수</span><span>KS-PBI 프리미엄브랜드지수</span><span>Wellness 한국웰니스지수</span><span>DCXI 디지털고객경험지수</span>
-    </div>
-  </div>
 
   <!-- Indices -->
   <section class="block" id="indices">
@@ -698,8 +676,8 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
     W=canvas.clientWidth;H=canvas.clientHeight;renderer.setSize(W,H,false);
     const hr=canvas.getBoundingClientRect(),sr=stage.getBoundingClientRect(); /* canvas bleeds past the orbit box; fit and centre on the box */
     const navH=0;
-    const cx=sr.left-hr.left+sr.width/2,cy=sr.top-hr.top+(sr.height-navH)/2,sw=sr.width,sh=sr.height-navH;
-    const ppu=Math.min(sw/(2*R+(W<700?.4:3.2)),sh/(W<700?5.2:6));
+    const cx=sr.left-hr.left+sr.width/2,cy=sr.top-hr.top+(sr.height-navH)*.44,sw=sr.width,sh=sr.height-navH;
+    const ppu=Math.min(sw/(2*R+(W<700?.4:3.2)),sh/(W<700?5.2:8.2));
     dist=Math.max(R+6,H/(2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*ppu));
     camera.aspect=W/H;camera.setViewOffset(W,H,W/2-cx,H/2-cy,W,H);camera.updateProjectionMatrix();
     scene.fog.near=dist-R*.2;scene.fog.far=dist+R*2.2;
