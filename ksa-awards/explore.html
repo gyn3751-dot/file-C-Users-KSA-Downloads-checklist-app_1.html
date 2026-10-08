@@ -106,8 +106,22 @@ img{max-width:100%;display:block}
 .dr-scroll>*{flex:none}
 .dr-x{position:absolute;right:12px;top:12px;width:34px;height:34px;border:1px solid var(--line);border-radius:50%;background:rgba(18,10,10,.72);cursor:pointer;color:var(--fg);font-size:.95rem;z-index:1;display:grid;place-items:center}
 .dr-x:hover{color:var(--fg)}
+.dr-stage{position:relative;height:200px;flex:none}
+.dr-stage .dr-logo{position:absolute;left:0;top:26px;bottom:0;width:64%;height:auto!important}
+.dr-stage::before{content:"";position:absolute;right:2%;bottom:-6px;width:40%;height:26px;border-radius:50%;background:radial-gradient(closest-side,color-mix(in srgb,var(--c) 70%,transparent),transparent);filter:blur(2px);z-index:1}
+.dr-char{position:absolute;right:0;bottom:0;width:44%;height:100%;z-index:2;display:flex;align-items:flex-end;justify-content:center;pointer-events:none}
+.dr-char-fig{position:relative;height:88%;}
+.dr-char-fig.has-ant{height:74%}
+.dr-char-fig{transform-origin:50% 100%;animation:dr-char-in .8s cubic-bezier(.3,1.5,.5,1) both,dr-char-idle 3.2s .9s ease-in-out infinite}
+.dr-char-fig img{height:100%;width:auto;max-width:none;display:block;filter:drop-shadow(0 10px 14px rgba(0,0,0,.45))}
+.dr-char-fig svg{position:absolute;left:0;top:-22.6%;width:100%;height:23.4%;overflow:visible;filter:drop-shadow(0 0 4px #DCE8FF) drop-shadow(0 0 10px #8FB8FF)}
+.dr-say{position:absolute;right:34%;top:4px;z-index:3;background:#fff;color:#1A0E0B;font-size:.72rem;font-weight:600;padding:.4em .75em;border-radius:12px;white-space:nowrap;box-shadow:0 8px 18px -8px rgba(0,0,0,.6);animation:dr-say-in .4s .7s cubic-bezier(.3,1.5,.5,1) both}
+.dr-say::after{content:"";position:absolute;right:12px;top:100%;border:6px solid transparent;border-top-color:#fff}
+@keyframes dr-char-in{0%{transform:translate(30%,40%) scale(.3) rotate(18deg);opacity:0}60%{transform:translate(-4%,-8%) scale(1.06) rotate(-6deg);opacity:1}80%{transform:scale(.97,1.04)}100%{transform:none}}
+@keyframes dr-char-idle{0%,100%{transform:none}50%{transform:translateY(-4%) rotate(-2deg)}}
+@keyframes dr-say-in{from{opacity:0;transform:translateY(6px) scale(.85)}to{opacity:1;transform:none}}
 .dr-logo{background:#fff;height:160px;display:grid;place-items:center;padding:16px;position:relative;overflow:hidden}
-.dr-logo img{max-height:124px;max-width:88%;width:auto;height:auto;object-fit:contain;animation:float 4s ease-in-out infinite}
+.dr-logo img{max-height:118px;max-width:84%;width:auto;height:auto;object-fit:contain;animation:float 4s ease-in-out infinite}
 .dr-logo::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.75) 50%,transparent 65%);transform:translateX(-100%);animation:sheen 3.2s 0.4s var(--ease) infinite}
 @keyframes float{50%{transform:translateY(-4px)}}
 @keyframes sheen{60%,100%{transform:translateX(100%)}}
@@ -171,12 +185,12 @@ img{max-width:100%;display:block}
   .radar{width:112px;height:112px}
   .drawer{top:auto;left:0;right:0;bottom:0;width:auto;max-height:72vh;transform:translateY(100%);border-left:0;border-right:0;border-bottom:0}
   .drawer .dr-actions{padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
-  .dr-logo{height:132px}
+  .dr-stage{height:168px}.dr-say{font-size:.68rem}
   .toast{top:calc(78px + env(safe-area-inset-top,0px))}
 }
 @media (max-width:420px){.back b{font-size:.8rem}.slot{width:34px;height:34px}.slots{gap:4px}}
 @media (hover:none){.intro-keys .kb{display:none}}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+@media (prefers-reduced-motion:reduce){.dr-char-fig,.dr-say{animation:none!important}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
@@ -261,13 +275,17 @@ function toast(t,s,c){$('toastT').textContent=t;$('toastS').textContent=s||'';co
 const drawer=$('drawer');
 function openDetail(i){
   const x=IDX[i];drawer.style.setProperty('--c',x.color);
-  $('drBody').innerHTML=`<div class="dr-logo"><img src="${x.logo}" alt="${x.code} 로고"></div>
+  /* the index's character stands beside its logo; the Wellness butterfly gets its glowing antennae */
+  const ant=x.wings&&x.wings.antennae?`<svg viewBox="0 -112 572 116" aria-hidden="true"><g fill="none" stroke-linecap="round"><path d="M296 4C291-38 272-92 236-92C206-92 194-62 209-49C221-38 241-45 239-59C237-67 227-68 224-61" stroke="#7FA0D8" stroke-width="10"/><path d="M378 4C388-38 412-82 446-82C476-82 487-56 472-43C460-33 443-40 446-51C448-58 457-59 459-53" stroke="#7FA0D8" stroke-width="10"/></g><circle cx="226" cy="-58" r="8" fill="#EAF2FF"/><circle cx="455" cy="-51" r="8" fill="#EAF2FF"/></svg>`:'';
+  const ch=x.character?`<div class="dr-char"><span class="dr-char-fig${ant?' has-ant':''}">${ant}<img src="${x.character}" alt="${x.code} 캐릭터"></span></div>${x.greet?`<span class="dr-say"></span>`:''}`:'';
+  $('drBody').innerHTML=`<div class="dr-stage"><div class="dr-logo"><img src="${x.logo}" alt="${x.code} 로고"></div>${ch}</div>
     <div><p class="dr-code">${x.code} · SIGNAL ${String(i+1).padStart(2,'0')}</p><h2 class="dr-name">${x.name}</h2><p class="dr-en">${x.en}</p></div>
     <p class="dr-desc">${x.desc}</p>
     <dl class="dr-meta"><div><dt>평가 대상</dt><dd>${x.target}</dd></div><div><dt>결과 발표</dt><dd>매년 ${x.announce}</dd></div></dl>
     <div class="dims">${x.dims.map(([n,w])=>`<div class="dim"><span>${n}</span><span class="bar"><i style="width:${w/Math.max(40,Math.ceil(Math.max(...x.dims.map(d=>d[1]))/10)*10)*100}%"></i></span><span class="w">${w}%</span></div>`).join('')}</div>`;
   $('drActions').innerHTML=`<a class="btn" href="${x.homepage}" target="_blank" rel="noopener">${x.code} 공식 홈페이지 <span class="arr">↗</span></a>
     <div class="row"><a class="btn ghost" href="index.html#indices">평가 기준 비교</a><button class="btn ghost" type="button" id="nextSig">다음 신호 찾기</button></div>`;
+  const say=$('drBody').querySelector('.dr-say');if(say)say.textContent=x.greet;
   $('drBody').scrollTop=0;drawer.classList.add('open');
   $('nextSig').onclick=()=>api.next();
 }
