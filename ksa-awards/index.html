@@ -67,7 +67,7 @@ p{margin:0}
 .brand{display:flex;align-items:center;gap:var(--s-3)}
 .brand-mark{width:34px;height:34px;border:1.5px solid var(--ink);display:grid;place-items:center;font-family:var(--f-mono);font-size:.68rem;font-weight:500;letter-spacing:.04em}
 .brand-mark.has-img{width:auto;height:38px;border:0;padding:0}
-.brand-mark.has-img img{display:block;height:100%;width:auto;max-width:200px;object-fit:contain}
+.brand-mark.has-img img{display:block;height:100%;width:auto;max-width:220px;object-fit:contain;object-position:left center}
 .brand-text{display:flex;flex-direction:column;line-height:1.2}
 .brand-text b{font-weight:600;font-size:.95rem;letter-spacing:-.01em}
 .brand-text span{font-size:.72rem;color:var(--ink-3);letter-spacing:.02em}
@@ -453,8 +453,8 @@ body.se-open .se-fab{display:none}
 <header class="top" id="top">
   <div class="wrap">
     <a href="#" class="brand" aria-label="한국표준협회 지수·포상 홈">
-      <span class="brand-mark">KSA</span>
-      <span class="brand-text"><b>한국표준협회</b><span>지수 · 포상 센터</span></span>
+      <span class="brand-mark has-img"><img src="assets/brand/ksa-logo.png" alt=""></span>
+      <span class="brand-text" hidden><b>한국표준협회</b><span>지수 · 포상 센터</span></span>
     </a>
     <nav class="nav" id="nav" aria-label="주요 메뉴">
       <a href="#indices">지수 소개</a>
@@ -567,7 +567,7 @@ body.se-open .se-fab{display:none}
   <div class="wrap">
     <div class="foot-grid">
       <div>
-        <a href="#" class="brand"><span class="brand-mark">KSA</span><span class="brand-text"><b>한국표준협회</b><span>지수 · 포상 센터</span></span></a>
+        <a href="#" class="brand" aria-label="한국표준협회 지수·포상 홈"><span class="brand-mark has-img"><img src="assets/brand/ksa-logo.png" alt=""></span><span class="brand-text" hidden><b>한국표준협회</b><span>지수 · 포상 센터</span></span></a>
         <p style="margin-top:1rem;max-width:28em">서울특별시 강남구 테헤란로 69길 5 DT센터</p>
       </div>
       <div><h4>지수</h4><ul><li><a href="#indices" data-idx="qei">KS-QEI</a></li><li><a href="#indices" data-idx="cqi">KS-CQI</a></li><li><a href="#indices" data-idx="pbi">KS-PBI</a></li><li><a href="#indices" data-idx="well">Wellness</a></li><li><a href="#indices" data-idx="dcxi">DCXI</a></li></ul></div>

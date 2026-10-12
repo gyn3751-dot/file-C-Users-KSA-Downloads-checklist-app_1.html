@@ -5,7 +5,7 @@
  */
 (function(){
   'use strict';
-  const LS_KEY='ksa-site-config',LS_EDIT='ksa-site-edit';
+  const LS_KEY='ksa-site-config',LS_EDIT='ksa-site-edit',LS_DRAFT='ksa-site-draft';
   const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
   const IDX=window.KSA_INDICES||[];
   const SLOGANS=[
@@ -48,7 +48,7 @@
     indices:Object.fromEntries(IDX.map(x=>[x.id,Object.assign(Object.fromEntries(INDEX_FIELDS.map(([k])=>[k,x[k]||''])),{charts:[{title:DIMS_TITLE,dims:x.dims.map(d=>[d[0],d[1]])}]})])),
     schedule:JSON.parse(JSON.stringify(K0.schedule||{})),
     logos:Object.fromEntries(IDX.map(x=>[x.id,''])),
-    brand:{logo:'',name:text($('.brand-text b')),sub:text($('.brand-text span')),showText:true},
+    brand:{logo:'',name:text($('.brand-text b')),sub:text($('.brand-text span')),showText:!($('.brand-text')||{}).hidden},
     homepages:Object.fromEntries(IDX.map(x=>[x.id,x.homepage]))
   };
   let saved=null,cfg=clone(DEFAULTS),backend='none',db=null,docRef=null;
@@ -139,7 +139,7 @@
         <p class="se-help">PNG·JPG·WEBP. 배경이 투명한 가로형 로고가 가장 잘 어울립니다.</p>
         <div class="se-logo"><span class="se-logo-prev wide"><img id="se-logo-__brand" alt="현재 사이트 로고"></span>
           <div><label class="se-btn ghost se-file" for="se-file-__brand">로고 올리기</label><input type="file" id="se-file-__brand" accept="image/png,image/jpeg,image/webp,image/gif" data-logo="__brand" hidden>
-          <button type="button" class="se-link" data-logo-reset="__brand">기본 표시(KSA)로</button></div></div>
+          <button type="button" class="se-link" data-logo-reset="__brand">기본 로고로</button></div></div>
         <label class="se-check"><input type="checkbox" id="se-brand-showText" data-k="brand.showText"> 로고 옆에 이름 글자 보이기</label>
         ${inp('brand.name','이름')}${inp('brand.sub','작은 설명')}
       </div></details>
@@ -207,7 +207,7 @@
       else if(el.type==='color')el.value=hex(v)||toHex(css.getPropertyValue(k==='accent'?'--brass':'--navy'));
       else{el.value=v==null?'':String(v);el.removeAttribute('aria-invalid')}});
     panel.querySelectorAll('input[name="se-pc"]').forEach(r=>r.checked=r.value===cfg.planetClick);
-    {const im=$('#se-logo-__brand'),u=SC.logoUrl(cfg.brand.logo);if(im){im.hidden=!u;if(u)im.src=u;im.parentNode.dataset.empty=u?'':'KSA'}}
+    {const im=$('#se-logo-__brand');if(im)im.src=SC.logoUrl(cfg.brand.logo)||'assets/brand/ksa-logo.png'}
     IDX.forEach(x=>{const im=$('#se-logo-'+x.id);if(im)im.src=SC.logoUrl(cfg.logos[x.id])||SC.DEFAULT_LOGO[x.id]||x.logo});
     IDX.forEach(x=>renderCharts(x.id));
     sums();
@@ -221,7 +221,13 @@
     const add=panel.querySelector(`[data-chart-add="${id}"]`);if(add)add.disabled=chs.length>=CHART_MAX}
   function sums(){IDX.forEach(x=>cfg.indices[x.id].charts.forEach((ch,c)=>{const el=panel.querySelector(`[data-sum="${x.id}:${c}"]`);if(!el)return;const t=ch.dims.reduce((a,d)=>a+(+d[1]||0),0);el.textContent=`합계 ${t}%`+(t===100?'':' · 100%가 되도록 맞춰 주세요');el.dataset.bad=t===100?'':'1'}))}
   let dirty=false;
-  function changed(){dirty=JSON.stringify(cfg)!==JSON.stringify(saved||DEFAULTS);apply(cfg);setStatus(dirty?'저장하지 않은 변경 사항이 있습니다.':'')}
+  /* unsaved edits are kept as a draft in this browser, so a reload or a closed tab does not lose them */
+  const draft={put(){try{localStorage.setItem(LS_DRAFT,JSON.stringify(cfg))}catch(_){}},drop(){try{localStorage.removeItem(LS_DRAFT)}catch(_){}},
+    restore(){let d=null;try{d=JSON.parse(localStorage.getItem(LS_DRAFT)||'null')}catch(_){}if(!d)return;
+      const c=sanitize(merge(DEFAULTS,upgrade(d)));if(JSON.stringify(c)===JSON.stringify(saved||DEFAULTS)){draft.drop();return}
+      cfg=c;dirty=true;apply(cfg);if(!panel.hidden)fill();setStatus('저장하지 않은 편집 내용을 복원했습니다. 저장을 눌러야 사이트에 반영됩니다.','err')}};
+  function changed(){dirty=JSON.stringify(cfg)!==JSON.stringify(saved||DEFAULTS);apply(cfg);if(dirty)draft.put();else draft.drop();setStatus(dirty?'저장하지 않은 변경 사항이 있습니다.':'')}
+  addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
   function setStatus(t,kind){status.textContent=t;status.dataset.kind=kind||''}
   panel.addEventListener('input',e=>{const el=e.target,k=el.dataset.k;
     if(el.name==='se-pc'){cfg.planetClick=el.value;changed();return}
@@ -277,13 +283,19 @@
   async function save(){
     const btn=$('#seSave');btn.disabled=true;setStatus('저장 중…');
     try{
-      if(backend==='db'){await docRef.set(clone(cfg));setStatus('저장했습니다. 이 페이지를 보는 모든 사람에게 반영됩니다.','ok')}
+      /* in the claude.ai viewer the shared store may still be connecting: wait for it instead of silently saving to this browser */
+      if(backend==='none')await Promise.race([backendReady,new Promise(r=>setTimeout(r,8000))]);
+      if(backend==='none')throw new Error('connect');
+      if(backend==='db'){const data=clone(cfg);await docRef.set(data);
+        const snap=await docRef.get();if(!snap.exists||JSON.stringify(sanitize(merge(DEFAULTS,upgrade(snap.data()))))!==JSON.stringify(sanitize(merge(DEFAULTS,upgrade(clone(data))))))throw new Error('verify');
+        setStatus('저장했습니다. 이 페이지를 보는 모든 사람에게 반영됩니다.','ok')}
       else{try{localStorage.setItem(LS_KEY,JSON.stringify(cfg))}catch(_){throw new Error('local')}setStatus('이 브라우저에 저장했습니다. 사이트 전체에 반영하려면 "설정 복사"로 받은 내용을 전달해 주세요.','ok')}
-      saved=clone(cfg);dirty=false;
+      saved=clone(cfg);dirty=false;draft.drop();
     }catch(e){
       if(e&&e.code==='invalid_argument')setStatus('저장 권한이 없습니다. 편집 권한이 있는 계정으로 열어 주세요.','err');
       else if(e&&e.message==='local')setStatus('이 브라우저에서는 저장소를 쓸 수 없습니다. "설정 복사"를 이용해 주세요.','err');
-      else setStatus('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.','err');
+      else if(e&&e.message==='connect')setStatus('저장소에 연결하지 못했습니다. 편집 내용은 이 브라우저에 임시 보관했으니 잠시 후 다시 저장해 주세요.','err');
+      else setStatus('저장하지 못했습니다'+(e&&(e.code||e.message)?` (${e.code||e.message})`:'')+'. 편집 내용은 이 브라우저에 임시 보관했으니 다시 저장해 주세요.','err');
     }finally{btn.disabled=false}
   }
 
@@ -335,7 +347,8 @@ JSON 하나만 답하세요: {"patch": {바꿀 필드만, 위와 같은 구조},
   window.KSA_SITE={autoRotate:true,planetClick:DEFAULTS.planetClick};
   try{const raw=localStorage.getItem(LS_KEY);if(raw){saved=sanitize(merge(DEFAULTS,upgrade(JSON.parse(raw))));cfg=clone(saved);apply(cfg)}}catch(_){}
   const wantsEdit=()=>{try{if(location.hash==='#edit')localStorage.setItem(LS_EDIT,'1');return location.hash==='#edit'||localStorage.getItem(LS_EDIT)==='1'}catch(_){return location.hash==='#edit'}};
-  function showLocal(){backend='local';$('#seMode').textContent='이 브라우저에만 저장';setEditable(wantsEdit())}
+  let backendSet;const backendReady=new Promise(r=>backendSet=r);
+  function showLocal(){backend='local';backendSet();draft.restore();$('#seMode').textContent='이 브라우저에만 저장';setEditable(wantsEdit())}
   addEventListener('hashchange',()=>{if(backend!=='db'&&wantsEdit()){setEditable(true);open()}});
 
   const C=window.claude;
@@ -345,12 +358,14 @@ JSON 하나만 답하세요: {"patch": {바꿀 필드만, 위와 같은 구조},
   Promise.all([C.use('db'),C.use('user')]).then(async([d,u])=>{
     if(!d){showLocal();return}
     db=d;docRef=db.doc('site/config');
+    let first=true;
     docRef.onSnapshot(snap=>{
       if(snap.exists){saved=sanitize(merge(DEFAULTS,upgrade(snap.data())));if(!dirty){cfg=clone(saved);apply(cfg);if(!panel.hidden)fill()}}
       else if(!saved)saved=clone(DEFAULTS);
+      if(first){first=false;draft.restore()}
     },()=>{});
     const canEdit=u?(await u.canEdit().catch(()=>false))||(await u.isOwner().catch(()=>false)):false;
-    backend='db';$('#seMode').textContent=canEdit?'저장 시 모든 방문자에게 반영':'보기 전용';
+    backend='db';backendSet();$('#seMode').textContent=canEdit?'저장 시 모든 방문자에게 반영':'보기 전용';
     setEditable(canEdit);$('#seSave').hidden=!canEdit;
   }).catch(showLocal);
 })();

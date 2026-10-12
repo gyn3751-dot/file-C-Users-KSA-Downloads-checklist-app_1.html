@@ -37,14 +37,14 @@
     });
   }
 
-  /* the site's own logo + name (top-left mark, footer, explore HUD); empty logo = the built-in "KSA" mark */
+  /* the site's own logo + name (top-left mark, footer, explore HUD); empty logo = the logo built into the page */
   function applyBrand(c){
     const b=c&&c.brand;if(!b||typeof b!=='object')return;
     const u=logoUrl(b.logo);
     document.querySelectorAll('.brand-mark,.back .mk').forEach(m=>{
-      if(!m.dataset.def)m.dataset.def=m.textContent;
+      if(!m._def)m._def={html:m.innerHTML,cls:m.className};
       if(u){m.classList.add('has-img');let im=m.querySelector('img');if(!im){m.textContent='';im=document.createElement('img');im.alt='';m.appendChild(im)}if(im.getAttribute('src')!==u)im.src=u}
-      else if(m.classList.contains('has-img')){m.classList.remove('has-img');m.textContent=m.dataset.def}
+      else if(m.innerHTML!==m._def.html){m.innerHTML=m._def.html;m.className=m._def.cls}
     });
     document.querySelectorAll('.brand-text').forEach(t=>{
       const n=t.querySelector('b'),s=t.querySelector('span');
