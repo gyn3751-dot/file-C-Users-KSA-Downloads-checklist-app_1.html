@@ -287,8 +287,9 @@
       /* in the claude.ai viewer the shared store may still be connecting: wait for it instead of silently saving to this browser */
       if(backend==='none')await Promise.race([backendReady,new Promise(r=>setTimeout(r,8000))]);
       if(backend==='none')throw new Error('connect');
-      if(backend==='db'){const data=clone(cfg);await docRef.set(data);
-        const snap=await docRef.get();if(!snap.exists||JSON.stringify(sanitize(merge(DEFAULTS,upgrade(snap.data()))))!==JSON.stringify(sanitize(merge(DEFAULTS,upgrade(clone(data))))))throw new Error('verify');
+      /* set() resolving means the store accepted the write (a read straight after can still return the previous copy) */
+      if(backend==='db'){const data=clone(cfg);
+        try{await docRef.set(data)}catch(e){if(e&&e.code==='unavailable'){await new Promise(r=>setTimeout(r,600+Math.random()*600));await docRef.set(data)}else throw e}
         setStatus('저장했습니다. 이 페이지를 보는 모든 사람에게 반영됩니다.','ok')}
       else{try{localStorage.setItem(LS_KEY,JSON.stringify(cfg))}catch(_){throw new Error('local')}setStatus('이 브라우저에 저장했습니다. 사이트 전체에 반영하려면 "설정 복사"로 받은 내용을 전달해 주세요.','ok')}
       saved=clone(cfg);dirty=false;draft.drop();
