@@ -47,6 +47,7 @@
     indices:Object.fromEntries(IDX.map(x=>[x.id,Object.assign(Object.fromEntries(INDEX_FIELDS.map(([k])=>[k,x[k]||''])),{dims:x.dims.map(d=>[d[0],d[1]])})])),
     schedule:JSON.parse(JSON.stringify(K0.schedule||{})),
     logos:Object.fromEntries(IDX.map(x=>[x.id,''])),
+    brand:{logo:'',name:text($('.brand-text b')),sub:text($('.brand-text span')),showText:true},
     homepages:Object.fromEntries(IDX.map(x=>[x.id,x.homepage]))
   };
   let saved=null,cfg=clone(DEFAULTS),backend='none',db=null,docRef=null;
@@ -68,6 +69,7 @@
     for(const id of Object.keys(c.homepages))if(!okUrl(c.homepages[id]))c.homepages[id]=DEFAULTS.homepages[id];
     if(!['homepage','detail','flip'].includes(c.planetClick))c.planetClick='homepage';
     for(const id of Object.keys(c.logos))if(c.logos[id]&&!SC.logoUrl(c.logos[id]))c.logos[id]='';
+    if(c.brand.logo&&!SC.logoUrl(c.brand.logo))c.brand.logo='';
     for(const id of Object.keys(c.indices))c.indices[id].dims.forEach(d=>{d[1]=Math.max(0,Math.min(100,Math.round(+d[1]||0)))});
     for(const id of Object.keys(c.schedule))for(const [ph] of PHASES){const r=ST.normRange(c.schedule[id][ph]);c.schedule[id][ph]=r||clone(DEFAULTS.schedule[id][ph])}
     return c;
@@ -91,6 +93,7 @@
     if(hex(c.navy))root.style.setProperty('--navy',hex(c.navy));else root.style.removeProperty('--navy');
     for(const [id] of SECTIONS){const e=secEls(id),v=c.sections[id];if(e.h)e.h.innerHTML=esc(v.title).replace(/\n/g,'<br>');if(e.p)e.p.textContent=v.desc}
     stepEls().forEach((li,i)=>{const v=c.steps[i];if(!v)return;li.querySelector('h3').textContent=v.t;li.querySelector('p').textContent=v.p});
+    if(SC.applyBrand)SC.applyBrand(c);
     const p=$('#process'),s=$('#schedule');if(p)p.hidden=!c.showProcess;if(s)s.hidden=!c.showSchedule;
     $$('#nav a[href="#process"],footer a[href="#process"]').forEach(a=>a.closest('li,a').hidden=!c.showProcess);
     $$('#nav a[href="#schedule"],footer a[href="#schedule"]').forEach(a=>a.closest('li,a').hidden=!c.showSchedule);
@@ -123,6 +126,14 @@
         ${inp('eyebrow','영문 소제목')}${inp('title1','제목 첫째 줄')}${inp('title2','제목 둘째 줄')}
         ${inp('highlight','금색 강조 단어',{hint:'제목 안에 있는 단어'})}${inp('lede','소개 문구',{area:1})}
         <div class="se-2"><div>${inp('cta1','첫째 버튼')}</div><div>${inp('cta2','둘째 버튼')}</div></div>
+      </div></details>
+      <details open><summary>사이트 로고 (왼쪽 위)</summary><div class="se-fields">
+        <p class="se-help">PNG·JPG·WEBP. 배경이 투명한 가로형 로고가 가장 잘 어울립니다.</p>
+        <div class="se-logo"><span class="se-logo-prev wide"><img id="se-logo-__brand" alt="현재 사이트 로고"></span>
+          <div><label class="se-btn ghost se-file" for="se-file-__brand">로고 올리기</label><input type="file" id="se-file-__brand" accept="image/png,image/jpeg,image/webp,image/gif" data-logo="__brand" hidden>
+          <button type="button" class="se-link" data-logo-reset="__brand">기본 표시(KSA)로</button></div></div>
+        <label class="se-check"><input type="checkbox" id="se-brand-showText" data-k="brand.showText"> 로고 옆에 이름 글자 보이기</label>
+        ${inp('brand.name','이름')}${inp('brand.sub','작은 설명')}
       </div></details>
       <details><summary>슬로건 추천</summary><div class="se-fields"><p class="se-help">누르면 제목에 바로 들어갑니다.</p><div class="se-slogans" id="seSlogans"></div></div></details>
       <details open><summary>행성 로고 · 지수별 사이트</summary><div class="se-fields">
@@ -187,6 +198,7 @@
       else if(el.type==='color')el.value=hex(v)||toHex(css.getPropertyValue(k==='accent'?'--brass':'--navy'));
       else{el.value=v==null?'':String(v);el.removeAttribute('aria-invalid')}});
     panel.querySelectorAll('input[name="se-pc"]').forEach(r=>r.checked=r.value===cfg.planetClick);
+    {const im=$('#se-logo-__brand'),u=SC.logoUrl(cfg.brand.logo);if(im){im.hidden=!u;if(u)im.src=u;im.parentNode.dataset.empty=u?'':'KSA'}}
     IDX.forEach(x=>{const im=$('#se-logo-'+x.id);if(im)im.src=SC.logoUrl(cfg.logos[x.id])||SC.DEFAULT_LOGO[x.id]||x.logo});
     sums();
   }
@@ -229,15 +241,15 @@
   function shrink(file,max){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const s=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);const g=c.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c)};im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('decode'))};im.src=u})}
   panel.addEventListener('change',async e=>{const el=e.target;if(!el.dataset.logo||!el.files||!el.files[0])return;const id=el.dataset.logo,f=el.files[0];el.value='';
     try{
-      setStatus('로고를 올리는 중…');const c=await shrink(f,800);
+      setStatus('로고를 올리는 중…');const c=await shrink(f,id==='__brand'?480:800);const put=v=>{if(id==='__brand')cfg.brand.logo=v;else cfg.logos[id]=v};
       if(backend==='db'){
         if(!assets){setStatus('이 화면에서는 이미지를 올릴 수 없습니다. 편집 권한이 있는 계정으로 열어 주세요.','err');return}
         const blob=await new Promise(r=>c.toBlob(r,'image/png'));const up=await assets.upload(blob,{type:'image/png'});
-        cfg.logos[id]='asset:'+up.id;
-      }else{const d=c.toDataURL('image/png');if(d.length>600000){setStatus('이미지가 너무 큽니다. 더 작은 파일을 골라 주세요.','err');return}cfg.logos[id]=d}
+        put('asset:'+up.id);
+      }else{const d=c.toDataURL('image/png');if(d.length>600000){setStatus('이미지가 너무 큽니다. 더 작은 파일을 골라 주세요.','err');return}put(d)}
       fill();changed();setStatus('로고를 바꿨습니다. 저장하면 반영됩니다.');
     }catch(err){setStatus(err&&err.message==='decode'?'이미지를 읽지 못했습니다. PNG나 JPG 파일인지 확인해 주세요.':'로고를 올리지 못했습니다. 잠시 후 다시 시도해 주세요.','err')}});
-  panel.addEventListener('click',e=>{const b=e.target.closest('[data-logo-reset]');if(!b)return;cfg.logos[b.dataset.logoReset]='';fill();changed()});
+  panel.addEventListener('click',e=>{const b=e.target.closest('[data-logo-reset]');if(!b)return;const r=b.dataset.logoReset;if(r==='__brand')cfg.brand.logo='';else cfg.logos[r]='';fill();changed()});
 
   async function save(){
     const btn=$('#seSave');btn.disabled=true;setStatus('저장 중…');
@@ -273,7 +285,7 @@ ${JSON.stringify(cfg)}
 - steps: 참여 절차 7단계 배열 [{t: 제목, p: 설명}] (배열 길이 유지)
 - indices: {qei|cqi|pbi|well|dcxi: {name, en, desc, target, method, announce, dims}} — dims는 [항목 이름, 가중치%] 4개 배열(합계 100, 길이 유지)
 - schedule: {qei|...: {apply(조사 부문 설정)|survey(조사·평가)|notice(조사결과 안내)|award(발표·인증식): ["YYYY-MM-DD" 시작일, "YYYY-MM-DD" 종료일]}} — 종료일 포함, 시작일 ≤ 종료일
-- logos: 바꾸지 마세요
+- logos, brand.logo: 바꾸지 마세요 (brand.name/brand.sub/brand.showText 는 바꿔도 됩니다)
 - homepages: {qei|cqi|pbi|well|dcxi: https 주소}
 
 사용자 요청: ${q}

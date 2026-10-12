@@ -34,6 +34,23 @@
     });
   }
 
+  /* the site's own logo + name (top-left mark, footer, explore HUD); empty logo = the built-in "KSA" mark */
+  function applyBrand(c){
+    const b=c&&c.brand;if(!b||typeof b!=='object')return;
+    const u=logoUrl(b.logo);
+    document.querySelectorAll('.brand-mark,.back .mk').forEach(m=>{
+      if(!m.dataset.def)m.dataset.def=m.textContent;
+      if(u){m.classList.add('has-img');let im=m.querySelector('img');if(!im){m.textContent='';im=document.createElement('img');im.alt='';m.appendChild(im)}if(im.getAttribute('src')!==u)im.src=u}
+      else if(m.classList.contains('has-img')){m.classList.remove('has-img');m.textContent=m.dataset.def}
+    });
+    document.querySelectorAll('.brand-text').forEach(t=>{
+      const n=t.querySelector('b'),s=t.querySelector('span');
+      if(typeof b.name==='string'&&b.name.trim()&&n)n.textContent=b.name;
+      if(typeof b.sub==='string'&&s)s.textContent=b.sub;
+      t.hidden=b.showText===false;
+    });
+  }
+
   /* read the saved config once: shared store when the viewer offers it, else this browser; never waits longer than `ms` */
   function load(ms){
     return new Promise(res=>{
@@ -46,5 +63,5 @@
     });
   }
 
-  window.KSA_SITE_CONFIG={LS_KEY,DEFAULT_LOGO,logoUrl,textureSrc,applyIndices,load};
+  window.KSA_SITE_CONFIG={LS_KEY,DEFAULT_LOGO,logoUrl,textureSrc,applyIndices,applyBrand,load};
 })();

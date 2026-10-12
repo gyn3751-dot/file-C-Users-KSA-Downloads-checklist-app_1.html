@@ -48,6 +48,8 @@ img{max-width:100%;display:block}
 .hud-top>*{pointer-events:auto}
 .back{display:flex;align-items:center;gap:12px;padding:8px 14px 8px 10px}
 .back .mk{width:30px;height:30px;border:1.5px solid var(--fg);display:grid;place-items:center;font-family:var(--f-mono);font-size:.62rem;font-weight:500}
+.back .mk.has-img{width:auto;height:32px;border:0;background:#fff;padding:3px 6px;border-radius:4px}
+.back .mk.has-img img{display:block;height:100%;width:auto;max-width:140px;object-fit:contain}
 .back b{display:block;font-size:.86rem;font-weight:600;line-height:1.2}
 .back .sub{display:block;font-size:.7rem;color:var(--mute);line-height:1.3}
 .back:hover{border-color:var(--line-2)}
@@ -580,7 +582,7 @@ function frame(now){
 const load=src=>new Promise(r=>{const im=new Image();im.onload=()=>r(im);im.onerror=()=>r(null);im.src=src});
 /* settings saved from the main site's edit panel (names, copy, weights, homepages, logos) apply here too */
 const SC=window.KSA_SITE_CONFIG;
-const cfgReady=SC?SC.load(2500).then(c=>{SC.applyIndices(c);IDX.forEach(x=>{const im=document.querySelector('#slot-'+x.id+' img');if(im)im.src=x.logo})}):Promise.resolve();
+const cfgReady=SC?SC.load(2500).then(c=>{SC.applyIndices(c);if(SC.applyBrand)SC.applyBrand(c);IDX.forEach(x=>{const im=document.querySelector('#slot-'+x.id+' img');if(im)im.src=x.logo})}):Promise.resolve();
 const texSrc=x=>SC?SC.textureSrc(x):((window.KSA_LOGO_DATA||{})[x.id]||x.logo);
 Promise.all([cfgReady.then(()=>Promise.all(IDX.map(x=>load(texSrc(x)).then(im=>im||load((window.KSA_LOGO_DATA||{})[x.id]))))),document.fonts?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))]):0]).then(([imgs])=>{
   if(imgs.some(x=>!x))return noGL();
