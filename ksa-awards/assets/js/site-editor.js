@@ -45,7 +45,7 @@
     planetClick:'homepage',
     sections:Object.fromEntries(SECTIONS.map(([id])=>{const e=secEls(id);return[id,{title:multi(e.h),desc:text(e.p)}]})),
     steps:stepEls().map(li=>({t:text(li.querySelector('h3')),p:text(li.querySelector('p'))})),
-    indices:Object.fromEntries(IDX.map(x=>[x.id,Object.assign(Object.fromEntries(INDEX_FIELDS.map(([k])=>[k,x[k]||''])),{charts:[{title:DIMS_TITLE,dims:x.dims.map(d=>[d[0],d[1]])}]})])),
+    indices:Object.fromEntries(IDX.map(x=>[x.id,Object.assign(Object.fromEntries(INDEX_FIELDS.map(([k])=>[k,x[k]||''])),{charts:[{title:DIMS_TITLE,inline:false,dims:x.dims.map(d=>[d[0],d[1]])}]})])),
     schedule:JSON.parse(JSON.stringify(K0.schedule||{})),
     logos:Object.fromEntries(IDX.map(x=>[x.id,''])),
     brand:{logo:'',name:text($('.brand-text b')),sub:text($('.brand-text span')),showText:!($('.brand-text')||{}).hidden},
@@ -105,7 +105,7 @@
     const p=$('#process'),s=$('#schedule');if(p)p.hidden=!c.showProcess;if(s)s.hidden=!c.showSchedule;
     $$('#nav a[href="#process"],footer a[href="#process"]').forEach(a=>a.closest('li,a').hidden=!c.showProcess);
     $$('#nav a[href="#schedule"],footer a[href="#schedule"]').forEach(a=>a.closest('li,a').hidden=!c.showSchedule);
-    IDX.forEach(x=>{const o=c.indices[x.id]||{};INDEX_FIELDS.forEach(([f])=>{x[f]=o[f]});x.charts=(o.charts||[]).map(ch=>({title:ch.title,dims:ch.dims.map(d=>[d[0],d[1]])}));if(x.charts.length)x.dims=x.charts[0].dims.map(d=>[d[0],d[1]]);
+    IDX.forEach(x=>{const o=c.indices[x.id]||{};INDEX_FIELDS.forEach(([f])=>{x[f]=o[f]});x.charts=(o.charts||[]).map(ch=>({title:ch.title,inline:!!ch.inline,dims:ch.dims.map(d=>[d[0],d[1]])}));if(x.charts.length)x.dims=x.charts[0].dims.map(d=>[d[0],d[1]]);
       if(c.homepages[x.id])x.homepage=c.homepages[x.id];
       const u=SC.logoUrl(c.logos[x.id]);x.logo=u||SC.DEFAULT_LOGO[x.id]||x.logo;x.logoCustom=!!u;
       $$(`.orb-plaque[data-idx="${x.id}"] img`).forEach(im=>{if(im.getAttribute('src')!==x.logo)im.src=x.logo})});
@@ -215,6 +215,7 @@
   /* 측정 항목 rows: rebuilt from cfg whenever one is added or removed */
   function renderCharts(id){const box=panel.querySelector(`[data-charts="${id}"]`);if(!box)return;const x=IDX.find(i=>i.id===id),chs=cfg.indices[id].charts;
     box.innerHTML=chs.map((ch,c)=>`<div class="se-chart"><div class="se-chart-h"><b>그래프 ${c+1}</b><small class="se-sum" data-sum="${id}:${c}"></small><button type="button" class="se-link" data-chart-del="${id}:${c}"${chs.length<=1?' disabled':''}>그래프 삭제</button></div>
+      ${c?`<label class="se-check"><input type="checkbox" data-k="indices.${id}.charts.${c}.inline"${ch.inline?' checked':''}> 앞 그래프와 같은 줄에 나란히 놓기</label>`:''}
       <label for="se-indices.${id}.charts.${c}.title">제목</label><input id="se-indices.${id}.charts.${c}.title" data-k="indices.${id}.charts.${c}.title" value="${esc(ch.title)}">
       <div class="se-dims">${ch.dims.map((d,j)=>`<div class="se-dim"><input aria-label="${esc(x.code)} 그래프 ${c+1} 항목 ${j+1}" data-k="indices.${id}.charts.${c}.dims.${j}.0" value="${esc(d[0])}"><input type="number" min="0" max="100" step="1" aria-label="${esc(x.code)} 그래프 ${c+1} 항목 ${j+1} 가중치" data-k="indices.${id}.charts.${c}.dims.${j}.1" value="${d[1]}"><span>%</span><button type="button" class="se-dim-del" data-dim-del="${id}:${c}:${j}" aria-label="${esc(x.code)} 그래프 ${c+1} 항목 ${j+1} 삭제"${ch.dims.length<=1?' disabled':''}>−</button></div>`).join('')}</div>
       <button type="button" class="se-btn ghost se-dim-add" data-dim-add="${id}:${c}"${ch.dims.length>=DIM_MAX?' disabled':''}>＋ 항목 추가</button></div>`).join('');
@@ -274,7 +275,7 @@
     }catch(err){setStatus(err&&err.message==='decode'?'이미지를 읽지 못했습니다. PNG나 JPG 파일인지 확인해 주세요.':'로고를 올리지 못했습니다. 잠시 후 다시 시도해 주세요.','err')}});
   panel.addEventListener('click',e=>{const a=e.target.closest('[data-dim-add],[data-dim-del],[data-chart-add],[data-chart-del]');if(!a||a.disabled)return;
     const focusLast=(id,sel)=>{const ins=panel.querySelectorAll(`[data-charts="${id}"] ${sel}`);const l=ins[ins.length-1];if(l){l.focus();l.select()}};
-    if(a.dataset.chartAdd){const id=a.dataset.chartAdd,chs=cfg.indices[id].charts;if(chs.length>=CHART_MAX)return;chs.push({title:'새 그래프',dims:[['항목 1',50],['항목 2',50]]});renderCharts(id);sums();changed();focusLast(id,'[data-k$=".title"]')}
+    if(a.dataset.chartAdd){const id=a.dataset.chartAdd,chs=cfg.indices[id].charts;if(chs.length>=CHART_MAX)return;chs.push({title:'새 그래프',inline:true,dims:[['항목 1',50],['항목 2',50]]});renderCharts(id);sums();changed();focusLast(id,'[data-k$=".title"]')}
     else if(a.dataset.chartDel){const [id,c]=a.dataset.chartDel.split(':'),chs=cfg.indices[id].charts;if(chs.length<=1)return;chs.splice(+c,1);renderCharts(id);sums();changed()}
     else if(a.dataset.dimAdd){const [id,c]=a.dataset.dimAdd.split(':'),ds=cfg.indices[id].charts[+c].dims;if(ds.length>=DIM_MAX)return;ds.push(['새 항목',0]);renderCharts(id);sums();changed();const ins=panel.querySelectorAll(`[data-charts="${id}"] .se-chart:nth-child(${+c+1}) .se-dim input:not([type])`);const l=ins[ins.length-1];if(l){l.focus();l.select()}}
     else{const [id,c,j]=a.dataset.dimDel.split(':'),ds=cfg.indices[id].charts[+c].dims;if(ds.length<=1)return;ds.splice(+j,1);renderCharts(id);sums();changed()}});
@@ -318,7 +319,7 @@ ${JSON.stringify(cfg)}
 - planetClick: 메인 보드의 행성 로고를 눌렀을 때 동작. "homepage"(지수 공식 사이트로 이동), "detail"(지수 소개로 이동), "flip"(메달 뒤집기)
 - sections: {indices|process|schedule: {title(줄바꿈은 \\n), desc}}
 - steps: 참여 절차 7단계 배열 [{t: 제목, p: 설명}] (배열 길이 유지)
-- indices: {qei|cqi|pbi|well|dcxi: {name, en, desc, target, method, announce, charts}} — charts는 그래프 1~6개 [{title: 그래프 제목, dims: [[항목 이름, 가중치%] 1~12개, 합계 100]}]
+- indices: {qei|cqi|pbi|well|dcxi: {name, en, desc, target, method, announce, charts}} — charts는 그래프 1~6개 [{title: 그래프 제목, inline: true면 앞 그래프와 같은 줄(한 줄 최대 3개), dims: [[항목 이름, 가중치%] 1~12개, 합계 100]}]
 - schedule: {qei|...: {apply(조사 부문 설정)|survey(조사·평가)|notice(조사결과 안내)|award(발표·인증식): ["YYYY-MM-DD" 시작일, "YYYY-MM-DD" 종료일]}} — 종료일 포함, 시작일 ≤ 종료일
 - logos, brand.logo: 바꾸지 마세요 (brand.name/brand.sub/brand.showText 는 바꿔도 됩니다)
 - homepages: {qei|cqi|pbi|well|dcxi: https 주소}

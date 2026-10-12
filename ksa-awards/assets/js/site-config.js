@@ -27,7 +27,7 @@
         for(const k of ['name','en','desc','target','method','announce'])if(typeof o[k]==='string'&&o[k].trim())x[k]=o[k];
         const okDims=ds=>Array.isArray(ds)&&ds.length>=1&&ds.length<=12&&ds.every(d=>Array.isArray(d)&&typeof d[0]==='string'&&typeof d[1]==='number');
         const cp=ds=>ds.map(d=>[d[0],Math.max(0,Math.min(100,d[1]))]);
-        if(Array.isArray(o.charts)&&o.charts.length&&o.charts.every(ch=>ch&&typeof ch.title==='string'&&okDims(ch.dims))){x.charts=o.charts.slice(0,6).map(ch=>({title:ch.title,dims:cp(ch.dims)}));x.dims=cp(x.charts[0].dims)}
+        if(Array.isArray(o.charts)&&o.charts.length&&o.charts.every(ch=>ch&&typeof ch.title==='string'&&okDims(ch.dims))){x.charts=o.charts.slice(0,6).map(ch=>({title:ch.title,inline:!!ch.inline,dims:cp(ch.dims)}));x.dims=cp(x.charts[0].dims)}
         else if(okDims(o.dims))x.dims=cp(o.dims);
       }
       const h=c.homepages&&c.homepages[x.id];

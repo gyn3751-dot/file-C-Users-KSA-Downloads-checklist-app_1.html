@@ -262,7 +262,14 @@ section[id]{scroll-margin-top:72px}
 .d-meta div{padding:var(--s-4) var(--s-4) 0 0;min-width:0}
 .d-meta dt{font-size:.74rem;color:var(--ink-3)}
 .d-meta dd{margin:var(--s-1) 0 0;font-size:.92rem;font-weight:500}
-.d-dims+.d-dims{margin-top:var(--s-6);padding-top:var(--s-5);border-top:1px dashed var(--rule)}
+.d-row{display:grid;grid-template-columns:repeat(var(--n,1),minmax(0,1fr));gap:var(--s-5)}
+.d-row+.d-row{margin-top:var(--s-6);padding-top:var(--s-5);border-top:1px dashed var(--rule)}
+.d-row.multi .d-dims+.d-dims{border-left:1px dashed var(--rule);padding-left:var(--s-5)}
+.d-row.multi .dim{grid-template-columns:minmax(0,1fr) auto;gap:6px 8px}
+.d-row.multi .dim .bar{grid-column:1/-1;grid-row:2}
+.d-row.multi .dim-scale{grid-template-columns:minmax(0,1fr)}
+.d-row.multi .dim-scale>span:not(:nth-child(2)){display:none}
+@media (max-width:560px){.d-row{grid-template-columns:minmax(0,1fr)}.d-row.multi .d-dims+.d-dims{border-left:0;padding-left:0;border-top:1px dashed var(--rule);padding-top:var(--s-4)}}
 .d-dims h4{margin:0 0 var(--s-3);font-size:.78rem;font-weight:500;color:var(--ink-3);letter-spacing:.04em}
 .dims{display:flex;flex-direction:column;gap:var(--s-3)}
 .dim{display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 3.2rem;align-items:center;gap:var(--s-4);font-size:.88rem}
@@ -625,6 +632,8 @@ body.se-open .se-fab{display:none}
   const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   /* an index can show several weight charts (each its own title + bars); without any, its dims form one chart */
   const chartsOf=i=>Array.isArray(i.charts)&&i.charts.length?i.charts:[{title:dimsTitle,dims:i.dims}];
+  /* charts marked inline sit beside the previous one (up to three in a row); the rest start a new row */
+  const chartRows=cs=>{const rows=[];cs.forEach((c,k)=>{const last=rows[rows.length-1];if(k&&c.inline&&last.length<3)last.push(c);else rows.push([c])});return rows};
   let curId='qei';
   function show(id,scroll){
     const i=byId[id];if(!i)return;curId=id;
@@ -635,8 +644,8 @@ body.se-open .se-fab{display:none}
       <div class="d-logo"><img src="${i.logo}" alt="${i.code} 인증 로고"></div></div>
       <p class="d-desc">${i.desc}</p>
       <dl class="d-meta"><div><dt>평가 대상</dt><dd>${i.target}</dd></div><div><dt>평가 방식</dt><dd>${i.method}</dd></div><div><dt>결과 발표</dt><dd>매년 ${i.announce}</dd></div></dl>
-      ${chartsOf(i).map(ch=>{const mx=Math.max(40,Math.ceil(Math.max(0,...ch.dims.map(d=>d[1]))/10)*10); /* bar scale grows if a weight passes 40% */
-        return `<div class="d-dims">${ch.title?`<h4>${esc(ch.title)}</h4>`:''}<div class="dims">${ch.dims.map(([n,w])=>`<div class="dim"><span>${esc(n)}</span><span class="bar"><i style="width:${w/mx*100}%"></i></span><span class="w">${w}%</span></div>`).join('')}</div><div class="dim-scale" aria-hidden="true"><span></span><span><span>0</span><span>${mx/2}%</span><span>${mx}%</span></span><span></span></div></div>`}).join('')}
+      ${chartRows(chartsOf(i)).map(row=>`<div class="d-row${row.length>1?' multi':''}" style="--n:${row.length}">${row.map(ch=>{const mx=Math.max(40,Math.ceil(Math.max(0,...ch.dims.map(d=>d[1]))/10)*10); /* bar scale grows if a weight passes 40% */
+        return `<div class="d-dims">${ch.title?`<h4>${esc(ch.title)}</h4>`:''}<div class="dims">${ch.dims.map(([n,w])=>`<div class="dim"><span>${esc(n)}</span><span class="bar"><i style="width:${w/mx*100}%"></i></span><span class="w">${w}%</span></div>`).join('')}</div><div class="dim-scale" aria-hidden="true"><span></span><span><span>0</span><span>${mx/2}%</span><span>${mx}%</span></span><span></span></div></div>`}).join('')}</div>`).join('')}
       <div class="d-actions"><a href="${i.homepage}" class="btn" target="_blank" rel="noopener">${i.code} 공식 홈페이지 <span class="arr">↗</span></a><span class="note">가중치는 업종에 따라 조정될 수 있습니다.</span></div>`;
     detail.classList.remove('swap');void detail.offsetWidth;detail.classList.add('swap');
     if(scroll)document.getElementById('indices').scrollIntoView({behavior:'smooth'});
