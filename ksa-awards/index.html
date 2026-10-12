@@ -262,6 +262,7 @@ section[id]{scroll-margin-top:72px}
 .d-meta div{padding:var(--s-4) var(--s-4) 0 0;min-width:0}
 .d-meta dt{font-size:.74rem;color:var(--ink-3)}
 .d-meta dd{margin:var(--s-1) 0 0;font-size:.92rem;font-weight:500}
+.d-dims+.d-dims{margin-top:var(--s-6);padding-top:var(--s-5);border-top:1px dashed var(--rule)}
 .d-dims h4{margin:0 0 var(--s-3);font-size:.78rem;font-weight:500;color:var(--ink-3);letter-spacing:.04em}
 .dims{display:flex;flex-direction:column;gap:var(--s-3)}
 .dim{display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 3.2rem;align-items:center;gap:var(--s-4);font-size:.88rem}
@@ -399,6 +400,12 @@ body.se-open .se-fab{display:none}
 .se-radios label{display:flex;gap:8px;align-items:center;font-size:.82rem!important;color:var(--ink)!important;cursor:pointer;margin:0!important}
 .se-radios input{accent-color:var(--ink);width:16px;height:16px;margin:0;flex:none}
 .se-dims{display:flex;flex-direction:column;gap:6px}
+.se-chart{border:1px solid var(--rule);padding:10px;display:flex;flex-direction:column;gap:6px;background:color-mix(in srgb,var(--paper) 60%,transparent)}
+.se-chart+.se-chart{margin-top:8px}
+.se-chart-h{display:flex;align-items:baseline;gap:8px;font-size:.8rem}
+.se-chart-h .se-link{margin-left:auto}
+.se-chart-h .se-link:disabled{opacity:.35;cursor:not-allowed;text-decoration:none}
+.se-chart-add{margin-top:8px;width:100%}
 .se-dim input{color:var(--ink)}
 .se-dim-del{width:30px;height:30px;border:1px solid var(--rule);background:transparent;color:var(--ink-2);font-size:1rem;line-height:1;cursor:pointer}
 .se-dim-del:hover:not(:disabled){border-color:#c0392b;color:#c0392b}
@@ -616,10 +623,11 @@ body.se-open .se-fab{display:none}
   /* heading above the weight bars (editable in the site editor) */
   let dimsTitle='측정 차원 · 가중치 (100점 환산)';
   const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  /* an index can show several weight charts (each its own title + bars); without any, its dims form one chart */
+  const chartsOf=i=>Array.isArray(i.charts)&&i.charts.length?i.charts:[{title:dimsTitle,dims:i.dims}];
   let curId='qei';
   function show(id,scroll){
     const i=byId[id];if(!i)return;curId=id;
-    const mx=Math.max(40,Math.ceil(Math.max(...i.dims.map(d=>d[1]))/10)*10); /* bar scale grows if a weight passes 40% */
     list.querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',b.dataset.idx===id));
     detail.setAttribute('aria-labelledby','tab-'+id);
     detail.closest('.explorer').style.setProperty('--c',i.color);
@@ -627,7 +635,8 @@ body.se-open .se-fab{display:none}
       <div class="d-logo"><img src="${i.logo}" alt="${i.code} 인증 로고"></div></div>
       <p class="d-desc">${i.desc}</p>
       <dl class="d-meta"><div><dt>평가 대상</dt><dd>${i.target}</dd></div><div><dt>평가 방식</dt><dd>${i.method}</dd></div><div><dt>결과 발표</dt><dd>매년 ${i.announce}</dd></div></dl>
-      <div class="d-dims"><h4>${esc(dimsTitle)}</h4><div class="dims">${i.dims.map(([n,w])=>`<div class="dim"><span>${n}</span><span class="bar"><i style="width:${w/mx*100}%"></i></span><span class="w">${w}%</span></div>`).join('')}</div><div class="dim-scale" aria-hidden="true"><span></span><span><span>0</span><span>${mx/2}%</span><span>${mx}%</span></span><span></span></div></div>
+      ${chartsOf(i).map(ch=>{const mx=Math.max(40,Math.ceil(Math.max(0,...ch.dims.map(d=>d[1]))/10)*10); /* bar scale grows if a weight passes 40% */
+        return `<div class="d-dims">${ch.title?`<h4>${esc(ch.title)}</h4>`:''}<div class="dims">${ch.dims.map(([n,w])=>`<div class="dim"><span>${esc(n)}</span><span class="bar"><i style="width:${w/mx*100}%"></i></span><span class="w">${w}%</span></div>`).join('')}</div><div class="dim-scale" aria-hidden="true"><span></span><span><span>0</span><span>${mx/2}%</span><span>${mx}%</span></span><span></span></div></div>`}).join('')}
       <div class="d-actions"><a href="${i.homepage}" class="btn" target="_blank" rel="noopener">${i.code} 공식 홈페이지 <span class="arr">↗</span></a><span class="note">가중치는 업종에 따라 조정될 수 있습니다.</span></div>`;
     detail.classList.remove('swap');void detail.offsetWidth;detail.classList.add('swap');
     if(scroll)document.getElementById('indices').scrollIntoView({behavior:'smooth'});

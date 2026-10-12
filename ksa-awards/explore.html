@@ -136,6 +136,8 @@ img{max-width:100%;display:block}
 .dr-meta dt{font-size:.7rem;color:var(--mute)}
 .dr-meta dd{margin:2px 0 0;font-size:.86rem;font-weight:500}
 .dims{display:flex;flex-direction:column;gap:7px}
+.dr-ct{margin:14px 0 6px;font-size:.72rem;letter-spacing:.04em;opacity:.7}
+.dims+.dr-ct{margin-top:18px}
 .dim{display:grid;grid-template-columns:7.5rem 1fr 2.6rem;gap:10px;align-items:center;font-size:.8rem}
 .dim .bar{height:3px;background:var(--line);position:relative;overflow:hidden}
 .dim .bar i{position:absolute;inset:0 auto 0 0;background:var(--c,var(--gold));animation:grow 1s var(--ease) both}
@@ -284,7 +286,8 @@ function openDetail(i){
     <div><p class="dr-code">${x.code} · SIGNAL ${String(i+1).padStart(2,'0')}</p><h2 class="dr-name">${x.name}</h2><p class="dr-en">${x.en}</p></div>
     <p class="dr-desc">${x.desc}</p>
     <dl class="dr-meta"><div><dt>평가 대상</dt><dd>${x.target}</dd></div><div><dt>결과 발표</dt><dd>매년 ${x.announce}</dd></div></dl>
-    <div class="dims">${x.dims.map(([n,w])=>`<div class="dim"><span>${n}</span><span class="bar"><i style="width:${w/Math.max(40,Math.ceil(Math.max(...x.dims.map(d=>d[1]))/10)*10)*100}%"></i></span><span class="w">${w}%</span></div>`).join('')}</div>`;
+    ${(Array.isArray(x.charts)&&x.charts.length?x.charts:[{title:'',dims:x.dims}]).map(ch=>{const mx=Math.max(40,Math.ceil(Math.max(0,...ch.dims.map(d=>d[1]))/10)*10);
+      return `${ch.title?`<p class="dr-ct">${ch.title}</p>`:''}<div class="dims">${ch.dims.map(([n,w])=>`<div class="dim"><span>${n}</span><span class="bar"><i style="width:${w/mx*100}%"></i></span><span class="w">${w}%</span></div>`).join('')}</div>`}).join('')}`;
   $('drActions').innerHTML=`<a class="btn" href="${x.homepage}" target="_blank" rel="noopener">${x.code} 공식 홈페이지 <span class="arr">↗</span></a>
     <div class="row"><a class="btn ghost" href="index.html#indices">평가 기준 비교</a><button class="btn ghost" type="button" id="nextSig">다음 신호 찾기</button></div>`;
   const say=$('drBody').querySelector('.dr-say');if(say)say.textContent=x.greet;
