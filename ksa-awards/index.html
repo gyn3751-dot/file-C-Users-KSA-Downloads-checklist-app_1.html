@@ -155,8 +155,9 @@ p{margin:0}
 @keyframes bfly-open-r{0%{transform:scaleX(.08)}45%{transform:scaleX(1.28) rotate(-16deg)}70%{transform:scaleX(.9) rotate(-4deg)}100%{transform:none}}
 @keyframes bfly-flap{from{transform:scaleX(1)}to{transform:scaleX(.72)}}
 @keyframes c-float{0%,100%{translate:0 0}50%{translate:0 -10%}}
-.char-pop.on.m-glitch .char-fig{animation:char-glitch .7s steps(1) both,tada-roar .55s .72s cubic-bezier(.3,1.6,.5,1) both,c-float 3s 1.4s ease-in-out infinite}
-@keyframes char-glitch{0%{translate:0 0;clip-path:inset(0 0 70% 0);filter:hue-rotate(60deg)}15%{translate:4% 0;clip-path:inset(40% 0 30% 0)}30%{translate:-4% 0;clip-path:inset(10% 0 50% 0);filter:hue-rotate(-40deg)}45%{translate:1% 0;clip-path:inset(60% 0 0 0)}60%{translate:-1% 0;clip-path:inset(0 0 20% 0)}75%,100%{translate:0 0;clip-path:none;filter:drop-shadow(0 12px 18px rgba(0,0,0,.45))}}
+/* DCXI: materialises like a hologram — a smooth bottom-up scan with a blue glow (no image slicing or colour shift) */
+.char-pop.on.m-glitch .char-fig{animation:char-digital .75s cubic-bezier(.25,.8,.3,1) both,tada-roar .55s .72s cubic-bezier(.3,1.6,.5,1) both,c-float 3s 1.4s ease-in-out infinite}
+@keyframes char-digital{0%{opacity:0;clip-path:inset(100% -40% -40% -40%);filter:brightness(1.5) drop-shadow(0 0 16px rgba(123,147,245,.9))}60%{opacity:1;clip-path:inset(-40% -40% -40% -40%);filter:brightness(1.18) drop-shadow(0 0 16px rgba(123,147,245,.8))}100%{opacity:1;clip-path:inset(-40% -40% -40% -40%);filter:drop-shadow(0 12px 18px rgba(0,0,0,.45))}}
 @keyframes tada-roar{0%{transform:none}30%{transform:scale(1.2) rotate(-4deg)}45%{transform:scale(1.16) rotate(4deg)}60%{transform:scale(1.18) rotate(-3deg)}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){.char-pop .ant{animation:none!important}.char-pop *,.char-pop .char-in{animation:none!important}.char-burst{display:none}}
 .board-head{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;color:var(--on-navy-2);text-transform:uppercase;padding-bottom:var(--s-4);border-bottom:1px solid rgba(255,255,255,.14)}
