@@ -25,7 +25,7 @@
       const o=c.indices&&c.indices[x.id];
       if(o&&typeof o==='object'){
         for(const k of ['name','en','desc','target','method','announce'])if(typeof o[k]==='string'&&o[k].trim())x[k]=o[k];
-        if(Array.isArray(o.dims)&&o.dims.length===x.dims.length&&o.dims.every(d=>Array.isArray(d)&&typeof d[0]==='string'&&typeof d[1]==='number'))x.dims=o.dims.map(d=>[d[0],Math.max(0,Math.min(100,d[1]))]);
+        if(Array.isArray(o.dims)&&o.dims.length>=1&&o.dims.length<=12&&o.dims.every(d=>Array.isArray(d)&&typeof d[0]==='string'&&typeof d[1]==='number'))x.dims=o.dims.map(d=>[d[0],Math.max(0,Math.min(100,d[1]))]);
       }
       const h=c.homepages&&c.homepages[x.id];
       if(typeof h==='string'&&/^https?:\/\/\S+$/.test(h))x.homepage=h;

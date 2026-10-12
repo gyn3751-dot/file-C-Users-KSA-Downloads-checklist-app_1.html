@@ -42,6 +42,7 @@
     accent:'',navy:'',
     autoRotate:true,showProcess:true,showSchedule:true,
     planetClick:'homepage',
+    dimsTitle:K0.dimsTitle||'측정 차원 · 가중치 (100점 환산)',
     sections:Object.fromEntries(SECTIONS.map(([id])=>{const e=secEls(id);return[id,{title:multi(e.h),desc:text(e.p)}]})),
     steps:stepEls().map(li=>({t:text(li.querySelector('h3')),p:text(li.querySelector('p'))})),
     indices:Object.fromEntries(IDX.map(x=>[x.id,Object.assign(Object.fromEntries(INDEX_FIELDS.map(([k])=>[k,x[k]||''])),{dims:x.dims.map(d=>[d[0],d[1]])})])),
@@ -52,9 +53,12 @@
   };
   let saved=null,cfg=clone(DEFAULTS),backend='none',db=null,docRef=null;
 
+  const DIM_MAX=12;
   function clone(o){return JSON.parse(JSON.stringify(o))}
   /* keep only the shape of DEFAULTS: unknown keys dropped, wrong types fall back */
   function merge(base,over){
+    /* a list of [name, weight] pairs (측정 항목) may grow or shrink; every other list keeps the default length */
+    if(Array.isArray(base)&&Array.isArray(base[0])&&Array.isArray(over)&&over.length)return over.slice(0,DIM_MAX).map(o=>merge(base[0],o));
     if(Array.isArray(base))return base.map((b,i)=>Array.isArray(over)&&i<over.length?merge(b,over[i]):clone(b));
     if(base&&typeof base==='object'){const o={};for(const k of Object.keys(base))o[k]=over&&typeof over==='object'&&!Array.isArray(over)&&k in over?merge(base[k],over[k]):clone(base[k]);return o}
     return typeof over===typeof base?over:base;
@@ -103,7 +107,7 @@
       $$(`.orb-plaque[data-idx="${x.id}"] img`).forEach(im=>{if(im.getAttribute('src')!==x.logo)im.src=x.logo})});
     if(K0.schedule)for(const id of Object.keys(c.schedule))if(K0.schedule[id])for(const [ph] of PHASES)K0.schedule[id][ph]=c.schedule[id][ph].slice();
     window.KSA_SITE={autoRotate:c.autoRotate,planetClick:c.planetClick};
-    const k=window.__ksa;if(k&&k.rerender)k.rerender();
+    const k=window.__ksa;if(k){k.dimsTitle=c.dimsTitle;if(k.rerender)k.rerender()}
   }
 
   /* ── panel ── */
@@ -147,6 +151,7 @@
         ${IDX.map(x=>inp(`homepages.${x.id}`,esc(x.code),{type:'url',hint:esc(x.name)})).join('')}
       </div></details>
       <details><summary>지수별 내용</summary><div class="se-fields">
+        ${inp('dimsTitle','가중치 막대 제목',{hint:'모든 지수 공통'})}
         ${IDX.map(x=>`<details class="se-sub"><summary><i style="background:${x.color}"></i>${esc(x.code)}</summary><div class="se-fields">
           <p class="se-help strong">로고 이미지</p>
           <div class="se-logo"><span class="se-logo-prev"><img id="se-logo-${x.id}" alt="${esc(x.code)} 현재 로고"></span>
@@ -154,7 +159,8 @@
             <button type="button" class="se-link" data-logo-reset="${x.id}">기본 로고로</button></div></div>
           ${INDEX_FIELDS.map(([f,l,a])=>inp(`indices.${x.id}.${f}`,l,{area:!!a,rows:4})).join('')}
           <p class="se-help strong">측정 항목 · 가중치 <small class="se-sum" data-sum="${x.id}"></small></p>
-          ${x.dims.map((_,j)=>`<div class="se-dim"><input aria-label="${esc(x.code)} 측정 항목 ${j+1}" data-k="indices.${x.id}.dims.${j}.0"><input type="number" min="0" max="100" step="1" aria-label="${esc(x.code)} 항목 ${j+1} 가중치" data-k="indices.${x.id}.dims.${j}.1"><span>%</span></div>`).join('')}
+          <div class="se-dims" data-dims="${x.id}"></div>
+          <button type="button" class="se-btn ghost se-dim-add" data-dim-add="${x.id}">＋ 항목 추가</button>
         </div></details>`).join('')}
       </div></details>
       <details><summary>연간 일정</summary><div class="se-fields">
@@ -200,8 +206,13 @@
     panel.querySelectorAll('input[name="se-pc"]').forEach(r=>r.checked=r.value===cfg.planetClick);
     {const im=$('#se-logo-__brand'),u=SC.logoUrl(cfg.brand.logo);if(im){im.hidden=!u;if(u)im.src=u;im.parentNode.dataset.empty=u?'':'KSA'}}
     IDX.forEach(x=>{const im=$('#se-logo-'+x.id);if(im)im.src=SC.logoUrl(cfg.logos[x.id])||SC.DEFAULT_LOGO[x.id]||x.logo});
+    IDX.forEach(x=>renderDims(x.id));
     sums();
   }
+  /* 측정 항목 rows: rebuilt from cfg whenever one is added or removed */
+  function renderDims(id){const box=panel.querySelector(`[data-dims="${id}"]`);if(!box)return;const x=IDX.find(i=>i.id===id),ds=cfg.indices[id].dims;
+    box.innerHTML=ds.map((d,j)=>`<div class="se-dim"><input aria-label="${esc(x.code)} 측정 항목 ${j+1}" data-k="indices.${id}.dims.${j}.0" value="${esc(d[0])}"><input type="number" min="0" max="100" step="1" aria-label="${esc(x.code)} 항목 ${j+1} 가중치" data-k="indices.${id}.dims.${j}.1" value="${d[1]}"><span>%</span><button type="button" class="se-dim-del" data-dim-del="${id}:${j}" aria-label="${esc(x.code)} 항목 ${j+1} 삭제"${ds.length<=1?' disabled':''}>−</button></div>`).join('');
+    const add=panel.querySelector(`[data-dim-add="${id}"]`);if(add)add.disabled=ds.length>=DIM_MAX}
   function sums(){IDX.forEach(x=>{const el=panel.querySelector(`[data-sum="${x.id}"]`);if(!el)return;const t=cfg.indices[x.id].dims.reduce((a,d)=>a+(+d[1]||0),0);el.textContent=`합계 ${t}%`+(t===100?'':' · 100%가 되도록 맞춰 주세요');el.dataset.bad=t===100?'':'1'})}
   let dirty=false;
   function changed(){dirty=JSON.stringify(cfg)!==JSON.stringify(saved||DEFAULTS);apply(cfg);setStatus(dirty?'저장하지 않은 변경 사항이 있습니다.':'')}
@@ -249,6 +260,9 @@
       }else{const d=c.toDataURL('image/png');if(d.length>600000){setStatus('이미지가 너무 큽니다. 더 작은 파일을 골라 주세요.','err');return}put(d)}
       fill();changed();setStatus('로고를 바꿨습니다. 저장하면 반영됩니다.');
     }catch(err){setStatus(err&&err.message==='decode'?'이미지를 읽지 못했습니다. PNG나 JPG 파일인지 확인해 주세요.':'로고를 올리지 못했습니다. 잠시 후 다시 시도해 주세요.','err')}});
+  panel.addEventListener('click',e=>{const a=e.target.closest('[data-dim-add],[data-dim-del]');if(!a)return;
+    if(a.dataset.dimAdd){const id=a.dataset.dimAdd,ds=cfg.indices[id].dims;if(ds.length>=DIM_MAX)return;ds.push(['새 항목',0]);renderDims(id);sums();changed();const ins=panel.querySelectorAll(`[data-dims="${id}"] input:not([type])`);const last=ins[ins.length-1];if(last){last.focus();last.select()}}
+    else{const [id,j]=a.dataset.dimDel.split(':'),ds=cfg.indices[id].dims;if(ds.length<=1)return;ds.splice(+j,1);renderDims(id);sums();changed()}});
   panel.addEventListener('click',e=>{const b=e.target.closest('[data-logo-reset]');if(!b)return;const r=b.dataset.logoReset;if(r==='__brand')cfg.brand.logo='';else cfg.logos[r]='';fill();changed()});
 
   async function save(){
@@ -283,7 +297,8 @@ ${JSON.stringify(cfg)}
 - planetClick: 메인 보드의 행성 로고를 눌렀을 때 동작. "homepage"(지수 공식 사이트로 이동), "detail"(지수 소개로 이동), "flip"(메달 뒤집기)
 - sections: {indices|process|schedule: {title(줄바꿈은 \\n), desc}}
 - steps: 참여 절차 7단계 배열 [{t: 제목, p: 설명}] (배열 길이 유지)
-- indices: {qei|cqi|pbi|well|dcxi: {name, en, desc, target, method, announce, dims}} — dims는 [항목 이름, 가중치%] 4개 배열(합계 100, 길이 유지)
+- indices: {qei|cqi|pbi|well|dcxi: {name, en, desc, target, method, announce, dims}} — dims는 [항목 이름, 가중치%] 배열 1~12개(합계 100, 항목 추가·삭제 가능)
+- dimsTitle: 지수 소개의 가중치 막대 위 제목
 - schedule: {qei|...: {apply(조사 부문 설정)|survey(조사·평가)|notice(조사결과 안내)|award(발표·인증식): ["YYYY-MM-DD" 시작일, "YYYY-MM-DD" 종료일]}} — 종료일 포함, 시작일 ≤ 종료일
 - logos, brand.logo: 바꾸지 마세요 (brand.name/brand.sub/brand.showText 는 바꿔도 됩니다)
 - homepages: {qei|cqi|pbi|well|dcxi: https 주소}
