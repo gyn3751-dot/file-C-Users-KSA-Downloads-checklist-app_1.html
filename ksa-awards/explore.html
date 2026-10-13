@@ -113,7 +113,12 @@ img{max-width:100%;display:block}
 .dr-stage::before{content:"";position:absolute;right:2%;bottom:-6px;width:40%;height:26px;border-radius:50%;background:radial-gradient(closest-side,color-mix(in srgb,var(--c) 70%,transparent),transparent);filter:blur(2px);z-index:1}
 .dr-char{position:absolute;right:0;bottom:0;width:44%;height:100%;z-index:2;display:flex;align-items:flex-end;justify-content:center;pointer-events:none}
 .dr-char-fig{position:relative;height:88%;}
-.dr-char-fig.has-ant{height:74%}
+.dr-char-fig.has-ant{height:64%}
+.dr-char-fig.has-ant svg{filter:drop-shadow(0 0 3px #FFFFFF) drop-shadow(0 0 8px #9CC2FF) drop-shadow(0 0 16px #6F9BFF);animation:ant-shine 2.2s ease-in-out infinite alternate}
+.dr-char-fig svg .tw{transform-box:fill-box;transform-origin:center;animation:ant-tw 1.4s ease-in-out infinite}
+@keyframes ant-shine{from{opacity:.85}to{opacity:1}}
+@keyframes ant-tw{0%,100%{opacity:.2;scale:.5;rotate:0deg}50%{opacity:1;scale:1.25;rotate:45deg}}
+.dr-stage:has(.has-ant) .dr-say{right:50%}
 .dr-char-fig{transform-origin:50% 100%;animation:dr-char-in .8s cubic-bezier(.3,1.5,.5,1) both,dr-char-idle 3.2s .9s ease-in-out infinite}
 .dr-char-fig img{height:100%;width:auto;max-width:none;display:block;filter:drop-shadow(0 10px 14px rgba(0,0,0,.45))}
 .dr-char-fig svg{position:absolute;left:0;top:-22.6%;width:100%;height:23.4%;overflow:visible;filter:drop-shadow(0 0 4px #DCE8FF) drop-shadow(0 0 10px #8FB8FF)}
@@ -325,6 +330,10 @@ let toastT;
 function toast(t,s,c){$('toastT').textContent=t;$('toastS').textContent=s||'';const el=$('toast');el.style.setProperty('--c',c||'');el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),3200)}
 
 const drawer=$('drawer');
+/* Wellness butterfly antennae: two curls drawn in the body image's pixel space (572×495), y from -112 to 4 above its top edge */
+const ANT_PATHS=['M296 4C291-38 272-92 236-92C206-92 194-62 209-49C221-38 241-45 239-59C237-67 227-68 224-61','M378 4C388-38 412-82 446-82C476-82 487-56 472-43C460-33 443-40 446-51C448-58 457-59 459-53'];
+const ANT_TIPS=[[226,-58],[455,-51]];
+const SPARK='M0-15L3.5-3.5L15 0L3.5 3.5L0 15L-3.5 3.5L-15 0L-3.5-3.5Z';
 /* logo song player (one audio element for the whole page) */
 const songAudio=new Audio();songAudio.preload='none';
 const escH=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -352,7 +361,7 @@ function wireSong(x){const s=x.song||{},url=s.audio||'',btn=$('songBtn'),box=$('
 function openDetail(i){
   const x=IDX[i];drawer.style.setProperty('--c',x.color);
   /* the index's character stands beside its logo; the Wellness butterfly gets its glowing antennae */
-  const ant=x.wings&&x.wings.antennae?`<svg viewBox="0 -112 572 116" aria-hidden="true"><g fill="none" stroke-linecap="round"><path d="M296 4C291-38 272-92 236-92C206-92 194-62 209-49C221-38 241-45 239-59C237-67 227-68 224-61" stroke="#7FA0D8" stroke-width="10"/><path d="M378 4C388-38 412-82 446-82C476-82 487-56 472-43C460-33 443-40 446-51C448-58 457-59 459-53" stroke="#7FA0D8" stroke-width="10"/></g><circle cx="226" cy="-58" r="8" fill="#EAF2FF"/><circle cx="455" cy="-51" r="8" fill="#EAF2FF"/></svg>`:'';
+  const ant=x.wings&&x.wings.antennae?`<svg viewBox="0 -112 572 116" aria-hidden="true"><g fill="none" stroke-linecap="round">${ANT_PATHS.map(d=>`<path d="${d}" stroke="#8FB0EA" stroke-width="13"/><path d="${d}" stroke="#F4F8FF" stroke-width="4.5"/>`).join('')}</g>${ANT_TIPS.map(([tx,ty],k)=>`<circle cx="${tx}" cy="${ty}" r="11" fill="#FFFFFF"/><path class="tw" style="animation-delay:${k*.7}s" transform="translate(${tx} ${ty})" d="${SPARK}" fill="#FFFFFF"/>`).join('')}</svg>`:'';
   const ch=x.character?`<div class="dr-char"><span class="dr-char-fig${ant?' has-ant':''}">${ant}<img src="${x.character}" alt="${x.code} 캐릭터"></span></div>${x.greet?`<span class="dr-say"></span>`:''}`:'';
   $('drBody').innerHTML=`<div class="dr-stage"><div class="dr-logo"><img src="${x.logo}" alt="${x.code} 로고"></div>${ch}</div>
     <div><p class="dr-code">${x.code} · SIGNAL ${String(i+1).padStart(2,'0')}</p><h2 class="dr-name">${x.name}</h2><p class="dr-en">${x.en}</p></div>
@@ -596,6 +605,17 @@ function faceGift(){const c=cnv(1024),g=c.getContext('2d'),r=g.createRadialGradi
   arc(g,' MARS EXPEDITION · ALL SIGNALS DECODED ·'.repeat(2),455,'500 24px "IBM Plex Mono", monospace','#E2BC74');
   g.textAlign='center';g.fillStyle='#E2BC74';g.font='700 120px "Noto Serif KR", serif';g.fillText('★',512,400);
   g.font='700 150px "Noto Serif KR", serif';g.fillText('KSA',512,590);g.fillStyle='#EEF2FA';g.font='600 64px "Noto Serif KR", serif';g.fillText('탐사 완료',512,700);return tex(c)}
+/* the butterfly image has no antennae: draw glowing curls above it on a taller canvas (the body keeps its size) */
+const ANT_UP=.226;
+function withAntennae(img){const W=img.width,H=img.height,top=Math.round(H*ANT_UP),c=document.createElement('canvas');c.width=W;c.height=H+top;const g=c.getContext('2d');
+  g.drawImage(img,0,top);g.save();g.translate(0,top);g.scale(W/572,H*.234/116);g.translate(0,0);g.lineCap='round';
+  const paths=ANT_PATHS.map(d=>new Path2D(d));
+  [[16,'rgba(111,155,255,.55)',14],[11,'#8FB0EA',6],[4.5,'#F4F8FF',0]].forEach(([w,col,blur])=>{g.lineWidth=w;g.strokeStyle=col;g.shadowColor='#9CC2FF';g.shadowBlur=blur;paths.forEach(p=>g.stroke(p))});
+  g.shadowBlur=10;g.shadowColor='#FFFFFF';g.fillStyle='#FFFFFF';ANT_TIPS.forEach(([x,y])=>{g.beginPath();g.arc(x,y,11,0,7);g.fill()});
+  g.restore();
+  /* tip positions as fractions of the sprite: x from the centre, y from the bottom */
+  const tips=ANT_TIPS.map(([x,y])=>[x/572-.5,1-(top+y*H*.234/116)/(H+top)]);
+  return {img:c,up:top/H,tips}}
 function charTex(img){const t=new THREE.Texture(img);t.needsUpdate=true;t.encoding=THREE.sRGBEncoding;t.anisotropy=renderer.capabilities.getMaxAnisotropy();return t}
 function finAdd(o){scene.add(o);FIN.objs.push(o);return o}
 function clearFinale(){FIN.objs.forEach(o=>{scene.remove(o);o.traverse&&o.traverse(m=>{if(m.geometry)m.geometry.dispose()})});FIN.objs=[];FIN.chars=[];FIN.box=null;FIN.conf=null}
@@ -614,8 +634,9 @@ function startFinale(){
     yawGoal=Math.atan2(-dcx,-dcz);pitchGoal=Math.atan2(G.y-1.4-(camY||G.y+3),dist); /* aim a little low so the party sits above the card */
     const away=Math.atan2(dcx,dcz); /* from the explorer through the gathering spot */
     FIN.chars=IDX.map((x,i)=>{
-      const img=imgs[i];if(!img)return null;
-      const h=x.motion==='flutter'?2.3:2.7,w=h*img.width/img.height;
+      let img=imgs[i];if(!img)return null;
+      const hasAnt=!!(x.wings&&x.wings.antennae);let up=0,tipF=[];if(hasAnt){const a=withAntennae(img);img=a.img;up=a.up;tipF=a.tips}
+      const hb=x.motion==='flutter'?2.3:2.7,h=hb*(1+up),w=hb*imgs[i].width/imgs[i].height;
       const mat=new THREE.SpriteMaterial({map:charTex(img),transparent:true,alphaTest:.2,color:lin('#FFF4EC')});
       const s=finAdd(new THREE.Sprite(mat));s.center.set(.5,0);s.scale.set(0,0,1);
       const sh=finAdd(new THREE.Mesh(new THREE.CircleGeometry(w*.42,32),new THREE.MeshBasicMaterial({map:shadowTex,transparent:true,depthWrite:false,opacity:0})));sh.rotation.x=-Math.PI/2;
@@ -627,7 +648,9 @@ function startFinale(){
       const S={x:gx+Math.sin(sa)*sd,z:gz+Math.cos(sa)*sd};
       const ta=away+(i-2)*.6,T={x:gx+Math.sin(ta)*4.7,z:gz+Math.cos(ta)*4.7};
       beam.position.set(S.x,height(S.x,S.z),S.z);ring.position.set(S.x,height(S.x,S.z)+.15,S.z);
-      return {x,i,s,sh,beam,ring,w,h,S,T,fly:x.motion==='flutter',e:.3+i*.45,ph:i};
+      /* twinkling tips (in sprite space: fractions of width from the left, height from the bottom) */
+      const tips=tipF.map(([fx,fy],k)=>({sp:finAdd(new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:lin('#DCE8FF'),transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}))),fx,fy,k}));
+      return {x,i,s,sh,beam,ring,w,h,S,T,fly:x.motion==='flutter',e:.3+i*.45,ph:i,tips};
     }).filter(Boolean);
     /* gift box: navy box, gold ribbon, lid with a bow */
     const navy=new THREE.MeshStandardMaterial({color:lin('#1B3263'),roughness:.45,metalness:.25}),rib=new THREE.MeshStandardMaterial({color:lin('#E2BC74'),roughness:.3,metalness:.8,emissive:lin('#3A2508')});
@@ -681,6 +704,11 @@ function finaleTick(dt,t){
     if(T>10.3&&!reduce)hop+=Math.abs(Math.sin(t*2.2+c.i))*.08;
     const sc=back(k);c.s.scale.set(c.w*sc,c.h*sc,1);c.s.material.rotation=rot;
     c.s.position.set(x,gy+lift+hop,z);
+    c.tips.forEach(tp=>{const tw=.55+.45*Math.sin(t*5+tp.k*2.1),S0=c.s.scale;
+      /* place along the camera's right vector so the glow sits on the drawn tip */
+      camera.getWorldDirection(v3);const rx=-v3.z,rz=v3.x,rl=Math.hypot(rx,rz)||1;
+      tp.sp.position.set(c.s.position.x+rx/rl*tp.fx*S0.x,c.s.position.y+tp.fy*S0.y,c.s.position.z+rz/rl*tp.fx*S0.x);
+      const z0=.55+tw*.5;tp.sp.scale.set(z0*S0.y*.32,z0*S0.y*.32,1);tp.sp.material.opacity=k*tw});
     c.sh.position.set(x,gy+.06,z);c.sh.material.opacity=k*(c.fly?.28:.5);c.sh.scale.setScalar(1-Math.min(.4,(lift+hop)*.25));
   });
   const b=FIN.box;if(!b)return;
