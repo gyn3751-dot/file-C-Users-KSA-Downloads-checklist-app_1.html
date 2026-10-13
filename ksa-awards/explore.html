@@ -138,6 +138,30 @@ img{max-width:100%;display:block}
 .dims{display:flex;flex-direction:column;gap:7px}
 .dr-ct{margin:14px 0 6px;font-size:.72rem;letter-spacing:.04em;opacity:.7}
 .dims+.dr-ct{margin-top:18px}
+/* logo song: an emphasised button in the index colour that opens a small player */
+.song-btn{--on:#1A0E0B;display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;border:0;border-radius:14px;cursor:pointer;text-align:left;color:var(--on);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--c) 92%,#fff),var(--c) 45%,color-mix(in srgb,var(--c) 70%,#000));
+  box-shadow:0 10px 26px -10px var(--c),inset 0 1px 0 rgba(255,255,255,.35);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.song-btn::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.4) 50%,transparent 70%);transform:translateX(-100%);animation:sheen 3.6s 1s var(--ease) infinite}
+.song-btn:hover{transform:translateY(-1px);box-shadow:0 14px 30px -10px var(--c),inset 0 1px 0 rgba(255,255,255,.4)}
+.song-btn:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.song-btn .sb-ic{width:34px;height:34px;flex:none;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--on) 14%,transparent);font-size:1.05rem}
+.song-btn b{display:block;font-size:.98rem;letter-spacing:-.01em}
+.song-btn small{display:block;font-family:var(--f-mono);font-size:.62rem;letter-spacing:.16em;opacity:.75}
+.song-btn .sb-go{margin-left:auto;font-size:.8rem;transition:transform .25s}
+.song-btn[aria-expanded="true"] .sb-go{transform:rotate(180deg)}
+.song{border:1px solid color-mix(in srgb,var(--c) 45%,var(--line));border-radius:14px;padding:14px;background:color-mix(in srgb,var(--c) 10%,rgba(18,10,10,.4));display:flex;flex-direction:column;gap:10px}
+.song-h{display:flex;align-items:center;gap:12px}
+.song-play{width:46px;height:46px;flex:none;border-radius:50%;border:0;cursor:pointer;background:var(--c);color:var(--on,#1A0E0B);display:grid;place-items:center;box-shadow:0 6px 16px -6px var(--c)}
+.song-play svg{width:18px;height:18px}
+.song-play:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+.song-meta{min-width:0;flex:1}
+.song-meta b{display:block;font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song-bar{display:flex;align-items:center;gap:8px;margin-top:4px}
+.song-bar input{flex:1;accent-color:var(--c);min-width:0}
+.song-bar span{font-family:var(--f-mono);font-size:.68rem;color:var(--mute);white-space:nowrap}
+.song-text{margin:0;white-space:pre-line;font-size:.86rem;line-height:1.7;color:var(--fg)}
+.song-empty{margin:0;font-size:.78rem;color:var(--mute)}
 .dim{display:grid;grid-template-columns:7.5rem 1fr 2.6rem;gap:10px;align-items:center;font-size:.8rem}
 .dim .bar{height:3px;background:var(--line);position:relative;overflow:hidden}
 .dim .bar i{position:absolute;inset:0 auto 0 0;background:var(--c,var(--gold));animation:grow 1s var(--ease) both}
@@ -277,6 +301,30 @@ let toastT;
 function toast(t,s,c){$('toastT').textContent=t;$('toastS').textContent=s||'';const el=$('toast');el.style.setProperty('--c',c||'');el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),3200)}
 
 const drawer=$('drawer');
+/* logo song player (one audio element for the whole page) */
+const songAudio=new Audio();songAudio.preload='none';
+const escH=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtT=t=>!isFinite(t)||t<0?'0:00':`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;
+/* dark or light text on the index colour */
+function onColor(hex){const m=/^#?([0-9a-f]{6})$/i.exec(hex||'');if(!m)return '#1A0E0B';const n=parseInt(m[1],16),r=(n>>16&255)/255,g=(n>>8&255)/255,b=(n&255)/255,f=v=>v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4),L=.2126*f(r)+.7152*f(g)+.0722*f(b);return L>.4?'#1A0E0B':'#FFFFFF'}
+const PLAY='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>',PAUSE='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
+function songHTML(x){const s=x.song||{},url=s.audio||'';
+  return `<button class="song-btn" type="button" id="songBtn" aria-expanded="false" aria-controls="songBox"><span class="sb-ic" aria-hidden="true">♪</span><span><b>로고송</b><small>LOGO SONG</small></span><span class="sb-go" aria-hidden="true">▾</span></button>
+    <div class="song" id="songBox" hidden>
+      <div class="song-h"><button class="song-play" type="button" id="songPlay" aria-label="로고송 재생"${url?'':' disabled'}>${PLAY}</button>
+        <div class="song-meta"><b>${escH(s.title||x.name+' 로고송')}</b><div class="song-bar"><input type="range" id="songSeek" min="0" max="1000" value="0" aria-label="재생 위치"${url?'':' disabled'}><span id="songTime">0:00 / ${fmtT(s.dur)}</span></div></div></div>
+      ${s.text?`<p class="song-text">${escH(s.text)}</p>`:''}
+      ${url?'':`<p class="song-empty">아직 등록된 음성 파일이 없습니다. 메인 페이지의 사이트 편집 › 지수별 내용 › 로고송에서 올릴 수 있습니다.</p>`}
+    </div>`}
+function wireSong(x){const s=x.song||{},url=s.audio||'',btn=$('songBtn'),box=$('songBox'),play=$('songPlay'),seek=$('songSeek'),time=$('songTime');if(!btn)return;
+  btn.style.setProperty('--on',onColor(x.color));box.style.setProperty('--on',onColor(x.color));
+  btn.onclick=()=>{const o=box.hidden;box.hidden=!o;btn.setAttribute('aria-expanded',o);if(o)box.scrollIntoView({block:'nearest',behavior:'smooth'});else songAudio.pause()};
+  const dur=()=>isFinite(songAudio.duration)&&songAudio.duration>0?songAudio.duration:(+s.dur||0);
+  const paint=()=>{const p=!songAudio.paused;play.innerHTML=p?PAUSE:PLAY;play.setAttribute('aria-label',p?'일시정지':'로고송 재생');const d=dur();time.textContent=`${fmtT(songAudio.currentTime)} / ${fmtT(d)}`;if(d&&!seek.matches(':active'))seek.value=Math.round(songAudio.currentTime/d*1000)};
+  songAudio.ontimeupdate=paint;songAudio.onplay=paint;songAudio.onpause=paint;songAudio.onended=()=>{songAudio.currentTime=0;paint()};songAudio.ondurationchange=paint;
+  play.onclick=()=>{if(!url)return;if(songAudio.getAttribute('src')!==url){songAudio.src=url}if(songAudio.paused)songAudio.play().catch(()=>{});else songAudio.pause()};
+  seek.oninput=()=>{const d=dur();if(!d||!url)return;if(songAudio.getAttribute('src')!==url)songAudio.src=url;songAudio.currentTime=seek.value/1000*d;paint()};
+}
 function openDetail(i){
   const x=IDX[i];drawer.style.setProperty('--c',x.color);
   /* the index's character stands beside its logo; the Wellness butterfly gets its glowing antennae */
@@ -284,6 +332,7 @@ function openDetail(i){
   const ch=x.character?`<div class="dr-char"><span class="dr-char-fig${ant?' has-ant':''}">${ant}<img src="${x.character}" alt="${x.code} 캐릭터"></span></div>${x.greet?`<span class="dr-say"></span>`:''}`:'';
   $('drBody').innerHTML=`<div class="dr-stage"><div class="dr-logo"><img src="${x.logo}" alt="${x.code} 로고"></div>${ch}</div>
     <div><p class="dr-code">${x.code} · SIGNAL ${String(i+1).padStart(2,'0')}</p><h2 class="dr-name">${x.name}</h2><p class="dr-en">${x.en}</p></div>
+    ${songHTML(x)}
     <p class="dr-desc">${x.desc}</p>
     <dl class="dr-meta"><div><dt>평가 대상</dt><dd>${x.target}</dd></div><div><dt>결과 발표</dt><dd>매년 ${x.announce}</dd></div></dl>
     ${(Array.isArray(x.charts)&&x.charts.length?x.charts:[{title:'',dims:x.dims}]).map(ch=>{const mx=Math.max(40,Math.ceil(Math.max(0,...ch.dims.map(d=>d[1]))/10)*10);
@@ -291,16 +340,18 @@ function openDetail(i){
   $('drActions').innerHTML=`<a class="btn" href="${x.homepage}" target="_blank" rel="noopener">${x.code} 공식 홈페이지 <span class="arr">↗</span></a>
     <div class="row"><a class="btn ghost" href="index.html#indices">평가 기준 비교</a><button class="btn ghost" type="button" id="nextSig">다음 신호 찾기</button></div>`;
   const say=$('drBody').querySelector('.dr-say');if(say)say.textContent=x.greet;
+  songAudio.pause();wireSong(x);
   $('drBody').scrollTop=0;drawer.classList.add('open');
   $('nextSig').onclick=()=>api.next();
 }
 function openList(){
+  songAudio.pause();
   drawer.style.setProperty('--c','');
   $('drBody').innerHTML=`<div><p class="dr-code">SIGNAL INDEX</p><h2 class="dr-name">지수 목록</h2><p class="dr-en">선택하면 해당 신호로 이동합니다.</p></div><div class="list" id="drList">${listHTML(api.dist)}</div>`;
   $('drActions').innerHTML=`<a class="btn ghost" href="index.html#indices">메인 사이트에서 비교하기</a>`;
   drawer.classList.add('open');
 }
-function closeDrawer(){drawer.classList.remove('open')}
+function closeDrawer(){drawer.classList.remove('open');songAudio.pause()}
 $('drClose').onclick=closeDrawer;
 drawer.addEventListener('click',e=>{const b=e.target.closest('#drList button');if(b)api.go(+b.dataset.i)});
 $('slots').addEventListener('click',e=>{const b=e.target.closest('.slot');if(b)api.go(IDX.findIndex(x=>'slot-'+x.id===b.id))});

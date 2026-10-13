@@ -15,6 +15,13 @@
     if(/^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(v))return v;
     return '';
   }
+  /* a stored logo-song file: "asset:<id>" (uploaded in the claude.ai viewer, webm) or an audio data: URI (saved in this browser) */
+  function audioUrl(v){
+    if(typeof v!=='string')return '';
+    if(/^asset:[0-9a-f]{32}$/.test(v))return '/_blob/'+v.slice(6);
+    if(/^data:(audio|video)\/[\w.+-]+;base64,[A-Za-z0-9+/=]+$/.test(v))return v;
+    return '';
+  }
   /* the image a canvas texture should be drawn from: an embedded data URI for the bundled logos (never taints) */
   function textureSrc(x){return x.logoCustom?x.logo:((window.KSA_LOGO_DATA||{})[x.id]||x.logo)}
 
@@ -30,6 +37,8 @@
         if(Array.isArray(o.charts)&&o.charts.length&&o.charts.every(ch=>ch&&typeof ch.title==='string'&&okDims(ch.dims))){x.charts=o.charts.slice(0,6).map(ch=>({title:ch.title,inline:!!ch.inline,dims:cp(ch.dims)}));x.dims=cp(x.charts[0].dims)}
         else if(okDims(o.dims))x.dims=cp(o.dims);
       }
+      const sg=o&&o.song;
+      if(sg&&typeof sg==='object')x.song={title:typeof sg.title==='string'?sg.title:'',text:typeof sg.text==='string'?sg.text:'',audio:audioUrl(sg.audio),dur:typeof sg.dur==='number'?sg.dur:0};
       const h=c.homepages&&c.homepages[x.id];
       if(typeof h==='string'&&/^https?:\/\/\S+$/.test(h))x.homepage=h;
       const u=logoUrl(c.logos&&c.logos[x.id]);
@@ -66,5 +75,5 @@
     });
   }
 
-  window.KSA_SITE_CONFIG={LS_KEY,DEFAULT_LOGO,logoUrl,textureSrc,applyIndices,applyBrand,load};
+  window.KSA_SITE_CONFIG={LS_KEY,DEFAULT_LOGO,logoUrl,audioUrl,textureSrc,applyIndices,applyBrand,load};
 })();

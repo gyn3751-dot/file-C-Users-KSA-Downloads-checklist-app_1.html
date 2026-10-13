@@ -45,7 +45,7 @@
     planetClick:'homepage',
     sections:Object.fromEntries(SECTIONS.map(([id])=>{const e=secEls(id);return[id,{title:multi(e.h),desc:text(e.p)}]})),
     steps:stepEls().map(li=>({t:text(li.querySelector('h3')),p:text(li.querySelector('p'))})),
-    indices:Object.fromEntries(IDX.map(x=>[x.id,Object.assign(Object.fromEntries(INDEX_FIELDS.map(([k])=>[k,x[k]||''])),{charts:[{title:DIMS_TITLE,inline:false,dims:x.dims.map(d=>[d[0],d[1]])}]})])),
+    indices:Object.fromEntries(IDX.map(x=>[x.id,Object.assign(Object.fromEntries(INDEX_FIELDS.map(([k])=>[k,x[k]||''])),{charts:[{title:DIMS_TITLE,inline:false,dims:x.dims.map(d=>[d[0],d[1]])}],song:{title:'',text:'',audio:'',dur:0}})])),
     schedule:JSON.parse(JSON.stringify(K0.schedule||{})),
     logos:Object.fromEntries(IDX.map(x=>[x.id,''])),
     brand:{logo:'',name:text($('.brand-text b')),sub:text($('.brand-text span')),showText:!($('.brand-text')||{}).hidden},
@@ -78,6 +78,7 @@
     if(!['homepage','detail','flip'].includes(c.planetClick))c.planetClick='homepage';
     for(const id of Object.keys(c.logos))if(c.logos[id]&&!SC.logoUrl(c.logos[id]))c.logos[id]='';
     if(c.brand.logo&&!SC.logoUrl(c.brand.logo))c.brand.logo='';
+    for(const id of Object.keys(c.indices)){const sg=c.indices[id].song;if(sg.audio&&!(SC.audioUrl&&SC.audioUrl(sg.audio)))sg.audio='';if(!sg.audio)sg.dur=0}
     for(const id of Object.keys(c.indices))c.indices[id].charts.forEach(ch=>ch.dims.forEach(d=>{d[1]=Math.max(0,Math.min(100,Math.round(+d[1]||0)))}));
     for(const id of Object.keys(c.schedule))for(const [ph] of PHASES){const r=ST.normRange(c.schedule[id][ph]);c.schedule[id][ph]=r||clone(DEFAULTS.schedule[id][ph])}
     return c;
@@ -161,6 +162,12 @@
             <div><label class="se-btn ghost se-file" for="se-file-${x.id}">이미지 바꾸기</label><input type="file" id="se-file-${x.id}" accept="image/png,image/jpeg,image/webp,image/gif" data-logo="${x.id}" hidden>
             <button type="button" class="se-link" data-logo-reset="${x.id}">기본 로고로</button></div></div>
           ${INDEX_FIELDS.map(([f,l,a])=>inp(`indices.${x.id}.${f}`,l,{area:!!a,rows:4})).join('')}
+          <p class="se-help strong">로고송 <small>화성 탐사 화면의 지수 설명에 나옵니다</small></p>
+          ${inp(`indices.${x.id}.song.title`,'곡 제목',{hint:'비우면 “지수 이름 + 로고송”'})}
+          ${inp(`indices.${x.id}.song.text`,'가사 · 소개',{area:1,rows:5})}
+          <div class="se-song"><audio controls preload="none" id="se-song-${x.id}"></audio><p class="se-help" id="se-song-none-${x.id}">음성 파일이 없습니다.</p>
+            <div class="se-song-act"><label class="se-btn ghost se-file" for="se-song-file-${x.id}">음성 파일 올리기</label><input type="file" id="se-song-file-${x.id}" accept="audio/*,.mp3,.m4a,.wav,.ogg,.webm,.aac,.flac" data-song="${x.id}" hidden>
+            <button type="button" class="se-link" data-song-del="${x.id}">파일 삭제</button></div></div>
           <p class="se-help strong">측정 체계 그래프</p>
           <div class="se-charts" data-charts="${x.id}"></div>
           <button type="button" class="se-btn ghost se-chart-add" data-chart-add="${x.id}">＋ 그래프 추가</button>
@@ -210,6 +217,7 @@
     {const im=$('#se-logo-__brand');if(im)im.src=SC.logoUrl(cfg.brand.logo)||'assets/brand/ksa-logo.png'}
     IDX.forEach(x=>{const im=$('#se-logo-'+x.id);if(im)im.src=SC.logoUrl(cfg.logos[x.id])||SC.DEFAULT_LOGO[x.id]||x.logo});
     IDX.forEach(x=>renderCharts(x.id));
+    IDX.forEach(x=>{const a=$('#se-song-'+x.id),n=$('#se-song-none-'+x.id);if(!a)return;const u=SC.audioUrl?SC.audioUrl(cfg.indices[x.id].song.audio):'';if(a.getAttribute('src')!==u){if(u)a.src=u;else a.removeAttribute('src')}a.hidden=!u;n.hidden=!!u});
     sums();
   }
   /* 측정 항목 rows: rebuilt from cfg whenever one is added or removed */
@@ -263,6 +271,43 @@
   /* logo upload: downscale in the page, then the viewer's asset store (claude.ai) or this browser (data URI) */
   let assets=null;
   function shrink(file,max){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const s=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);const g=c.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c)};im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('decode'))};im.src=u})}
+  /* logo song upload. The asset store keeps video/webm (not audio types), so in the claude.ai viewer the file is
+   * re-recorded in the page as Opus/WebM (takes as long as the song); in this browser it is kept as given. */
+  async function toWebm(file,prog){
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC||!window.MediaRecorder||!MediaRecorder.isTypeSupported('audio/webm;codecs=opus'))throw new Error('noenc');
+    const ac=new AC();try{await ac.resume()}catch(_){}
+    const buf=await ac.decodeAudioData(await file.arrayBuffer()).catch(()=>{throw new Error('decode')});
+    if(/webm/.test(file.type))return {blob:new Blob([file],{type:'video/webm'}),dur:buf.duration};
+    const dest=ac.createMediaStreamDestination(),src=ac.createBufferSource();src.buffer=buf;src.connect(dest);
+    const rec=new MediaRecorder(dest.stream,{mimeType:'audio/webm;codecs=opus',audioBitsPerSecond:128000}),parts=[];
+    rec.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data)};
+    const stopped=new Promise(r=>rec.onstop=r),ended=new Promise(r=>src.onended=r);
+    rec.start(1000);const t0=ac.currentTime;src.start();
+    const iv=setInterval(()=>prog(Math.min(1,(ac.currentTime-t0)/buf.duration)),400);
+    await ended;rec.stop();await stopped;clearInterval(iv);ac.close();
+    return {blob:new Blob(parts,{type:'video/webm'}),dur:buf.duration};
+  }
+  panel.addEventListener('change',async e=>{const el=e.target;if(!el.dataset.song||!el.files||!el.files[0])return;const id=el.dataset.song,f=el.files[0];el.value='';
+    const sg=cfg.indices[id].song;
+    try{
+      if(f.size>40*1024*1024){setStatus('파일이 너무 큽니다(40MB 이하).','err');return}
+      if(backend==='db'){
+        if(!assets){setStatus('이 화면에서는 파일을 올릴 수 없습니다. 편집 권한이 있는 계정으로 열어 주세요.','err');return}
+        setStatus('음성 파일을 준비하는 중…');
+        const {blob,dur}=await toWebm(f,p=>setStatus(`음성 파일을 변환하는 중… ${Math.round(p*100)}% (곡 길이만큼 걸립니다)`));
+        if(blob.size>20*1024*1024){setStatus('변환한 파일이 20MB를 넘습니다. 더 짧은 파일을 골라 주세요.','err');return}
+        setStatus('음성 파일을 올리는 중…');
+        const up=await assets.upload(blob,{type:'video/webm'});sg.audio='asset:'+up.id;sg.dur=Math.round(dur*10)/10;
+      }else{
+        if(f.size>3*1024*1024){setStatus('이 브라우저에 저장하는 방식은 3MB 이하 파일만 됩니다.','err');return}
+        const d=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)});
+        const mt=/^data:(audio|video)\/[\w.+-]+;base64,/.test(d)?d:d.replace(/^data:[^;]*;/,'data:audio/mpeg;');
+        sg.audio=mt;sg.dur=await new Promise(r=>{const a=new Audio();a.preload='metadata';a.onloadedmetadata=()=>r(isFinite(a.duration)?Math.round(a.duration*10)/10:0);a.onerror=()=>r(0);a.src=mt});
+      }
+      fill();changed();setStatus('로고송 파일을 넣었습니다. 저장하면 반영됩니다.');
+    }catch(err){const m=err&&err.message;setStatus(m==='noenc'?'이 브라우저에서는 음성 변환을 할 수 없습니다. 크롬이나 엣지에서 다시 시도해 주세요.':m==='decode'?'음성 파일을 읽지 못했습니다. mp3·m4a·wav 파일인지 확인해 주세요.':`음성 파일을 올리지 못했습니다${err&&err.code?` (${err.code})`:''}. 잠시 후 다시 시도해 주세요.`,'err')}});
+  panel.addEventListener('click',e=>{const b=e.target.closest('[data-song-del]');if(!b)return;const sg=cfg.indices[b.dataset.songDel].song;sg.audio='';sg.dur=0;fill();changed()});
   panel.addEventListener('change',async e=>{const el=e.target;if(!el.dataset.logo||!el.files||!el.files[0])return;const id=el.dataset.logo,f=el.files[0];el.value='';
     try{
       setStatus('로고를 올리는 중…');const c=await shrink(f,id==='__brand'?480:800);const put=v=>{if(id==='__brand')cfg.brand.logo=v;else cfg.logos[id]=v};
@@ -322,7 +367,7 @@ ${JSON.stringify(cfg)}
 - steps: 참여 절차 7단계 배열 [{t: 제목, p: 설명}] (배열 길이 유지)
 - indices: {qei|cqi|pbi|well|dcxi: {name, en, desc, target, method, announce, charts}} — charts는 그래프 1~6개 [{title: 그래프 제목, inline: true면 앞 그래프와 같은 줄(한 줄 최대 3개), dims: [[항목 이름, 가중치%] 1~12개, 합계 100]}]
 - schedule: {qei|...: {apply(조사 부문 설정)|survey(조사·평가)|notice(조사결과 안내)|award(발표·인증식): ["YYYY-MM-DD" 시작일, "YYYY-MM-DD" 종료일]}} — 종료일 포함, 시작일 ≤ 종료일
-- logos, brand.logo: 바꾸지 마세요 (brand.name/brand.sub/brand.showText 는 바꿔도 됩니다)
+- logos, brand.logo, indices.*.song.audio/dur: 바꾸지 마세요 (song.title, song.text 는 바꿔도 됩니다) (brand.name/brand.sub/brand.showText 는 바꿔도 됩니다)
 - homepages: {qei|cqi|pbi|well|dcxi: https 주소}
 
 사용자 요청: ${q}
