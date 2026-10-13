@@ -175,6 +175,22 @@ img{max-width:100%;display:block}
 .btn .arr{transition:transform .3s var(--ease)}
 .btn:hover .arr{transform:translate(3px,-1px)}
 .row{display:flex;gap:8px}.row .btn{flex:1}
+/* finale: mission-complete card after the characters gather and the gift opens */
+.fin{position:fixed;inset:0;z-index:30;display:grid;place-items:end center;padding:24px 16px calc(28px + env(safe-area-inset-bottom,0px));pointer-events:none}
+.fin[hidden]{display:none}
+.fin-card{pointer-events:auto;width:min(460px,100%);padding:22px 22px 18px;border-radius:18px;text-align:center;animation:fin-in .7s cubic-bezier(.2,1.3,.4,1) both;box-shadow:0 30px 60px -20px rgba(0,0,0,.7)}
+@keyframes fin-in{from{opacity:0;transform:translateY(30px) scale(.92)}}
+.fin-k{margin:0;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.18em;color:var(--gold)}
+.fin-card h2{margin:6px 0 6px;font-family:var(--f-display);font-size:1.45rem;line-height:1.3;letter-spacing:-.02em}
+.fin-card p.fin-d{margin:0 0 14px;color:var(--mute);font-size:.9rem;line-height:1.6;white-space:pre-line}
+.fin-chars{display:flex;justify-content:center;gap:6px;margin:0 0 14px}
+.fin-chars img{width:46px;height:46px;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(0,0,0,.5));animation:fin-hop 1.1s ease-in-out infinite}
+.fin-chars img:nth-child(2){animation-delay:.12s}.fin-chars img:nth-child(3){animation-delay:.24s}.fin-chars img:nth-child(4){animation-delay:.36s}.fin-chars img:nth-child(5){animation-delay:.48s}
+@keyframes fin-hop{0%,60%,100%{transform:none}30%{transform:translateY(-7px)}}
+.fin-card .row{flex-wrap:wrap}.fin-card .row .btn{min-width:120px}
+.fin-skip{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:29;font-size:.8rem;height:38px}
+.fin-skip[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){.fin-card,.fin-chars img{animation:none}}
 .list{display:flex;flex-direction:column}
 .list button{display:grid;grid-template-columns:52px 1fr auto;gap:14px;align-items:center;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:12px 0;cursor:pointer}
 .list button:hover .nm{color:var(--gold)}
@@ -250,6 +266,14 @@ img{max-width:100%;display:block}
 </div>
 
 <div class="toast glass" id="toast" role="status" aria-live="polite"><span class="ping"></span><div><b id="toastT"></b> <span id="toastS"></span></div></div>
+
+<div class="fin" id="fin" hidden><div class="fin-card glass" role="dialog" aria-labelledby="finT" aria-describedby="finD">
+  <p class="fin-k">MISSION COMPLETE · 5 / 5</p><h2 id="finT"></h2><p class="fin-d" id="finD"></p>
+  <div class="fin-chars" id="finChars" aria-hidden="true"></div>
+  <div class="row"><a class="btn" id="finGo" href="./"></a><button class="btn ghost" type="button" id="finAgain">다시 보기</button></div>
+  <button class="btn ghost" type="button" id="finClose" style="width:100%;margin-top:8px">계속 탐사하기</button>
+</div></div>
+<button class="btn ghost glass fin-skip" type="button" id="finSkip" hidden>건너뛰기 ›</button>
 
 <aside class="drawer glass" id="drawer" aria-live="polite" aria-label="지수 상세">
   <button class="dr-x" id="drClose" type="button" aria-label="닫기">✕</button>
@@ -520,7 +544,7 @@ const cv=$('world'),ray=new THREE.Raycaster(),ndc=new THREE.Vector2();
 let down=null;
 function setNDC(e){const r=cv.getBoundingClientRect();ndc.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(ndc,camera)}
 function pickBeacon(e){setNDC(e);const h=ray.intersectObjects(hits,false);return h.length?h[0].object.userData.i:-1}
-cv.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY,lx:e.clientX,ly:e.clientY,m:0,id:e.pointerId};cv.setPointerCapture(e.pointerId);cv.classList.add('drag')});
+cv.addEventListener('pointerdown',e=>{if(FIN.on&&!FIN.cardShown)return;down={x:e.clientX,y:e.clientY,lx:e.clientX,ly:e.clientY,m:0,id:e.pointerId};cv.setPointerCapture(e.pointerId);cv.classList.add('drag')});
 cv.addEventListener('pointermove',e=>{
   if(!down){cv.classList.toggle('hot',pickBeacon(e)>=0);return}
   const dx=e.clientX-down.lx,dy=e.clientY-down.ly;down.lx=e.clientX;down.ly=e.clientY;down.m=Math.max(down.m,Math.hypot(e.clientX-down.x,e.clientY-down.y));
@@ -533,7 +557,7 @@ function up(e){
   if(h.length){const p=h[0].point;if(Math.hypot(p.x,p.z)<300){travel={x:p.x,z:p.z,beacon:-1};marker.position.set(p.x,p.y+.15,p.z);marker.material.opacity=1;marker.scale.setScalar(1);focus=-1;closeDrawer()}}
 }
 cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',()=>{down=null;cv.classList.remove('drag')});
-addEventListener('keydown',e=>{if(e.target.closest&&e.target.closest('a,button')&&e.key===' ')return;const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift','q','e'].includes(k)){keys.add(k);travel=null;yawGoal=null;if(k.startsWith('arrow'))e.preventDefault()}});
+addEventListener('keydown',e=>{if(FIN.on&&!FIN.cardShown)return;if(e.target.closest&&e.target.closest('a,button')&&e.key===' ')return;const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift','q','e'].includes(k)){keys.add(k);travel=null;yawGoal=null;if(k.startsWith('arrow'))e.preventDefault()}});
 addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
 addEventListener('blur',()=>keys.clear());
 
@@ -561,12 +585,128 @@ function drawRadar(t){const S=300,C=S/2,R=C-8,range=170;rc.clearRect(0,0,S,S);
     rc.beginPath();rc.arc(C+px,C+pz,found.has(x.id)?8:7,0,7);if(found.has(x.id)){rc.fillStyle=x.color;rc.fill()}else{rc.strokeStyle=x.color;rc.lineWidth=3;rc.stroke()}});
   rc.fillStyle='#F6EEE7';rc.beginPath();rc.moveTo(C,C-11);rc.lineTo(C+7,C+8);rc.lineTo(C,C+4);rc.lineTo(C-7,C+8);rc.closePath();rc.fill();}
 
+/* ───────── finale: all five found → characters walk in, gather, and a gift pops open ───────── */
+const EVENT_DEF={title:'탐사 완료! 선물이 도착했어요',text:'다섯 지수의 신호를 모두 해독했어요.\n캐릭터 친구들이 준비한 선물을 확인해 보세요.',btn:'메인 사이트로',link:''};
+let EVENT=Object.assign({},EVENT_DEF);
+const FIN={on:false,t:0,chars:[],G:null,box:null,conf:null,cardShown:false,objs:[]};
+let charImgs=null;
+const shadowTex=(()=>{const c=cnv(128),g=c.getContext('2d'),r=g.createRadialGradient(64,64,0,64,64,64);r.addColorStop(0,'rgba(0,0,0,.75)');r.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=r;g.fillRect(0,0,128,128);return new THREE.CanvasTexture(c)})();
+function faceGift(){const c=cnv(1024),g=c.getContext('2d'),r=g.createRadialGradient(420,380,40,512,512,520);r.addColorStop(0,'#24427A');r.addColorStop(1,'#0B1A33');g.fillStyle=r;g.beginPath();g.arc(512,512,512,0,7);g.fill();
+  g.strokeStyle='#E2BC74';g.lineWidth=6;[470,438].forEach(rr=>{g.beginPath();g.arc(512,512,rr,0,7);g.stroke()});
+  arc(g,' MARS EXPEDITION · ALL SIGNALS DECODED ·'.repeat(2),455,'500 24px "IBM Plex Mono", monospace','#E2BC74');
+  g.textAlign='center';g.fillStyle='#E2BC74';g.font='700 120px "Noto Serif KR", serif';g.fillText('★',512,400);
+  g.font='700 150px "Noto Serif KR", serif';g.fillText('KSA',512,590);g.fillStyle='#EEF2FA';g.font='600 64px "Noto Serif KR", serif';g.fillText('탐사 완료',512,700);return tex(c)}
+function charTex(img){const t=new THREE.Texture(img);t.needsUpdate=true;t.encoding=THREE.sRGBEncoding;t.anisotropy=renderer.capabilities.getMaxAnisotropy();return t}
+function finAdd(o){scene.add(o);FIN.objs.push(o);return o}
+function clearFinale(){FIN.objs.forEach(o=>{scene.remove(o);o.traverse&&o.traverse(m=>{if(m.geometry)m.geometry.dispose()})});FIN.objs=[];FIN.chars=[];FIN.box=null;FIN.conf=null}
+const easeIO=k=>k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2,back=k=>{const c=1.7;return 1+(c+1)*Math.pow(k-1,3)+c*Math.pow(k-1,2)};
+function startFinale(){
+  if(FIN.on||!beacons.length)return;
+  (charImgs?Promise.resolve(charImgs):Promise.all(IDX.map(x=>load(x.character)))).then(imgs=>{
+    charImgs=imgs;if(FIN.on)return;
+    clearFinale();closeDrawer();travel=null;keys.clear();focus=-1;$('fin').hidden=true;
+    FIN.on=true;FIN.t=reduce?8.4:0;FIN.cardShown=false;$('finSkip').hidden=false;
+    /* the gathering spot: just ahead of the explorer, away from the beacon pads */
+    const [fx,fz]=fwd();let gx=P.x+fx*13,gz=P.z+fz*13;
+    BEACONS.forEach(([bx,bz])=>{const d=Math.hypot(gx-bx,gz-bz);if(d<9){gx=bx+(gx-bx)/(d||1)*9;gz=bz+(gz-bz)/(d||1)*9}});
+    const G={x:gx,z:gz,y:height(gx,gz)};FIN.G=G;
+    const dcx=gx-P.x,dcz=gz-P.z,dist=Math.hypot(dcx,dcz);
+    yawGoal=Math.atan2(-dcx,-dcz);pitchGoal=Math.atan2(G.y-1.4-(camY||G.y+3),dist); /* aim a little low so the party sits above the card */
+    const away=Math.atan2(dcx,dcz); /* from the explorer through the gathering spot */
+    FIN.chars=IDX.map((x,i)=>{
+      const img=imgs[i];if(!img)return null;
+      const h=x.motion==='flutter'?2.3:2.7,w=h*img.width/img.height;
+      const mat=new THREE.SpriteMaterial({map:charTex(img),transparent:true,alphaTest:.2,color:lin('#FFF4EC')});
+      const s=finAdd(new THREE.Sprite(mat));s.center.set(.5,0);s.scale.set(0,0,1);
+      const sh=finAdd(new THREE.Mesh(new THREE.CircleGeometry(w*.42,32),new THREE.MeshBasicMaterial({map:shadowTex,transparent:true,depthWrite:false,opacity:0})));sh.rotation.x=-Math.PI/2;
+      const col=new THREE.Color(x.color);
+      const beam=finAdd(new THREE.Mesh(new THREE.CylinderGeometry(1.3,1.3,60,24,1,true),pillarMat(col)));beam.geometry.translate(0,30,0);beam.material.uniforms.k.value=0;
+      const ring=finAdd(new THREE.Mesh(new THREE.RingGeometry(.9,1.05,64),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide})));ring.rotation.x=-Math.PI/2;
+      /* start far beyond the spot, spread across the view; finish in an arc behind the gift, facing the explorer */
+      const sa=away+(i-2)*.32,sd=26+((i*7)%3)*3;
+      const S={x:gx+Math.sin(sa)*sd,z:gz+Math.cos(sa)*sd};
+      const ta=away+(i-2)*.6,T={x:gx+Math.sin(ta)*4.7,z:gz+Math.cos(ta)*4.7};
+      beam.position.set(S.x,height(S.x,S.z),S.z);ring.position.set(S.x,height(S.x,S.z)+.15,S.z);
+      return {x,i,s,sh,beam,ring,w,h,S,T,fly:x.motion==='flutter',e:.3+i*.45,ph:i};
+    }).filter(Boolean);
+    /* gift box: navy box, gold ribbon, lid with a bow */
+    const navy=new THREE.MeshStandardMaterial({color:lin('#1B3263'),roughness:.45,metalness:.25}),rib=new THREE.MeshStandardMaterial({color:lin('#E2BC74'),roughness:.3,metalness:.8,emissive:lin('#3A2508')});
+    const box=finAdd(new THREE.Group());box.position.set(gx,G.y,gz);box.rotation.y=away;box.scale.setScalar(0);
+    const body=new THREE.Mesh(new THREE.BoxGeometry(1.7,1.4,1.7),navy);body.position.y=.7;box.add(body);
+    [[1.74,1.42,.24],[.24,1.42,1.74]].forEach(([a,b,c])=>{const r=new THREE.Mesh(new THREE.BoxGeometry(a,b,c),rib);r.position.y=.7;box.add(r)});
+    const lid=new THREE.Group();lid.position.y=1.4;box.add(lid);
+    const lidM=new THREE.Mesh(new THREE.BoxGeometry(1.9,.32,1.9),navy);lidM.position.y=.16;lid.add(lidM);
+    [[1.94,.34,.26],[.26,.34,1.94]].forEach(([a,b,c])=>{const r=new THREE.Mesh(new THREE.BoxGeometry(a,b,c),rib);r.position.y=.16;lid.add(r)});
+    [-1,1].forEach(sg=>{const bow=new THREE.Mesh(new THREE.TorusGeometry(.26,.08,10,24),rib);bow.position.set(sg*.24,.5,0);bow.rotation.set(0,0,sg*.6);lid.add(bow)});
+    const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:lin('#FFE3A8'),transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}));glow.position.y=1.6;glow.scale.set(9,9,1);box.add(glow);
+    const medal=new THREE.Group();medal.position.y=1.2;medal.scale.setScalar(0);box.add(medal);
+    const coin=new THREE.Mesh(coinGeo,[gold,new THREE.MeshStandardMaterial({map:faceGift(),metalness:.15,roughness:.4,emissive:0xffffff,emissiveMap:null,emissiveIntensity:0}),new THREE.MeshStandardMaterial({map:faceGift(),metalness:.15,roughness:.4})]);coin.rotation.x=Math.PI/2;coin.scale.setScalar(.42);medal.add(coin);
+    FIN.box={g:box,lid,glow,medal,lidV:null};
+    /* confetti in the five index colours */
+    const CN=reduce?0:420,cg=new THREE.BufferGeometry(),cp=new Float32Array(CN*3),cc=new Float32Array(CN*3),vel=[];
+    for(let k=0;k<CN;k++){const c=lin(IDX[k%IDX.length].color);cc.set([c.r,c.g,c.b],k*3);cp.set([gx,G.y+1.6,gz],k*3);const a=Math.random()*Math.PI*2,u=Math.random();vel.push([Math.cos(a)*(1.5+u*4.5),7+Math.random()*7,Math.sin(a)*(1.5+u*4.5)])}
+    cg.setAttribute('position',new THREE.BufferAttribute(cp,3));cg.setAttribute('color',new THREE.BufferAttribute(cc,3));
+    const conf=finAdd(new THREE.Points(cg,new THREE.PointsMaterial({size:.2,vertexColors:true,transparent:true,opacity:0,depthWrite:false})));
+    FIN.conf={p:conf,vel,born:false};
+  });
+}
+function showCard(){
+  FIN.cardShown=true;$('finSkip').hidden=true;
+  const e=EVENT;$('finT').textContent=e.title||EVENT_DEF.title;$('finD').textContent=e.text||'';
+  const go=$('finGo');go.textContent=(e.btn||EVENT_DEF.btn);const ext=/^https?:\/\//.test(e.link||'');go.href=e.link||'./';if(ext){go.target='_blank';go.rel='noopener'}else{go.removeAttribute('target')}
+  $('finChars').innerHTML=IDX.map(x=>x.character?`<img src="${x.character}" alt="">`:'').join('');
+  $('fin').hidden=false;
+}
+function endFinale(){FIN.on=false;$('fin').hidden=true;$('finSkip').hidden=true}
+$('finClose').onclick=endFinale;
+$('finAgain').onclick=()=>{endFinale();startFinale()};
+$('finSkip').onclick=()=>{if(FIN.on&&!FIN.cardShown)FIN.t=Math.max(FIN.t,10.4)};
+api.finale=startFinale;
+window.KSA_FINALE={start:startFinale,seek:s=>{FIN.t=s}}; /* used by the preview link and tests */
+function finaleTick(dt,t){
+  if(!FIN.on||!FIN.G)return;FIN.t+=dt;const T=FIN.t,G=FIN.G;
+  FIN.chars.forEach(c=>{
+    const e=c.e,k=THREE.MathUtils.clamp((T-e)/.55,0,1);
+    /* arrival beam and ground ring at the start point */
+    c.beam.material.uniforms.t.value=t;c.beam.material.uniforms.k.value=T<e?0:Math.max(0,Math.sin(Math.min(1,(T-e)/1.6)*Math.PI))*1.3;
+    const rk=THREE.MathUtils.clamp((T-e)/1.2,0,1);c.ring.scale.setScalar(1+rk*5);c.ring.material.opacity=T<e?0:(1-rk)*.8;
+    /* walk (or flutter) from S to T, finishing at 6.2s */
+    const ws=e+.55,we=6.2,wk=THREE.MathUtils.clamp((T-ws)/(we-ws),0,1),m=easeIO(wk);
+    const x=c.S.x+(c.T.x-c.S.x)*m,z=c.S.z+(c.T.z-c.S.z)*m,gy=height(x,z);
+    const moving=wk>0&&wk<1;c.ph+=dt*(moving?9:0);
+    let lift=c.fly?1.1+Math.sin(t*3+c.i)*.25:0,hop=moving&&!c.fly?Math.abs(Math.sin(c.ph))*.22:0,rot=moving?Math.sin(c.ph)*(c.fly?.12:.08):0;
+    /* everyone hops together when gathered, and again when the gift opens */
+    if(T>6.4&&T<7.3)hop+=Math.abs(Math.sin((T-6.4)*Math.PI/.45))*.45;
+    if(T>8.5&&T<10.3)hop+=Math.abs(Math.sin((T-8.5)*Math.PI/.45))*.6;
+    if(T>10.3&&!reduce)hop+=Math.abs(Math.sin(t*2.2+c.i))*.08;
+    const sc=back(k);c.s.scale.set(c.w*sc,c.h*sc,1);c.s.material.rotation=rot;
+    c.s.position.set(x,gy+lift+hop,z);
+    c.sh.position.set(x,gy+.06,z);c.sh.material.opacity=k*(c.fly?.28:.5);c.sh.scale.setScalar(1-Math.min(.4,(lift+hop)*.25));
+  });
+  const b=FIN.box;if(!b)return;
+  /* gift rises with a bounce, shakes, then the lid pops */
+  const bk=THREE.MathUtils.clamp((T-6.8)/.6,0,1);b.g.scale.setScalar(bk?back(bk):0);
+  b.g.rotation.z=T>7.4&&T<8.5?Math.sin((T-7.4)*38)*.07*(T-7.4):0;
+  if(T>=8.5){
+    if(!b.lidV){b.lidV={x:1.6,y:6.5,r:4};b.glow.material.opacity=1}
+    const lv=b.lidV;b.lid.position.x+=lv.x*dt;b.lid.position.y=Math.max(-5,b.lid.position.y+lv.y*dt);lv.y-=12*dt;b.lid.rotation.z-=lv.r*dt;
+    if(b.lid.position.y<-1)b.lid.visible=false;
+    const mk=THREE.MathUtils.clamp((T-8.6)/.9,0,1);b.medal.scale.setScalar(back(mk));b.medal.position.y=1.2+easeIO(mk)*2.4+(mk>=1?Math.sin(t*1.6)*.12:0);b.medal.rotation.y+=dt*(mk<1?9:1.4);
+    b.glow.material.opacity=Math.max(.35,b.glow.material.opacity-dt*.8);b.glow.scale.setScalar(9+Math.sin(t*2)*.6);b.glow.position.y=b.medal.position.y;
+    const cf=FIN.conf;if(cf&&cf.vel.length){const p=cf.p.geometry.attributes.position.array;cf.p.material.opacity=Math.max(0,1-(T-11.5)/2.5);
+      for(let k=0;k<cf.vel.length;k++){const v=cf.vel[k];v[1]-=9.8*dt*.55;v[0]*=1-dt*.6;v[2]*=1-dt*.6;p[k*3]+=v[0]*dt;p[k*3+1]+=v[1]*dt;p[k*3+2]+=v[2]*dt;const gy=height(p[k*3],p[k*3+2])+.05;if(p[k*3+1]<gy){p[k*3+1]=gy;v[0]=v[1]=v[2]=0}}
+      cf.p.geometry.attributes.position.needsUpdate=true}
+  }
+  if(T>=10.4&&!FIN.cardShown)showCard();
+}
+
 /* discovery */
+let quiet=false;
 function discover(b){found.add(b.x.id);b.front.map=b.logoTex;b.front.emissiveMap=b.logoTex;b.front.emissiveIntensity=.35;b.front.needsUpdate=true;b.pop=1;
   const s=$('slot-'+b.x.id);s.classList.add('ok','pop');setTimeout(()=>s.classList.remove('pop'),800);
   $('foundN').textContent=found.size+' / '+N;
-  toast('신호 해독 완료 · '+b.x.code,b.x.name+' ('+found.size+'/'+N+')',b.x.color);
-  if(found.size===N)setTimeout(()=>toast('다섯 지수를 모두 찾았습니다','원하는 지수를 선택해 홈페이지로 이동하세요'),3400);
+  if(!quiet)toast('신호 해독 완료 · '+b.x.code,b.x.name+' ('+found.size+'/'+N+')',b.x.color);
+  if(found.size===N&&!quiet)setTimeout(()=>{toast('다섯 지수를 모두 찾았습니다','캐릭터 친구들이 모이고 있어요…');setTimeout(startFinale,1400)},2600);
 }
 
 /* telemetry */
@@ -581,6 +721,7 @@ function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);c
 addEventListener('resize',resize);resize();
 function frame(now){
   requestAnimationFrame(frame);const dt=Math.min((now-last)/1000,.05);last=now;const t=now/1000;
+  finaleTick(dt,t);
   /* keyboard drive */
   const sp=(keys.has('shift')?34:16)*dt;let [fx,fz]=fwd();
   let mx=0,mz=0;if(keys.has('w')||keys.has('arrowup')){mx+=fx;mz+=fz}if(keys.has('s')||keys.has('arrowdown')){mx-=fx;mz-=fz}
@@ -588,7 +729,7 @@ function frame(now){
   if(keys.has('arrowleft')||keys.has('q'))P.yaw+=1.6*dt;if(keys.has('arrowright')||keys.has('e'))P.yaw-=1.6*dt;
   if(mx||mz){const l=Math.hypot(mx,mz);P.x+=mx/l*sp;P.z+=mz/l*sp}
   /* auto travel */
-  if(travel){const dx=travel.x-P.x,dz=travel.z-P.z,d=Math.hypot(dx,dz);
+  if(travel&&!(FIN.on&&!FIN.cardShown)){const dx=travel.x-P.x,dz=travel.z-P.z,d=Math.hypot(dx,dz);
     if(d<.4){if(travel.beacon>=0){focus=travel.beacon;aim(focus);openDetail(travel.beacon)}travel=null}
     else{const s=Math.min(d,Math.min(30,d*1.4+5)*dt);P.x+=dx/d*s;P.z+=dz/d*s}}
   if(yawGoal!==null){let d=((yawGoal-P.yaw+Math.PI*3)%(Math.PI*2))-Math.PI;P.yaw+=d*(1-Math.pow(.02,dt));if(Math.abs(d)<.002)yawGoal=null}
@@ -636,11 +777,12 @@ function frame(now){
 const load=src=>new Promise(r=>{const im=new Image();im.onload=()=>r(im);im.onerror=()=>r(null);im.src=src});
 /* settings saved from the main site's edit panel (names, copy, weights, homepages, logos) apply here too */
 const SC=window.KSA_SITE_CONFIG;
-const cfgReady=SC?SC.load(2500).then(c=>{SC.applyIndices(c);if(SC.applyBrand)SC.applyBrand(c);IDX.forEach(x=>{const im=document.querySelector('#slot-'+x.id+' img');if(im)im.src=x.logo})}):Promise.resolve();
+const cfgReady=SC?SC.load(2500).then(c=>{if(c&&c.event&&typeof c.event==='object')for(const k of Object.keys(EVENT_DEF))if(typeof c.event[k]==='string'&&(c.event[k].trim()||k==='link'))EVENT[k]=c.event[k];SC.applyIndices(c);if(SC.applyBrand)SC.applyBrand(c);IDX.forEach(x=>{const im=document.querySelector('#slot-'+x.id+' img');if(im)im.src=x.logo})}):Promise.resolve();
 const texSrc=x=>SC?SC.textureSrc(x):((window.KSA_LOGO_DATA||{})[x.id]||x.logo);
 Promise.all([cfgReady.then(()=>Promise.all(IDX.map(x=>load(texSrc(x)).then(im=>im||load((window.KSA_LOGO_DATA||{})[x.id]))))),document.fonts?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))]):0]).then(([imgs])=>{
   if(imgs.some(x=>!x))return noGL();
   buildBeacons(imgs);
+  if(location.hash==='#finale'){quiet=true;beacons.forEach(b=>{if(!found.has(b.x.id))discover(b)});quiet=false;startTrip();setTimeout(startFinale,600)}
   $('goBtn').disabled=false;$('goLabel').textContent='탐사 시작';
   requestAnimationFrame(frame);
 });

@@ -48,6 +48,7 @@
     indices:Object.fromEntries(IDX.map(x=>[x.id,Object.assign(Object.fromEntries(INDEX_FIELDS.map(([k])=>[k,x[k]||''])),{charts:[{title:DIMS_TITLE,inline:false,dims:x.dims.map(d=>[d[0],d[1]])}],song:{title:'',text:'',audio:'',dur:0}})])),
     schedule:JSON.parse(JSON.stringify(K0.schedule||{})),
     logos:Object.fromEntries(IDX.map(x=>[x.id,''])),
+    event:{title:'탐사 완료! 선물이 도착했어요',text:'다섯 지수의 신호를 모두 해독했어요.\n캐릭터 친구들이 준비한 선물을 확인해 보세요.',btn:'메인 사이트로',link:''},
     brand:{logo:'',name:text($('.brand-text b')),sub:text($('.brand-text span')),showText:!($('.brand-text')||{}).hidden},
     homepages:Object.fromEntries(IDX.map(x=>[x.id,x.homepage]))
   };
@@ -78,6 +79,7 @@
     if(!['homepage','detail','flip'].includes(c.planetClick))c.planetClick='homepage';
     for(const id of Object.keys(c.logos))if(c.logos[id]&&!SC.logoUrl(c.logos[id]))c.logos[id]='';
     if(c.brand.logo&&!SC.logoUrl(c.brand.logo))c.brand.logo='';
+    if(c.event.link&&!okUrl(c.event.link))c.event.link='';
     for(const id of Object.keys(c.indices)){const sg=c.indices[id].song;if(sg.audio&&!(SC.audioUrl&&SC.audioUrl(sg.audio)))sg.audio='';if(!sg.audio)sg.dur=0}
     for(const id of Object.keys(c.indices))c.indices[id].charts.forEach(ch=>ch.dims.forEach(d=>{d[1]=Math.max(0,Math.min(100,Math.round(+d[1]||0)))}));
     for(const id of Object.keys(c.schedule))for(const [ph] of PHASES){const r=ST.normRange(c.schedule[id][ph]);c.schedule[id][ph]=r||clone(DEFAULTS.schedule[id][ph])}
@@ -185,6 +187,13 @@
       <details><summary>참여 절차 단계</summary><div class="se-fields">
         ${DEFAULTS.steps.map((_,i)=>`<p class="se-help strong">${String(i+1).padStart(2,'0')}단계</p>${inp(`steps.${i}.t`,'제목')}${inp(`steps.${i}.p`,'설명',{area:1,rows:2})}`).join('')}
       </div></details>
+      <details><summary>탐사 이벤트 (화성)</summary><div class="se-fields">
+        <p class="se-help">화성 탐사에서 다섯 지수를 모두 찾으면 캐릭터들이 모여 선물 상자를 열고, 아래 축하 카드가 나옵니다.</p>
+        ${inp('event.title','카드 제목')}${inp('event.text','카드 내용',{area:1,rows:3})}
+        <div class="se-2"><div>${inp('event.btn','버튼 글자')}</div><div>${inp('event.link','버튼 링크',{type:'url',hint:'비우면 메인 사이트'})}</div></div>
+        <a class="se-btn ghost" href="explore.html#finale" target="_blank" rel="noopener" style="text-align:center">이벤트 미리보기 ↗</a>
+        <p class="se-help">미리보기는 저장된 내용으로 보입니다. 바꾼 뒤에는 먼저 저장해 주세요.</p>
+      </div></details>
       <details><summary>색상</summary><div class="se-fields">
         <div class="se-2"><div><label for="se-accent">포인트 색</label><input type="color" id="se-accent" data-k="accent"></div><div><label for="se-navy">보드 남색</label><input type="color" id="se-navy" data-k="navy"></div></div>
         <div class="se-swatches" id="seSwatches"></div>
@@ -242,6 +251,7 @@
     if(el.name==='se-pc'){cfg.planetClick=el.value;changed();return}
     if(!k)return;
     if(el.type==='checkbox'){setPath(cfg,k,el.checked);changed();return}
+    if(k==='event.link'){if(el.value&&!okUrl(el.value)){el.setAttribute('aria-invalid','true');return}el.removeAttribute('aria-invalid');setPath(cfg,k,el.value);changed();return}
     if(k.startsWith('homepages.')){if(el.value&&!okUrl(el.value)){el.setAttribute('aria-invalid','true');return}el.removeAttribute('aria-invalid');setPath(cfg,k,el.value||getPath(DEFAULTS,k));changed();return}
     if(k.startsWith('schedule.')){
       const ks=k.split('.'),r=cfg.schedule[ks[1]][ks[2]].slice();r[+ks[3]]=el.value;
@@ -367,6 +377,7 @@ ${JSON.stringify(cfg)}
 - steps: 참여 절차 7단계 배열 [{t: 제목, p: 설명}] (배열 길이 유지)
 - indices: {qei|cqi|pbi|well|dcxi: {name, en, desc, target, method, announce, charts}} — charts는 그래프 1~6개 [{title: 그래프 제목, inline: true면 앞 그래프와 같은 줄(한 줄 최대 3개), dims: [[항목 이름, 가중치%] 1~12개, 합계 100]}]
 - schedule: {qei|...: {apply(조사 부문 설정)|survey(조사·평가)|notice(조사결과 안내)|award(발표·인증식): ["YYYY-MM-DD" 시작일, "YYYY-MM-DD" 종료일]}} — 종료일 포함, 시작일 ≤ 종료일
+- event: {title, text, btn, link} — 화성 탐사 완료 이벤트의 축하 카드 (link는 https 주소 또는 빈칸)
 - logos, brand.logo, indices.*.song.audio/dur: 바꾸지 마세요 (song.title, song.text 는 바꿔도 됩니다) (brand.name/brand.sub/brand.showText 는 바꿔도 됩니다)
 - homepages: {qei|cqi|pbi|well|dcxi: https 주소}
 
