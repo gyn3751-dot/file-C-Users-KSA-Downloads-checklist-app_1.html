@@ -381,6 +381,17 @@ section[id]{scroll-margin-top:72px}
 .sched thead .today-lab{display:block;font-size:.6rem;color:var(--brass);letter-spacing:.1em;line-height:1}
 .sched tbody th .st{display:inline-block;margin-top:5px;font-family:var(--f-body);font-style:normal;font-size:.66rem;font-weight:500;padding:1px 7px;border-radius:99px;white-space:nowrap}
 .sched tbody th{--c:var(--ink)}
+/* readable header and index column: navy month bar, tinted index cells with a colour rail, faint alternate month bands */
+.sched thead th{background:var(--navy);color:var(--on-navy,#F3F5F9);font-size:.8rem;font-weight:600;letter-spacing:.04em;border-bottom:0}
+.sched thead th:first-child{font-family:var(--f-body);font-size:.84rem}
+.sched thead th+th{border-left:1px solid rgba(255,255,255,.12)}
+.sched thead th.now-col{background:var(--brass);color:#1b1408}
+.sched thead th.now-col .today-lab{color:#1b1408;opacity:.75}
+.sched tbody th{background:color-mix(in srgb,var(--c) 10%,var(--sheet));box-shadow:inset 5px 0 0 var(--c);color:var(--ink);font-weight:700;font-size:.95rem}
+.sched tbody th span{color:color-mix(in srgb,var(--c) 45%,var(--ink));font-weight:600;font-size:.74rem}
+.sched tbody td:nth-child(odd){background:color-mix(in srgb,var(--ink) 2.5%,var(--sheet))}
+.sched tbody td.now-col{background:color-mix(in srgb,var(--brass) 12%,var(--sheet))}
+.sched td{border-left-color:color-mix(in srgb,var(--rule) 90%,transparent)}
 .st-apply{background:color-mix(in srgb,var(--c) 18%,var(--sheet));color:color-mix(in srgb,var(--c) 45%,var(--ink));border:1px solid color-mix(in srgb,var(--c) 40%,var(--sheet))}
 .st-apply::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;margin-right:5px;vertical-align:middle;animation:blink 1.6s infinite}
 .st-survey{background:color-mix(in srgb,var(--c) 40%,var(--sheet));color:color-mix(in srgb,var(--c) 30%,var(--ink))}
