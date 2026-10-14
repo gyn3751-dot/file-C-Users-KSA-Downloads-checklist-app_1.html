@@ -283,6 +283,16 @@ section[id]{scroll-margin-top:72px}
 .d-row.multi .dim-scale{grid-template-columns:minmax(0,1fr)}
 .d-row.multi .dim-scale>span:not(:nth-child(2)){display:none}
 @media (max-width:560px){.d-row{grid-template-columns:minmax(0,1fr)}.d-row.multi .d-dims+.d-dims{border-left:0;padding-left:0;border-top:1px dashed var(--rule);padding-top:var(--s-4)}}
+.dchips{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(10.5rem,1fr));gap:8px}
+.dchips li{display:flex;align-items:center;gap:10px;min-width:0;padding:11px 12px;border-radius:10px;font-size:.9rem;font-weight:500;letter-spacing:-.01em;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--c) 12%,var(--sheet)),var(--sheet));border:1px solid color-mix(in srgb,var(--c) 30%,var(--rule));
+  animation:chip-in .55s var(--ease) both;animation-delay:calc(var(--k)*.05s)}
+.dchips .no{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-mono);font-size:.66rem;font-weight:500;
+  border:1.5px solid var(--c);color:color-mix(in srgb,var(--c) 55%,var(--ink));background:var(--sheet)}
+.dchips .nm{min-width:0;overflow-wrap:anywhere;line-height:1.35}
+@keyframes chip-in{from{opacity:0;transform:translateY(6px)}}
+.d-row.multi .dchips{grid-template-columns:minmax(0,1fr)}
+@media (prefers-reduced-motion:reduce){.dchips li{animation:none}}
 .d-dims h4{margin:0 0 var(--s-3);font-size:.78rem;font-weight:500;color:var(--ink-3);letter-spacing:.04em}
 .dims{display:flex;flex-direction:column;gap:var(--s-3)}
 .dim{display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 3.2rem;align-items:center;gap:var(--s-4);font-size:.88rem}
@@ -420,6 +430,7 @@ body.se-open .se-fab{display:none}
 .se-radios label{display:flex;gap:8px;align-items:center;font-size:.82rem!important;color:var(--ink)!important;cursor:pointer;margin:0!important}
 .se-radios input{accent-color:var(--ink);width:16px;height:16px;margin:0;flex:none}
 .se-dims{display:flex;flex-direction:column;gap:6px}
+.se-dim.nw{grid-template-columns:minmax(0,1fr) 30px}
 .se-chart{border:1px solid var(--rule);padding:10px;display:flex;flex-direction:column;gap:6px;background:color-mix(in srgb,var(--paper) 60%,transparent)}
 .se-chart+.se-chart{margin-top:8px}
 .se-chart-h{display:flex;align-items:baseline;gap:8px;font-size:.8rem}
@@ -525,7 +536,7 @@ body.se-open .se-fab{display:none}
           <p class="eyebrow">Indices</p>
           <h2>다섯 개의 지수,<br>하나의 표준 측정 체계</h2>
         </div>
-        <p>각 지수는 실제 고객 조사와 전문 평가를 결합해 산출합니다. 지수를 선택하면 평가 대상과 측정 차원, 가중치를 확인할 수 있습니다.</p>
+        <p>각 지수는 실제 고객 조사와 전문 평가를 결합해 산출합니다. 지수를 선택하면 평가 대상과 측정 차원을 확인할 수 있습니다.</p>
       </div>
 
       <div class="explorer">
@@ -644,7 +655,9 @@ body.se-open .se-fab{display:none}
     <span class="t"><b>${i.name}</b><span>${i.code}</span></span><span class="chev">→</span></button></li>`).join('')}
   renderList();
   /* heading above the weight bars (editable in the site editor) */
-  let dimsTitle='측정 차원 · 가중치 (100점 환산)';
+  let dimsTitle='측정 차원';
+  /* weights are not shown: older chart titles that mention them read as plain "측정 차원" */
+  const cleanTitle=t=>String(t||'').replace(/\s*[·,]?\s*가중치\s*(\(100점\s*환산\))?/g,'').trim()||'측정 차원';
   const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   /* an index can show several weight charts (each its own title + bars); without any, its dims form one chart */
   const chartsOf=i=>Array.isArray(i.charts)&&i.charts.length?i.charts:[{title:dimsTitle,dims:i.dims}];
@@ -660,9 +673,8 @@ body.se-open .se-fab{display:none}
       <div class="d-logo"><img src="${i.logo}" alt="${i.code} 인증 로고"></div></div>
       <p class="d-desc">${i.desc}</p>
       <dl class="d-meta"><div><dt>평가 대상</dt><dd>${i.target}</dd></div><div><dt>평가 방식</dt><dd>${i.method}</dd></div><div><dt>결과 발표</dt><dd>매년 ${i.announce}</dd></div></dl>
-      ${chartRows(chartsOf(i)).map(row=>`<div class="d-row${row.length>1?' multi':''}" style="--n:${row.length}">${row.map(ch=>{const mx=Math.max(40,Math.ceil(Math.max(0,...ch.dims.map(d=>d[1]))/10)*10); /* bar scale grows if a weight passes 40% */
-        return `<div class="d-dims">${ch.title?`<h4>${esc(ch.title)}</h4>`:''}<div class="dims">${ch.dims.map(([n,w])=>`<div class="dim"><span>${esc(n)}</span><span class="bar"><i style="width:${w/mx*100}%"></i></span><span class="w">${w}%</span></div>`).join('')}</div><div class="dim-scale" aria-hidden="true"><span></span><span><span>0</span><span>${mx/2}%</span><span>${mx}%</span></span><span></span></div></div>`}).join('')}</div>`).join('')}
-      <div class="d-actions"><a href="${i.homepage}" class="btn" target="_blank" rel="noopener">${i.code} 공식 홈페이지 <span class="arr">↗</span></a><span class="note">가중치는 업종에 따라 조정될 수 있습니다.</span></div>`;
+      ${chartRows(chartsOf(i)).map(row=>`<div class="d-row${row.length>1?' multi':''}" style="--n:${row.length}">${row.map(ch=>`<div class="d-dims"><h4>${esc(cleanTitle(ch.title))}</h4><ol class="dchips">${ch.dims.map(([n],k)=>`<li style="--k:${k}"><span class="no">${String(k+1).padStart(2,'0')}</span><span class="nm">${esc(n)}</span></li>`).join('')}</ol></div>`).join('')}</div>`).join('')}
+      <div class="d-actions"><a href="${i.homepage}" class="btn" target="_blank" rel="noopener">${i.code} 공식 홈페이지 <span class="arr">↗</span></a><span class="note">세부 평가 기준은 공식 홈페이지에서 확인할 수 있습니다.</span></div>`;
     detail.classList.remove('swap');void detail.offsetWidth;detail.classList.add('swap');
     if(scroll)document.getElementById('indices').scrollIntoView({behavior:'smooth'});
   }

@@ -21,7 +21,7 @@
   const PHASES=[['apply','조사 부문 설정'],['survey','조사 · 평가'],['notice','조사결과 안내'],['award','발표 · 인증식']];
   const SC=window.KSA_SITE_CONFIG||{logoUrl:()=>'',DEFAULT_LOGO:{}};
   const K0=window.__ksa||{};
-  const DIMS_TITLE=K0.dimsTitle||'측정 차원 · 가중치 (100점 환산)';
+  const DIMS_TITLE=K0.dimsTitle||'측정 차원';
   const ST=K0.schedTools||{normRange:r=>r,year:2026};
 
   /* ── defaults come from the page as written ── */
@@ -171,9 +171,9 @@
           <div class="se-song"><audio controls preload="none" id="se-song-${x.id}"></audio><p class="se-help" id="se-song-none-${x.id}">음성 파일이 없습니다.</p>
             <div class="se-song-act"><label class="se-btn ghost se-file" for="se-song-file-${x.id}">음성 파일 올리기</label><input type="file" id="se-song-file-${x.id}" accept="audio/*,.mp3,.m4a,.wav,.ogg,.webm,.aac,.flac" data-song="${x.id}" hidden>
             <button type="button" class="se-link" data-song-del="${x.id}">파일 삭제</button></div></div>
-          <p class="se-help strong">측정 체계 그래프</p>
+          <p class="se-help strong">측정 차원 <small>가중치는 표시하지 않습니다</small></p>
           <div class="se-charts" data-charts="${x.id}"></div>
-          <button type="button" class="se-btn ghost se-chart-add" data-chart-add="${x.id}">＋ 그래프 추가</button>
+          <button type="button" class="se-btn ghost se-chart-add" data-chart-add="${x.id}">＋ 묶음 추가</button>
         </div></details>`).join('')}
       </div></details>
       <details><summary>연간 일정</summary><div class="se-fields">
@@ -232,13 +232,14 @@
   }
   /* 측정 항목 rows: rebuilt from cfg whenever one is added or removed */
   function renderCharts(id){const box=panel.querySelector(`[data-charts="${id}"]`);if(!box)return;const x=IDX.find(i=>i.id===id),chs=cfg.indices[id].charts;
-    box.innerHTML=chs.map((ch,c)=>`<div class="se-chart"><div class="se-chart-h"><b>그래프 ${c+1}</b><small class="se-sum" data-sum="${id}:${c}"></small><button type="button" class="se-link" data-chart-del="${id}:${c}"${chs.length<=1?' disabled':''}>그래프 삭제</button></div>
-      ${c?`<label class="se-check"><input type="checkbox" data-k="indices.${id}.charts.${c}.inline"${ch.inline?' checked':''}> 앞 그래프와 같은 줄에 나란히 놓기</label>`:''}
+    box.innerHTML=chs.map((ch,c)=>`<div class="se-chart"><div class="se-chart-h"><b>측정 차원 ${c+1}</b><button type="button" class="se-link" data-chart-del="${id}:${c}"${chs.length<=1?' disabled':''}>묶음 삭제</button></div>
+      ${c?`<label class="se-check"><input type="checkbox" data-k="indices.${id}.charts.${c}.inline"${ch.inline?' checked':''}> 앞 묶음과 같은 줄에 나란히 놓기</label>`:''}
       <label for="se-indices.${id}.charts.${c}.title">제목</label><input id="se-indices.${id}.charts.${c}.title" data-k="indices.${id}.charts.${c}.title" value="${esc(ch.title)}">
-      <div class="se-dims">${ch.dims.map((d,j)=>`<div class="se-dim"><input aria-label="${esc(x.code)} 그래프 ${c+1} 항목 ${j+1}" data-k="indices.${id}.charts.${c}.dims.${j}.0" value="${esc(d[0])}"><input type="number" min="0" max="100" step="1" aria-label="${esc(x.code)} 그래프 ${c+1} 항목 ${j+1} 가중치" data-k="indices.${id}.charts.${c}.dims.${j}.1" value="${d[1]}"><span>%</span><button type="button" class="se-dim-del" data-dim-del="${id}:${c}:${j}" aria-label="${esc(x.code)} 그래프 ${c+1} 항목 ${j+1} 삭제"${ch.dims.length<=1?' disabled':''}>−</button></div>`).join('')}</div>
+      <div class="se-dims">${ch.dims.map((d,j)=>`<div class="se-dim nw"><input aria-label="${esc(x.code)} 측정 차원 ${j+1}" data-k="indices.${id}.charts.${c}.dims.${j}.0" value="${esc(d[0])}"><button type="button" class="se-dim-del" data-dim-del="${id}:${c}:${j}" aria-label="${esc(x.code)} 그래프 ${c+1} 항목 ${j+1} 삭제"${ch.dims.length<=1?' disabled':''}>−</button></div>`).join('')}</div>
       <button type="button" class="se-btn ghost se-dim-add" data-dim-add="${id}:${c}"${ch.dims.length>=DIM_MAX?' disabled':''}>＋ 항목 추가</button></div>`).join('');
     const add=panel.querySelector(`[data-chart-add="${id}"]`);if(add)add.disabled=chs.length>=CHART_MAX}
-  function sums(){IDX.forEach(x=>cfg.indices[x.id].charts.forEach((ch,c)=>{const el=panel.querySelector(`[data-sum="${x.id}:${c}"]`);if(!el)return;const t=ch.dims.reduce((a,d)=>a+(+d[1]||0),0);el.textContent=`합계 ${t}%`+(t===100?'':' · 100%가 되도록 맞춰 주세요');el.dataset.bad=t===100?'':'1'}))}
+  /* weights are no longer shown or edited */
+  function sums(){return;IDX.forEach(x=>cfg.indices[x.id].charts.forEach((ch,c)=>{const el=panel.querySelector(`[data-sum="${x.id}:${c}"]`);if(!el)return;const t=ch.dims.reduce((a,d)=>a+(+d[1]||0),0);el.textContent=`합계 ${t}%`+(t===100?'':' · 100%가 되도록 맞춰 주세요');el.dataset.bad=t===100?'':'1'}))}
   let dirty=false;
   /* unsaved edits are kept as a draft in this browser, so a reload or a closed tab does not lose them */
   const draft={put(){try{localStorage.setItem(LS_DRAFT,JSON.stringify(cfg))}catch(_){}},drop(){try{localStorage.removeItem(LS_DRAFT)}catch(_){}},
@@ -317,7 +318,7 @@
     }catch(err){setStatus(err&&err.message==='decode'?'이미지를 읽지 못했습니다. PNG나 JPG 파일인지 확인해 주세요.':'로고를 올리지 못했습니다. 잠시 후 다시 시도해 주세요.','err')}});
   panel.addEventListener('click',e=>{const a=e.target.closest('[data-dim-add],[data-dim-del],[data-chart-add],[data-chart-del]');if(!a||a.disabled)return;
     const focusLast=(id,sel)=>{const ins=panel.querySelectorAll(`[data-charts="${id}"] ${sel}`);const l=ins[ins.length-1];if(l){l.focus();l.select()}};
-    if(a.dataset.chartAdd){const id=a.dataset.chartAdd,chs=cfg.indices[id].charts;if(chs.length>=CHART_MAX)return;chs.push({title:'새 그래프',inline:true,dims:[['항목 1',50],['항목 2',50]]});renderCharts(id);sums();changed();focusLast(id,'[data-k$=".title"]')}
+    if(a.dataset.chartAdd){const id=a.dataset.chartAdd,chs=cfg.indices[id].charts;if(chs.length>=CHART_MAX)return;chs.push({title:'새 측정 차원',inline:true,dims:[['항목 1',0],['항목 2',0]]});renderCharts(id);sums();changed();focusLast(id,'[data-k$=".title"]')}
     else if(a.dataset.chartDel){const [id,c]=a.dataset.chartDel.split(':'),chs=cfg.indices[id].charts;if(chs.length<=1)return;chs.splice(+c,1);renderCharts(id);sums();changed()}
     else if(a.dataset.dimAdd){const [id,c]=a.dataset.dimAdd.split(':'),ds=cfg.indices[id].charts[+c].dims;if(ds.length>=DIM_MAX)return;ds.push(['새 항목',0]);renderCharts(id);sums();changed();const ins=panel.querySelectorAll(`[data-charts="${id}"] .se-chart:nth-child(${+c+1}) .se-dim input:not([type])`);const l=ins[ins.length-1];if(l){l.focus();l.select()}}
     else{const [id,c,j]=a.dataset.dimDel.split(':'),ds=cfg.indices[id].charts[+c].dims;if(ds.length<=1)return;ds.splice(+j,1);renderCharts(id);sums();changed()}});
