@@ -290,6 +290,7 @@ section[id]{scroll-margin-top:72px}
 .dchips .no{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-mono);font-size:.72rem;font-weight:500;
   border:1.5px solid var(--c);color:color-mix(in srgb,var(--c) 55%,var(--ink));background:var(--sheet)}
 .dchips .nm{min-width:0;overflow-wrap:anywhere;line-height:1.35}
+.nm.pair{display:flex;flex-direction:column;align-items:center;gap:3px}.nm.pair .dot{width:4px;height:4px;border-radius:50%;background:var(--gc,var(--brass));opacity:.75}
 .dchips .nm em,.dt-items .nm em{display:block;font-style:normal;font-family:var(--f-mono);font-size:.64rem;font-weight:400;color:var(--ink-3);letter-spacing:.04em;margin-top:1px}
 /* grouped dimensions as a tree: index → groups (pills) → items */
 .dtree .dt-root{display:flex;justify-content:center;position:relative;padding-bottom:16px}
@@ -706,7 +707,9 @@ body.se-open .se-fab{display:none}
   const splitCode=t=>{const m=/^(.*?)\s*\(([^()]+)\)\s*$/.exec(String(t||''));return m?[m[1],m[2]]:[String(t||''),'']};
   const shade=(hex,k)=>{const n=parseInt(String(hex).slice(1),16),f=v=>Math.round(v*(1-k));return '#'+[f(n>>16&255),f(n>>8&255),f(n&255)].map(v=>v.toString(16).padStart(2,'0')).join('')};
   const onC=hex=>{const n=parseInt(String(hex).slice(1),16),l=v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)};return .2126*l(n>>16&255)+.7152*l(n>>8&255)+.0722*l(n&255)>.42?'#1d1a14':'#fff'};
-  const chip=([n],k)=>{const [nm]=splitCode(n);return `<li style="--k:${k}"><span class="no">${String(k+1).padStart(2,'0')}</span><span class="nm">${esc(nm)}</span></li>`};
+  /* "내구성/지속성" stacks as two lines with a small dot between them */
+  const chip=([n],k)=>{const [nm]=splitCode(n);const parts=nm.split('/').map(t=>t.trim()).filter(Boolean);
+    return `<li style="--k:${k}"><span class="no">${String(k+1).padStart(2,'0')}</span><span class="nm${parts.length>1?' pair':''}">${parts.length>1?parts.map(esc).join('<i class="dot" aria-hidden="true"></i>'):esc(nm)}</span></li>`};
   /* one group: a row of numbered chips; two or more: a small tree (측정 차원 → groups → items) */
   function dimsHTML(i){const cs=chartsOf(i);
     if(cs.length<1)return chartRows(cs).map(row=>`<div class="d-row${row.length>1?' multi':''}" style="--n:${row.length}">${row.map(ch=>`<div class="d-dims"><h4>${esc(cleanTitle(ch.title))}</h4><ol class="dchips">${ch.dims.map(chip).join('')}</ol></div>`).join('')}</div>`).join('');
