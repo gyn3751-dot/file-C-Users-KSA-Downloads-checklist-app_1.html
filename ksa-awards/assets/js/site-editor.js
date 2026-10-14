@@ -435,11 +435,14 @@ JSON 하나만 답하세요: {"patch": {바꿀 필드만, 위와 같은 구조},
     if(!d){showLocal();return}
     db=d;docRef=db.doc('site/config');
     let first=true;
-    docRef.onSnapshot(snap=>{
+    const take=snap=>{
       if(snap.exists){saved=sanitize(merge(DEFAULTS,upgrade(snap.data())));if(!dirty){cfg=clone(saved);base=clone(saved);apply(cfg);if(!panel.hidden)fill()}}
       else if(!saved)saved=clone(DEFAULTS);
       if(first){first=false;draft.restore()}
-    },()=>{});
+    };
+    /* read once directly, then follow live changes; a live subscription that fails or never answers must not leave the defaults on screen */
+    docRef.get().then(take).catch(()=>{});
+    try{docRef.onSnapshot(take,()=>{docRef.get().then(take).catch(()=>{})})}catch(_){}
     const canEdit=u?(await u.canEdit().catch(()=>false))||(await u.isOwner().catch(()=>false)):false;
     backend='db';backendSet();$('#seMode').textContent=canEdit?'저장 시 모든 방문자에게 반영':'보기 전용';
     setEditable(canEdit);$('#seSave').hidden=!canEdit;
