@@ -52,7 +52,7 @@
     const u=logoUrl(b.logo);
     document.querySelectorAll('.brand-mark,.back .mk').forEach(m=>{
       if(!m._def)m._def={html:m.innerHTML,cls:m.className};
-      if(u){m.classList.add('has-img');let im=m.querySelector('img');if(!im){m.textContent='';im=document.createElement('img');im.alt='';m.appendChild(im)}if(im.getAttribute('src')!==u)im.src=u}
+      if(u){m.classList.add('has-img','custom');let im=m.querySelector('img');if(!im){m.textContent='';im=document.createElement('img');im.alt='';m.appendChild(im)}if(im.getAttribute('src')!==u)im.src=u}
       else if(m.innerHTML!==m._def.html){m.innerHTML=m._def.html;m.className=m._def.cls}
     });
     document.querySelectorAll('.brand-text').forEach(t=>{
