@@ -339,9 +339,9 @@ section[id]{scroll-margin-top:72px}
 
 /* ── Process ── */
 .process{background:var(--sheet);border-block:1px solid var(--rule)}
-.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));counter-reset:st;border-top:1px solid var(--ink)}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(var(--n,7),minmax(0,1fr));row-gap:var(--s-6);counter-reset:st;border-top:1px solid var(--ink)}
 .steps li{counter-increment:st;padding:var(--s-5) var(--s-4) 0 0;position:relative;min-width:0}
-.steps li::before{content:"0" counter(st);font-family:var(--f-mono);font-size:.78rem;color:var(--brass);letter-spacing:.06em}
+.steps li::before{content:counter(st,decimal-leading-zero);font-family:var(--f-mono);font-size:.78rem;color:var(--brass);letter-spacing:.06em}
 .steps li::after{content:"";position:absolute;top:-4px;left:0;width:7px;height:7px;background:var(--paper);border:1px solid var(--ink);border-radius:50%}
 .steps h3{font-family:var(--f-body);font-weight:600;font-size:1rem;margin-block:var(--s-3) var(--s-2);letter-spacing:-.01em}
 .steps p{font-size:.86rem;color:var(--ink-2)}

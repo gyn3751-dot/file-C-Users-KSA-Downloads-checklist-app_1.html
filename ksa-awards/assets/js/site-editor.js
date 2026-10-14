@@ -55,7 +55,7 @@
   };
   let saved=null,base=null,cfg=clone(DEFAULTS),backend='none',db=null,docRef=null; /* base: the stored copy the current edits started from */
 
-  const DIM_MAX=12,CHART_MAX=6;
+  const DIM_MAX=12,CHART_MAX=6,STEP_MAX=12;
   function clone(o){return JSON.parse(JSON.stringify(o))}
   /* keep only the shape of DEFAULTS: unknown keys dropped, wrong types fall back */
   function merge(base,over){
@@ -63,6 +63,8 @@
     if(Array.isArray(base)&&Array.isArray(base[0])&&Array.isArray(over)&&over.length)return over.slice(0,DIM_MAX).map(o=>merge(base[0],o));
     /* so may an index's list of charts ({title, dims}) */
     if(Array.isArray(base)&&base[0]&&typeof base[0]==='object'&&'dims' in base[0]&&Array.isArray(over)&&over.length)return over.slice(0,CHART_MAX).map(o=>merge(base[0],o));
+    /* and so may the process steps ({t, p}) */
+    if(Array.isArray(base)&&base[0]&&typeof base[0]==='object'&&'t' in base[0]&&'p' in base[0]&&Array.isArray(over)&&over.length)return over.slice(0,STEP_MAX).map(o=>merge(base[0],o));
     if(Array.isArray(base))return base.map((b,i)=>Array.isArray(over)&&i<over.length?merge(b,over[i]):clone(b));
     if(base&&typeof base==='object'){const o={};for(const k of Object.keys(base))o[k]=over&&typeof over==='object'&&!Array.isArray(over)&&k in over?merge(base[k],over[k]):clone(base[k]);return o}
     return typeof over===typeof base?over:base;
@@ -73,7 +75,7 @@
     /* one weight list per index (dims + a shared dimsTitle) became a list of charts */
     if(o&&o.indices&&typeof o.indices==='object')for(const ix of Object.values(o.indices))if(ix&&typeof ix==='object'&&!Array.isArray(ix.charts)&&Array.isArray(ix.dims)){ix.charts=[{title:typeof o.dimsTitle==='string'&&o.dimsTitle.trim()?o.dimsTitle:DIMS_TITLE,dims:ix.dims}];delete ix.dims}
     /* the process gained a 5th step (조사결과 안내); a saved 6-step list keeps its texts in the right places */
-    if(o&&Array.isArray(o.steps)&&o.steps.length===6&&DEFAULTS.steps.length===7)o.steps.splice(4,0,clone(DEFAULTS.steps[4]));
+    if(o&&Array.isArray(o.steps)&&o.steps.length===6&&o.steps[4]&&o.steps[4].t==='결과 발표'&&!o.steps.some(s=>s&&s.t==='조사결과 안내'))o.steps.splice(4,0,clone(DEFAULTS.steps[4]));
     if(o&&o.schedule&&typeof o.schedule==='object')for(const id of Object.keys(o.schedule))for(const ph of Object.keys(o.schedule[id]||{})){const r=ST.normRange(o.schedule[id][ph]);if(r)o.schedule[id][ph]=r}return o}
   function sanitize(c){
     for(const id of Object.keys(c.homepages))if(!okUrl(c.homepages[id]))c.homepages[id]=DEFAULTS.homepages[id];
@@ -103,8 +105,15 @@
     if(cta2)cta2.firstChild.textContent=c.cta2+' ';
     if(hex(c.accent))root.style.setProperty('--brass',hex(c.accent));else root.style.removeProperty('--brass');
     if(hex(c.navy))root.style.setProperty('--navy',hex(c.navy));else root.style.removeProperty('--navy');
-    for(const [id] of SECTIONS){const e=secEls(id),v=c.sections[id];if(e.h)e.h.innerHTML=esc(v.title).replace(/\n/g,'<br>');if(e.p)e.p.textContent=v.desc}
-    stepEls().forEach((li,i)=>{const v=c.steps[i];if(!v)return;li.querySelector('h3').textContent=v.t;li.querySelector('p').textContent=v.p});
+    /* "일곱 단계" in the process text follows the number of steps */
+    const NUM=['한','두','세','네','다섯','여섯','일곱','여덟','아홉','열','열한','열두'];
+    for(const [id] of SECTIONS){const e=secEls(id),v=c.sections[id];if(e.h)e.h.innerHTML=esc(v.title).replace(/\n/g,'<br>');if(e.p)e.p.textContent=id==='process'?v.desc.replace(/(열한|열두|한|두|세|네|다섯|여섯|일곱|여덟|아홉|열) 단계/,NUM[c.steps.length-1]+' 단계'):v.desc}
+    /* steps: grow or shrink the list to the saved count, then fill the texts */
+    {const ol=$('#process .steps');if(ol){let lis=stepEls();
+      while(lis.length>c.steps.length){lis[lis.length-1].remove();lis=stepEls()}
+      while(lis.length<c.steps.length){const li=document.createElement('li');li.className=(lis[0]&&lis[0].className||'')+(document.documentElement.classList.contains('rv')?' reveal in':'');li.innerHTML='<h3></h3><p></p>';ol.appendChild(li);lis=stepEls()}
+      lis.forEach((li,i)=>{const v=c.steps[i];li.querySelector('h3').textContent=v.t;li.querySelector('p').textContent=v.p});
+      ol.style.setProperty('--n',Math.min(c.steps.length,7))}}
     if(SC.applyBrand)SC.applyBrand(c);
     const p=$('#process'),s=$('#schedule');if(p)p.hidden=!c.showProcess;if(s)s.hidden=!c.showSchedule;
     $$('#nav a[href="#process"],footer a[href="#process"]').forEach(a=>a.closest('li,a').hidden=!c.showProcess);
@@ -186,7 +195,9 @@
         ${SECTIONS.map(([id,l])=>`<p class="se-help strong">${l}</p>${inp(`sections.${id}.title`,'제목',{area:1,rows:2,hint:'줄바꿈 = 엔터'})}${inp(`sections.${id}.desc`,'설명',{area:1})}`).join('')}
       </div></details>
       <details><summary>참여 절차 단계</summary><div class="se-fields">
-        ${DEFAULTS.steps.map((_,i)=>`<p class="se-help strong">${String(i+1).padStart(2,'0')}단계</p>${inp(`steps.${i}.t`,'제목')}${inp(`steps.${i}.p`,'설명',{area:1,rows:2})}`).join('')}
+        <p class="se-help">단계를 추가하거나 삭제하고, ↑ ↓로 순서를 바꿀 수 있습니다. 번호는 자동으로 매겨집니다.</p>
+        <div data-steps></div>
+        <button type="button" class="se-btn ghost" data-step-add>＋ 단계 추가</button>
       </div></details>
       <details><summary>탐사 이벤트 (화성)</summary><div class="se-fields">
         <p class="se-help">화성 탐사에서 다섯 지수를 모두 찾으면 캐릭터들이 모여 선물 상자를 열고, 아래 축하 카드가 나옵니다.</p>
@@ -219,6 +230,7 @@
 
   function toHex(v){v=v.trim();if(hex(v))return v;const m=v.match(/\d+/g);return m?'#'+m.slice(0,3).map(n=>(+n).toString(16).padStart(2,'0')).join(''):'#000000'}
   function fill(){
+    renderSteps();
     panel.querySelectorAll('[data-k]').forEach(el=>{const k=el.dataset.k,v=getPath(cfg,k);
       if(el.type==='checkbox')el.checked=!!v;
       else if(el.type==='color')el.value=hex(v)||toHex(css.getPropertyValue(k==='accent'?'--brass':'--navy'));
@@ -230,6 +242,18 @@
     IDX.forEach(x=>{const a=$('#se-song-'+x.id),n=$('#se-song-none-'+x.id);if(!a)return;const u=SC.audioUrl?SC.audioUrl(cfg.indices[x.id].song.audio):'';if(a.getAttribute('src')!==u){if(u)a.src=u;else a.removeAttribute('src')}a.hidden=!u;n.hidden=!!u});
     sums();
   }
+  /* process steps: rebuilt from cfg whenever one is added, removed or moved */
+  function renderSteps(){const box=panel.querySelector('[data-steps]');if(!box)return;const st=cfg.steps,n=st.length;
+    box.innerHTML=st.map((s,i)=>`<div class="se-chart"><div class="se-chart-h"><b>${String(i+1).padStart(2,'0')}단계</b>
+      <button type="button" class="se-link" data-step-mv="${i}:-1"${i?'':' disabled'} aria-label="${i+1}단계 위로">↑</button><button type="button" class="se-link" data-step-mv="${i}:1"${i<n-1?'':' disabled'} aria-label="${i+1}단계 아래로" style="margin-left:0">↓</button>
+      <button type="button" class="se-link" data-step-del="${i}"${n<=1?' disabled':''} style="margin-left:6px">단계 삭제</button></div>
+      <label for="se-steps.${i}.t">제목</label><input id="se-steps.${i}.t" data-k="steps.${i}.t" value="${esc(s.t)}">
+      <label for="se-steps.${i}.p">설명</label><textarea id="se-steps.${i}.p" data-k="steps.${i}.p" rows="2">${esc(s.p)}</textarea></div>`).join('');
+    const add=panel.querySelector('[data-step-add]');if(add)add.disabled=n>=STEP_MAX}
+  panel.addEventListener('click',e=>{const a=e.target.closest('[data-step-add],[data-step-del],[data-step-mv]');if(!a||a.disabled)return;const st=cfg.steps;
+    if(a.hasAttribute('data-step-add')){if(st.length>=STEP_MAX)return;st.push({t:'새 단계',p:''});renderSteps();changed();const l=panel.querySelector(`[data-k="steps.${st.length-1}.t"]`);if(l){l.focus();l.select()}}
+    else if(a.dataset.stepDel){if(st.length<=1)return;st.splice(+a.dataset.stepDel,1);renderSteps();changed()}
+    else{const [i,d]=a.dataset.stepMv.split(':').map(Number),j=i+d;if(j<0||j>=st.length)return;[st[i],st[j]]=[st[j],st[i]];renderSteps();changed();const b=panel.querySelector(`[data-step-mv="${j}:${d}"]`);if(b&&!b.disabled)b.focus()}});
   /* 측정 항목 rows: rebuilt from cfg whenever one is added or removed */
   function renderCharts(id){const box=panel.querySelector(`[data-charts="${id}"]`);if(!box)return;const x=IDX.find(i=>i.id===id),chs=cfg.indices[id].charts;
     box.innerHTML=chs.map((ch,c)=>`<div class="se-chart"><div class="se-chart-h"><b>측정 차원 ${c+1}</b><button type="button" class="se-link" data-chart-del="${id}:${c}"${chs.length<=1?' disabled':''}>묶음 삭제</button></div>
@@ -368,7 +392,7 @@ ${JSON.stringify(cfg)}
 - autoRotate, showProcess, showSchedule: true/false
 - planetClick: 메인 보드의 행성 로고를 눌렀을 때 동작. "homepage"(지수 공식 사이트로 이동), "detail"(지수 소개로 이동), "flip"(메달 뒤집기)
 - sections: {indices|process|schedule: {title(줄바꿈은 \\n), desc}}
-- steps: 참여 절차 7단계 배열 [{t: 제목, p: 설명}] (배열 길이 유지)
+- steps: 참여 절차 단계 배열 [{t: 제목, p: 설명}] (1~12단계)
 - indices: {qei|cqi|pbi|well|dcxi: {name, en, desc, target, method, announce, charts}} — charts는 그래프 1~6개 [{title: 그래프 제목, inline: true면 앞 그래프와 같은 줄(한 줄 최대 3개), dims: [[항목 이름, 가중치%] 1~12개, 합계 100]}]
 - schedule: {qei|...: {apply(조사 부문 설정)|survey(조사·평가)|notice(조사결과 안내)|award(발표·인증식): ["YYYY-MM-DD" 시작일, "YYYY-MM-DD" 종료일]}} — 종료일 포함, 시작일 ≤ 종료일
 - event: {title, text, btn, link} — 화성 탐사 완료 이벤트의 축하 카드 (link는 https 주소 또는 빈칸)
