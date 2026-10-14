@@ -188,7 +188,7 @@
     if(d&&d.explore&&d.indices&&d.event&&JSON.stringify(d)!==JSON.stringify(saved)){deepAssign(cfg,d);dirty=true;apply();setStatus('저장하지 않은 편집 내용을 복원했습니다. 저장을 눌러야 반영됩니다.','err')}
   }
   const wantsEdit=()=>{try{if(location.hash==='#edit')localStorage.setItem(LS_EDIT,'1');return location.hash==='#edit'||localStorage.getItem(LS_EDIT)==='1'}catch(_){return location.hash==='#edit'}};
-  const showFab=on=>{fab.hidden=!on};
+  const showFab=on=>{fab.hidden=!on;document.body.classList.toggle('xe-on',!!on)};
   const waitCfg=()=>new Promise(r=>{const t0=Date.now();(function poll(){if(X.cfg!==null||Date.now()-t0>3500)r();else setTimeout(poll,120)})()});
   waitCfg().then(()=>{
     seed();
