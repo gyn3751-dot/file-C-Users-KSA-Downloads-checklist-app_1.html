@@ -31,7 +31,7 @@
     IDX.forEach(x=>{
       const o=c.indices&&c.indices[x.id];
       if(o&&typeof o==='object'){
-        for(const k of ['name','en','desc','target','method','announce'])if(typeof o[k]==='string'&&o[k].trim())x[k]=o[k];
+        for(const k of ['name','en','desc','target','method','announce','greet'])if(typeof o[k]==='string'&&o[k].trim())x[k]=o[k];
         const okDims=ds=>Array.isArray(ds)&&ds.length>=1&&ds.length<=12&&ds.every(d=>Array.isArray(d)&&typeof d[0]==='string'&&typeof d[1]==='number');
         const cp=ds=>ds.map(d=>[d[0],Math.max(0,Math.min(100,d[1]))]);
         if(Array.isArray(o.charts)&&o.charts.length&&o.charts.every(ch=>ch&&typeof ch.title==='string'&&okDims(ch.dims))){x.charts=o.charts.slice(0,6).map(ch=>({title:ch.title,inline:!!ch.inline,dims:cp(ch.dims)}));x.dims=cp(x.charts[0].dims)}
@@ -63,6 +63,29 @@
     });
   }
 
+  /* texts of the explore page's start screen (edited on that page, kept in the same config under "explore") */
+  const EXPLORE_DEF={eyebrow:'KSA Index Expedition · Sol 01',title:'붉은 행성에서\n우리 기업의 지수를 찾아보세요',
+    desc:'게일 분화구 곳곳에 다섯 개의 지수 신호가 착륙해 있습니다. 빛기둥을 따라 다가가면 로고가 드러나고, 원하는 지수를 선택해 공식 홈페이지로 이동할 수 있습니다.',
+    start:'탐사 시작',list:'지수 목록 바로 보기'};
+
+  /* logo-song upload helper: the asset store keeps video/webm (not audio types), so a file is re-recorded in the page
+   * as Opus/WebM (takes as long as the song). Resolves {blob, dur}. Errors: 'noenc' (no recorder), 'decode'. */
+  async function toWebm(file,prog){
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC||!window.MediaRecorder||!MediaRecorder.isTypeSupported('audio/webm;codecs=opus'))throw new Error('noenc');
+    const ac=new AC();try{await ac.resume()}catch(_){}
+    const buf=await ac.decodeAudioData(await file.arrayBuffer()).catch(()=>{throw new Error('decode')});
+    if(/webm/.test(file.type))return {blob:new Blob([file],{type:'video/webm'}),dur:buf.duration};
+    const dest=ac.createMediaStreamDestination(),src=ac.createBufferSource();src.buffer=buf;src.connect(dest);
+    const rec=new MediaRecorder(dest.stream,{mimeType:'audio/webm;codecs=opus',audioBitsPerSecond:128000}),parts=[];
+    rec.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data)};
+    const stopped=new Promise(r=>rec.onstop=r),ended=new Promise(r=>src.onended=r);
+    rec.start(1000);const t0=ac.currentTime;src.start();
+    const iv=setInterval(()=>prog&&prog(Math.min(1,(ac.currentTime-t0)/buf.duration)),400);
+    await ended;rec.stop();await stopped;clearInterval(iv);ac.close();
+    return {blob:new Blob(parts,{type:'video/webm'}),dur:buf.duration};
+  }
+
   /* read the saved config once: shared store when the viewer offers it, else this browser; never waits longer than `ms` */
   function load(ms){
     return new Promise(res=>{
@@ -75,5 +98,5 @@
     });
   }
 
-  window.KSA_SITE_CONFIG={LS_KEY,DEFAULT_LOGO,logoUrl,audioUrl,textureSrc,applyIndices,applyBrand,load};
+  window.KSA_SITE_CONFIG={LS_KEY,EXPLORE_DEF,toWebm,DEFAULT_LOGO,logoUrl,audioUrl,textureSrc,applyIndices,applyBrand,load};
 })();

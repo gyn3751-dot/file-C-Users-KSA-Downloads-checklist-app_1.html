@@ -16,7 +16,7 @@
     ['고객이 고른 1위,','표준이 확인한 1위.','1위'],
     ['고객이 증명한 품질,','국가 표준의 이름으로 인정받습니다.','표준']
   ];
-  const INDEX_FIELDS=[['name','지수 이름'],['en','영문 이름'],['desc','설명','area'],['target','평가 대상'],['method','평가 방식'],['announce','결과 발표 (예: 10월)']];
+  const INDEX_FIELDS=[['name','지수 이름'],['en','영문 이름'],['desc','설명','area'],['target','평가 대상'],['method','평가 방식'],['announce','결과 발표 (예: 10월)'],['greet','캐릭터 인사말']];
   const SECTIONS=[['indices','지수 소개'],['process','참여 절차'],['schedule','연간 일정']];
   const PHASES=[['apply','조사 부문 설정'],['survey','조사 · 평가'],['notice','조사결과 안내'],['award','발표 · 인증식']];
   const SC=window.KSA_SITE_CONFIG||{logoUrl:()=>'',DEFAULT_LOGO:{}};
@@ -48,6 +48,7 @@
     indices:Object.fromEntries(IDX.map(x=>[x.id,Object.assign(Object.fromEntries(INDEX_FIELDS.map(([k])=>[k,x[k]||''])),{charts:[{title:DIMS_TITLE,inline:false,dims:x.dims.map(d=>[d[0],d[1]])}],song:{title:'',text:'',audio:'',dur:0}})])),
     schedule:JSON.parse(JSON.stringify(K0.schedule||{})),
     logos:Object.fromEntries(IDX.map(x=>[x.id,''])),
+    explore:Object.assign({},SC.EXPLORE_DEF||{}),
     event:{title:'탐사 완료! 선물이 도착했어요',text:'다섯 지수의 신호를 모두 해독했어요.\n캐릭터 친구들이 준비한 선물을 확인해 보세요.',btn:'메인 사이트로',link:''},
     brand:{logo:'',name:text($('.brand-text b')),sub:text($('.brand-text span')),showText:!($('.brand-text')||{}).hidden},
     homepages:Object.fromEntries(IDX.map(x=>[x.id,x.homepage]))
@@ -283,21 +284,7 @@
   function shrink(file,max){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const s=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);const g=c.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c)};im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('decode'))};im.src=u})}
   /* logo song upload. The asset store keeps video/webm (not audio types), so in the claude.ai viewer the file is
    * re-recorded in the page as Opus/WebM (takes as long as the song); in this browser it is kept as given. */
-  async function toWebm(file,prog){
-    const AC=window.AudioContext||window.webkitAudioContext;
-    if(!AC||!window.MediaRecorder||!MediaRecorder.isTypeSupported('audio/webm;codecs=opus'))throw new Error('noenc');
-    const ac=new AC();try{await ac.resume()}catch(_){}
-    const buf=await ac.decodeAudioData(await file.arrayBuffer()).catch(()=>{throw new Error('decode')});
-    if(/webm/.test(file.type))return {blob:new Blob([file],{type:'video/webm'}),dur:buf.duration};
-    const dest=ac.createMediaStreamDestination(),src=ac.createBufferSource();src.buffer=buf;src.connect(dest);
-    const rec=new MediaRecorder(dest.stream,{mimeType:'audio/webm;codecs=opus',audioBitsPerSecond:128000}),parts=[];
-    rec.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data)};
-    const stopped=new Promise(r=>rec.onstop=r),ended=new Promise(r=>src.onended=r);
-    rec.start(1000);const t0=ac.currentTime;src.start();
-    const iv=setInterval(()=>prog(Math.min(1,(ac.currentTime-t0)/buf.duration)),400);
-    await ended;rec.stop();await stopped;clearInterval(iv);ac.close();
-    return {blob:new Blob(parts,{type:'video/webm'}),dur:buf.duration};
-  }
+  const toWebm=(f,p)=>SC.toWebm(f,p);
   panel.addEventListener('change',async e=>{const el=e.target;if(!el.dataset.song||!el.files||!el.files[0])return;const id=el.dataset.song,f=el.files[0];el.value='';
     const sg=cfg.indices[id].song;
     try{

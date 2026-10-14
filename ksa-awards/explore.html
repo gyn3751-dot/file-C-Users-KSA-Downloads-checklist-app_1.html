@@ -358,7 +358,9 @@ function wireSong(x){const s=x.song||{},url=s.audio||'',btn=$('songBtn'),box=$('
   play.onclick=()=>{if(!url)return;if(songAudio.getAttribute('src')!==url){songAudio.src=url}if(songAudio.paused)songAudio.play().catch(()=>{});else songAudio.pause()};
   seek.oninput=()=>{const d=dur();if(!d||!url)return;if(songAudio.getAttribute('src')!==url)songAudio.src=url;songAudio.currentTime=seek.value/1000*d;paint()};
 }
+let curDetail=-1;
 function openDetail(i){
+  curDetail=i;
   const x=IDX[i];drawer.style.setProperty('--c',x.color);
   /* the index's character stands beside its logo; the Wellness butterfly gets its glowing antennae */
   const ant=x.wings&&x.wings.antennae?`<svg viewBox="0 -112 572 116" aria-hidden="true"><g fill="none" stroke-linecap="round">${ANT_PATHS.map(d=>`<path d="${d}" stroke="#8FB0EA" stroke-width="13"/><path d="${d}" stroke="#F4F8FF" stroke-width="4.5"/>`).join('')}</g>${ANT_TIPS.map(([tx,ty],k)=>`<circle cx="${tx}" cy="${ty}" r="11" fill="#FFFFFF"/><path class="tw" style="animation-delay:${k*.7}s" transform="translate(${tx} ${ty})" d="${SPARK}" fill="#FFFFFF"/>`).join('')}</svg>`:'';
@@ -378,13 +380,14 @@ function openDetail(i){
   $('nextSig').onclick=()=>api.next();
 }
 function openList(){
+  curDetail=-1;
   songAudio.pause();
   drawer.style.setProperty('--c','');
   $('drBody').innerHTML=`<div><p class="dr-code">SIGNAL INDEX</p><h2 class="dr-name">지수 목록</h2><p class="dr-en">선택하면 해당 신호로 이동합니다.</p></div><div class="list" id="drList">${listHTML(api.dist)}</div>`;
   $('drActions').innerHTML=`<a class="btn ghost" href="index.html#indices">메인 사이트에서 비교하기</a>`;
   drawer.classList.add('open');
 }
-function closeDrawer(){drawer.classList.remove('open');songAudio.pause()}
+function closeDrawer(){drawer.classList.remove('open');songAudio.pause();curDetail=-1}
 $('drClose').onclick=closeDrawer;
 drawer.addEventListener('click',e=>{const b=e.target.closest('#drList button');if(b)api.go(+b.dataset.i)});
 $('slots').addEventListener('click',e=>{const b=e.target.closest('.slot');if(b)api.go(IDX.findIndex(x=>'slot-'+x.id===b.id))});
@@ -805,16 +808,27 @@ function frame(now){
 const load=src=>new Promise(r=>{const im=new Image();im.onload=()=>r(im);im.onerror=()=>r(null);im.src=src});
 /* settings saved from the main site's edit panel (names, copy, weights, homepages, logos) apply here too */
 const SC=window.KSA_SITE_CONFIG;
-const cfgReady=SC?SC.load(2500).then(c=>{if(c&&c.event&&typeof c.event==='object')for(const k of Object.keys(EVENT_DEF))if(typeof c.event[k]==='string'&&(c.event[k].trim()||k==='link'))EVENT[k]=c.event[k];SC.applyIndices(c);if(SC.applyBrand)SC.applyBrand(c);IDX.forEach(x=>{const im=document.querySelector('#slot-'+x.id+' img');if(im)im.src=x.logo})}):Promise.resolve();
+/* start-screen texts (editable on this page) */
+const EXPLORE=Object.assign({},SC&&SC.EXPLORE_DEF||{});let terrainReady=false;
+const escT=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function applyIntro(){const ic=document.querySelector('.intro-card');if(!ic)return;
+  ic.querySelector('.eyebrow').textContent=EXPLORE.eyebrow||'';ic.querySelector('h1').innerHTML=escT(EXPLORE.title).replace(/\n/g,'<br>');ic.querySelector('h1+p').textContent=EXPLORE.desc||'';
+  if(terrainReady)$('goLabel').textContent=EXPLORE.start||'탐사 시작';$('listBtn').textContent=EXPLORE.list||'지수 목록 바로 보기'}
+window.KSA_EXPLORE_GO=i=>{intro.classList.add('gone');openDetail(i)};
+window.KSA_EXPLORE={EVENT,EXPLORE,applyIntro,cfg:null,
+  refresh(){if(curDetail>=0&&drawer.classList.contains('open'))openDetail(curDetail)},
+  preview(){if(!beacons.length)return false;endFinale();intro.classList.add('gone');startFinale();return true}};
+const cfgReady=SC?SC.load(2500).then(c=>{window.KSA_EXPLORE.cfg=c;if(c&&c.explore&&typeof c.explore==='object')for(const k of Object.keys(EXPLORE))if(typeof c.explore[k]==='string'&&c.explore[k].trim())EXPLORE[k]=c.explore[k];applyIntro();if(c&&c.event&&typeof c.event==='object')for(const k of Object.keys(EVENT_DEF))if(typeof c.event[k]==='string'&&(c.event[k].trim()||k==='link'))EVENT[k]=c.event[k];SC.applyIndices(c);if(SC.applyBrand)SC.applyBrand(c);IDX.forEach(x=>{const im=document.querySelector('#slot-'+x.id+' img');if(im)im.src=x.logo})}):Promise.resolve();
 const texSrc=x=>SC?SC.textureSrc(x):((window.KSA_LOGO_DATA||{})[x.id]||x.logo);
 Promise.all([cfgReady.then(()=>Promise.all(IDX.map(x=>load(texSrc(x)).then(im=>im||load((window.KSA_LOGO_DATA||{})[x.id]))))),document.fonts?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))]):0]).then(([imgs])=>{
   if(imgs.some(x=>!x))return noGL();
   buildBeacons(imgs);
   if(location.hash==='#finale'){quiet=true;beacons.forEach(b=>{if(!found.has(b.x.id))discover(b)});quiet=false;startTrip();setTimeout(startFinale,600)}
-  $('goBtn').disabled=false;$('goLabel').textContent='탐사 시작';
+  terrainReady=true;$('goBtn').disabled=false;$('goLabel').textContent=EXPLORE.start||'탐사 시작';
   requestAnimationFrame(frame);
 });
 })();
 </script>
+<script src="assets/js/explore-editor.js"></script>
 </body>
 </html>
