@@ -346,7 +346,21 @@ section[id]{scroll-margin-top:72px}
 .steps h3{font-family:var(--f-body);font-weight:600;font-size:1rem;margin-block:var(--s-3) var(--s-2);letter-spacing:-.01em}
 .steps p{font-size:.86rem;color:var(--ink-2)}
 @media (max-width:960px){.steps{grid-template-columns:repeat(4,minmax(0,1fr));row-gap:var(--s-6)}}
-@media (max-width:560px){.steps{grid-template-columns:minmax(0,1fr);border-top:0;border-left:1px solid var(--ink);row-gap:var(--s-5)}.steps li{padding:0 0 0 var(--s-5)}.steps li::after{top:6px;left:-4px}}
+/* hover a step: the line fills in gold up to it, its dot glows and pulses, its title shimmers */
+.steps li{cursor:default;transition:box-shadow .45s var(--ease)}
+.steps li::before{transition:color .3s,letter-spacing .3s}
+.steps li::after{transition:background .3s,border-color .3s,box-shadow .3s,transform .3s}
+.steps h3,.steps p{transition:transform .35s var(--ease),color .3s}
+.steps li.lit{box-shadow:0 -2px 0 var(--brass)}
+.steps li.lit::after{background:var(--brass);border-color:var(--brass)}
+.steps li.on::after{background:var(--brass);border-color:var(--brass);transform:scale(1.5);animation:stepGlow 1.6s ease-in-out infinite}
+.steps li.on::before{color:var(--brass);letter-spacing:.14em}
+.steps li.on h3{transform:translateY(-3px);background:linear-gradient(100deg,var(--ink) 0 38%,var(--brass) 50%,var(--ink) 62% 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:stepShine 1.8s ease-in-out infinite}
+.steps li.on p{transform:translateY(-3px);color:var(--ink)}
+@keyframes stepGlow{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--brass) 55%,transparent),0 0 8px 1px color-mix(in srgb,var(--brass) 60%,transparent)}50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--brass) 0%,transparent),0 0 16px 4px color-mix(in srgb,var(--brass) 75%,transparent)}}
+@keyframes stepShine{from{background-position:100% 0}to{background-position:0 0}}
+@media (prefers-reduced-motion:reduce){.steps li.on::after,.steps li.on h3{animation:none}.steps li.on h3{color:var(--brass);background:none}}
+@media (max-width:560px){.steps{grid-template-columns:minmax(0,1fr);border-top:0;border-left:1px solid var(--ink);row-gap:0}.steps li{padding:0 0 var(--s-5) var(--s-5)}.steps li::after{top:6px;left:-4px}.steps li.lit{box-shadow:-2px 0 0 var(--brass)}}
 
 /* ── Schedule ── */
 .sched-wrap{overflow-x:auto;border:1px solid var(--rule);background:var(--sheet)}
@@ -779,6 +793,12 @@ body.se-open .se-fab{display:none}
   schedT.addEventListener('click',e=>{const seg=e.target.closest('.seg');if(seg)showTip(seg,e.clientX,e.clientY)});
   addEventListener('scroll',()=>{if(!tip.hidden&&matchMedia('(hover: hover)').matches)hideTip()},{passive:true});
 
+  /* process steps react to the pointer (or a tap): earlier steps light up, the pointed one glows */
+  {const ol=document.querySelector('#process .steps');if(ol){
+    const mark=li=>{const lis=[...ol.children],k=li?lis.indexOf(li):-1;lis.forEach((x,i)=>{x.classList.toggle('lit',k>=0&&i<k);x.classList.toggle('on',i===k)})};
+    ol.addEventListener('pointerover',e=>{const li=e.target.closest('li');if(li&&ol.contains(li))mark(li)});
+    ol.addEventListener('pointerleave',e=>{if(e.pointerType!=='touch')mark(null)});
+    document.addEventListener('pointerdown',e=>{if(!ol.contains(e.target))mark(null)})}}
   /* scroll reveal, schedule draw-in, hero count-up (content is fully visible without JS or with reduced motion) */
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(!reduce&&'IntersectionObserver' in window){
