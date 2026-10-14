@@ -300,7 +300,7 @@ section[id]{scroll-margin-top:72px}
 .dt-g::before{content:"";position:absolute;left:50%;top:0;height:16px;border-left:1.5px solid var(--rule)}
 .dt-g::after{content:"";position:absolute;top:0;left:-7px;right:-7px;border-top:1.5px solid var(--rule)}
 .dt-g:first-child::after{left:50%}.dt-g:last-child::after{right:50%}
-.dt-pill{margin:0 auto 10px;width:max-content;max-width:100%;padding:9px 20px;border-radius:999px;background:var(--gc);color:var(--gt);text-shadow:-.7px -.7px 0 rgba(0,0,0,.6),.7px -.7px 0 rgba(0,0,0,.6),-.7px .7px 0 rgba(0,0,0,.6),.7px .7px 0 rgba(0,0,0,.6),0 1px 3px rgba(0,0,0,.25); /* thin dark outline keeps white text readable on light pills */font-size:1rem;font-weight:600;letter-spacing:-.01em;box-shadow:0 6px 14px -8px var(--gc)}
+.dt-pill{margin:0 auto 10px;width:max-content;max-width:100%;padding:9px 20px;border-radius:999px;background:var(--gc);color:var(--gt);text-shadow:0 1px 2px rgba(0,0,0,.28);font-size:1rem;font-weight:600;letter-spacing:-.01em;box-shadow:0 6px 14px -8px var(--gc)}
 .dt-pill em{font-style:normal;font-family:var(--f-mono);font-size:.66rem;font-weight:400;opacity:.8;margin-left:6px}
 .dt-items{list-style:none;margin:0;padding:10px;display:grid;grid-template-columns:repeat(var(--cols,3),minmax(0,1fr));gap:8px;border-radius:14px;background:color-mix(in srgb,var(--gc) 16%,var(--sheet));border:1px solid color-mix(in srgb,var(--gc) 35%,var(--rule))}
 .dt-items li{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:14px 6px;border-radius:10px;background:var(--sheet);font-size:1.02rem;font-weight:500;letter-spacing:-.01em;line-height:1.35;box-shadow:0 1px 0 color-mix(in srgb,var(--gc) 30%,transparent);animation:chip-in .55s var(--ease) both;animation-delay:calc(var(--k)*.04s)}
@@ -695,7 +695,7 @@ body.se-open .se-fab{display:none}
     if(cs.length<2)return chartRows(cs).map(row=>`<div class="d-row${row.length>1?' multi':''}" style="--n:${row.length}">${row.map(ch=>`<div class="d-dims"><h4>${esc(cleanTitle(ch.title))}</h4><ol class="dchips">${ch.dims.map(chip).join('')}</ol></div>`).join('')}</div>`).join('');
     let k0=0;const per=c=>{const n=c.dims.length;return cs.length>=3?Math.min(2,Math.max(1,n)):n<=3?Math.max(1,n):3}; /* three or more groups: two items per row */const cols=cs.map(c=>per(c)+'fr').join(' ');
     return `<div class="d-dims dtree"><h4>측정 차원</h4><div class="dt-root"><span>${esc(i.name)}</span></div>
-      <div class="dt-groups" style="grid-template-columns:${cols}">${cs.map((ch,g)=>{const gc=g?shade(i.color,Math.min(.55,.22+g*.18)):i.color,[t]=splitCode(cleanTitle(ch.title));
+      <div class="dt-groups" style="grid-template-columns:${cols}">${cs.map((ch,g)=>{const gc=g?shade(i.color,Math.min(.55,.22+g*.18)):(onC(i.color)==='#fff'?i.color:shade(i.color,.16)), /* light logo colours (yellow, green) start a shade deeper */[t]=splitCode(cleanTitle(ch.title));
         const html=`<section class="dt-g" style="--gc:${gc};--gt:#fff;--cols:${per(ch)}"><h5 class="dt-pill">${esc(t)}</h5><ol class="dt-items">${ch.dims.map((d,k)=>chip(d,k0+k)).join('')}</ol></section>`;k0+=ch.dims.length;return html}).join('')}</div></div>`}
   let curId='qei';
   function show(id,scroll){
