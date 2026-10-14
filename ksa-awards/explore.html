@@ -346,8 +346,8 @@ body.xe-on .radar{top:calc(var(--pad) + 118px + env(safe-area-inset-top,0px))}
   </div>
 </div>
 
-<script src="assets/js/indices.js"></script>
-<script src="assets/js/site-config.js"></script>
+<script src="assets/js/indices.js?v=94b6df6"></script>
+<script src="assets/js/site-config.js?v=94b6df6"></script>
 <script src="assets/js/logo-data.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>window.THREE||document.write('<script src="assets/vendor/three.min.js"><\/script>')</script>
@@ -906,7 +906,8 @@ window.KSA_EXPLORE_GO=i=>{intro.classList.add('gone');openDetail(i)};
 window.KSA_EXPLORE={EVENT,EXPLORE,applyIntro,cfg:null,
   refresh(){if(curDetail>=0&&drawer.classList.contains('open'))openDetail(curDetail)},
   preview(){if(!beacons.length)return false;endFinale();intro.classList.add('gone');startFinale();return true}};
-const cfgReady=SC?SC.load(2500).then(c=>{window.KSA_EXPLORE.cfg=c;if(c&&c.explore&&typeof c.explore==='object')for(const k of Object.keys(EXPLORE))if(typeof c.explore[k]==='string'&&c.explore[k].trim())EXPLORE[k]=c.explore[k];applyIntro();if(c&&c.event&&typeof c.event==='object')for(const k of Object.keys(EVENT_DEF))if(typeof c.event[k]==='string'&&(c.event[k].trim()||k==='link'))EVENT[k]=c.event[k];SC.applyIndices(c);if(SC.applyBrand)SC.applyBrand(c);IDX.forEach(x=>{const im=document.querySelector('#slot-'+x.id+' img');if(im)im.src=x.logo})}):Promise.resolve();
+function applyCfg(c){window.KSA_EXPLORE.cfg=c;if(c&&c.explore&&typeof c.explore==='object')for(const k of Object.keys(EXPLORE))if(typeof c.explore[k]==='string'&&c.explore[k].trim())EXPLORE[k]=c.explore[k];applyIntro();if(c&&c.event&&typeof c.event==='object')for(const k of Object.keys(EVENT_DEF))if(typeof c.event[k]==='string'&&(c.event[k].trim()||k==='link'))EVENT[k]=c.event[k];SC.applyIndices(c);if(SC.applyBrand)SC.applyBrand(c);IDX.forEach(x=>{const im=document.querySelector('#slot-'+x.id+' img');if(im)im.src=x.logo})}
+const cfgReady=SC?SC.load(2500,c=>{applyCfg(c);window.KSA_EXPLORE.refresh()}).then(applyCfg):Promise.resolve();
 const texSrc=x=>SC?SC.textureSrc(x):((window.KSA_LOGO_DATA||{})[x.id]||x.logo);
 Promise.all([cfgReady.then(()=>Promise.all(IDX.map(x=>load(texSrc(x)).then(im=>im||load((window.KSA_LOGO_DATA||{})[x.id]))))),document.fonts?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))]):0]).then(([imgs])=>{
   if(imgs.some(x=>!x))return noGL();
@@ -918,6 +919,6 @@ Promise.all([cfgReady.then(()=>Promise.all(IDX.map(x=>load(texSrc(x)).then(im=>i
 });
 })();
 </script>
-<script src="assets/js/explore-editor.js"></script>
+<script src="assets/js/explore-editor.js?v=94b6df6"></script>
 </body>
 </html>

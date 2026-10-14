@@ -98,14 +98,15 @@
   }
 
   /* read the saved config once: shared store when the viewer offers it, else this browser; never waits longer than `ms` */
-  function load(ms){
+  /* late(c) is called if the stored copy arrives after the timeout already resolved with the local fallback */
+  function load(ms,late){
     return new Promise(res=>{
-      let done=false;const fin=c=>{if(!done){done=true;res(c||null)}};
+      let done=false;const fin=c=>{if(!done){done=true;res(c||null)}};const got=c=>{if(!done)fin(c);else if(c&&late)late(c)};
       let local=null;try{local=JSON.parse(localStorage.getItem(LS_KEY)||'null')}catch(_){}
       const C=window.claude;
       if(!C||!C.use)return fin(local);
       setTimeout(()=>fin(local),ms||2500);
-      C.use('db').then(db=>db?db.doc('site/config').get().then(s=>fin(s.exists?s.data():local)):fin(local)).catch(()=>fin(local));
+      C.use('db').then(db=>db?db.doc('site/config').get().then(s=>{if(s.exists)got(s.data());else fin(local)}):fin(local)).catch(()=>fin(local));
     });
   }
 
