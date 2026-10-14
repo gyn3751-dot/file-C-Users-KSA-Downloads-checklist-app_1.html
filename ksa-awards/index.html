@@ -341,10 +341,12 @@ section[id]{scroll-margin-top:72px}
 .sched td{position:relative;border-left:1px solid color-mix(in srgb,var(--rule) 60%,transparent)}
 .sched tbody tr:last-child th,.sched tbody tr:last-child td{border-bottom:0}
 .seg{position:absolute;top:50%;z-index:1;height:22px;transform:translateY(-50%);font-size:.68rem;display:flex;align-items:center;padding-inline:.5rem;white-space:nowrap;overflow:hidden;text-overflow:clip;border-radius:2px}
-.seg.apply{background:var(--brass-soft);color:var(--brass);border:1px solid color-mix(in srgb,var(--brass) 40%,transparent)}
-.seg.survey{background:color-mix(in srgb,var(--ink) 9%,transparent);color:var(--ink-2)}
-.seg.notice{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--ink) 26%,transparent) 0 5px,color-mix(in srgb,var(--ink) 16%,transparent) 5px 10px);color:var(--ink);font-weight:500}
-.seg.award{background:var(--ink);color:var(--paper);font-weight:500}
+/* each index keeps its own logo colour (--c); the phases deepen in order: 부문 설정 → 조사·평가 → 결과 안내 → 발표 */
+.seg{--c:var(--ink)}
+.seg.apply{background:color-mix(in srgb,var(--c) 22%,var(--sheet));color:color-mix(in srgb,var(--c) 40%,var(--ink));border:1px solid color-mix(in srgb,var(--c) 38%,var(--sheet))}
+.seg.survey{background:color-mix(in srgb,var(--c) 48%,var(--sheet));color:color-mix(in srgb,var(--c) 30%,var(--ink))}
+.seg.notice{background:color-mix(in srgb,var(--c) 85%,var(--sheet));color:color-mix(in srgb,var(--c) 22%,#14100c);font-weight:500}
+.seg.award{background:color-mix(in srgb,var(--c) 62%,#0b0b14);color:#fff;font-weight:500}
 .seg.award.lbl{min-width:max-content;overflow:visible;z-index:2;padding-inline:.55rem;font-size:.7rem;letter-spacing:.01em;box-shadow:0 2px 6px -2px rgba(0,0,0,.35)}
 .seg.award.lbl.end{left:auto;transform-origin:right center}
 .sched .seg{cursor:default;transition:box-shadow .2s,filter .2s}
@@ -354,17 +356,18 @@ section[id]{scroll-margin-top:72px}
 .sched-tip .tt-d{font-family:var(--f-mono);font-size:.76rem;font-variant-numeric:tabular-nums}
 .sched-tip .tt-n{font-size:.7rem;opacity:.7}
 .tt-dot{width:8px;height:8px;border-radius:2px;display:inline-block}
-.tt-dot.apply{background:var(--brass-soft);border:1px solid var(--brass)}.tt-dot.survey{background:color-mix(in srgb,var(--paper) 45%,transparent)}.tt-dot.notice{background:repeating-linear-gradient(135deg,var(--paper) 0 2px,color-mix(in srgb,var(--paper) 45%,transparent) 2px 4px)}.tt-dot.award{background:var(--paper)}
+.tt-dot{--c:var(--paper)}.tt-dot.apply{background:color-mix(in srgb,var(--c) 30%,#fff)}.tt-dot.survey{background:color-mix(in srgb,var(--c) 55%,#fff)}.tt-dot.notice{background:var(--c)}.tt-dot.award{background:color-mix(in srgb,var(--c) 62%,#0b0b14);box-shadow:0 0 0 1px rgba(255,255,255,.6)}
 .now-col{background:color-mix(in srgb,var(--brass) 6%,transparent)}
 .sched .today{position:absolute;top:0;bottom:0;width:0;border-left:1.5px solid var(--brass);z-index:2;pointer-events:none}
 .sched .today::before{content:"";position:absolute;top:-1px;left:-4.5px;width:8px;height:8px;border-radius:50%;background:var(--brass)}
 .sched thead .today-lab{display:block;font-size:.6rem;color:var(--brass);letter-spacing:.1em;line-height:1}
 .sched tbody th .st{display:inline-block;margin-top:5px;font-family:var(--f-body);font-style:normal;font-size:.66rem;font-weight:500;padding:1px 7px;border-radius:99px;white-space:nowrap}
-.st-apply{background:var(--brass-soft);color:var(--brass);border:1px solid color-mix(in srgb,var(--brass) 45%,transparent)}
+.sched tbody th{--c:var(--ink)}
+.st-apply{background:color-mix(in srgb,var(--c) 18%,var(--sheet));color:color-mix(in srgb,var(--c) 45%,var(--ink));border:1px solid color-mix(in srgb,var(--c) 40%,var(--sheet))}
 .st-apply::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;margin-right:5px;vertical-align:middle;animation:blink 1.6s infinite}
-.st-survey{background:color-mix(in srgb,var(--ink) 9%,transparent);color:var(--ink-2)}
-.st-notice{background:color-mix(in srgb,var(--ink) 20%,transparent);color:var(--ink)}
-.st-award{background:var(--ink);color:var(--paper)}
+.st-survey{background:color-mix(in srgb,var(--c) 40%,var(--sheet));color:color-mix(in srgb,var(--c) 30%,var(--ink))}
+.st-notice{background:color-mix(in srgb,var(--c) 85%,var(--sheet));color:color-mix(in srgb,var(--c) 22%,#14100c)}
+.st-award{background:color-mix(in srgb,var(--c) 62%,#0b0b14);color:#fff}
 .st-next{color:var(--ink-3);padding-left:0!important}
 @keyframes blink{50%{opacity:.25}}
 .legend .l-today{width:0;height:12px;border-left:1.5px solid var(--brass)}
@@ -374,10 +377,11 @@ section[id]{scroll-margin-top:72px}
 .rv .reveal.in{opacity:1;transform:none}
 .legend{display:flex;flex-wrap:wrap;gap:var(--s-5);margin-top:var(--s-4);font-size:.8rem;color:var(--ink-2);align-items:center}
 .legend i{display:inline-block;width:18px;height:10px;margin-right:6px;vertical-align:middle}
-.legend .l-apply{background:var(--brass-soft);border:1px solid var(--brass)}
-.legend .l-survey{background:color-mix(in srgb,var(--ink) 12%,transparent)}
-.legend .l-notice{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--ink) 30%,transparent) 0 3px,color-mix(in srgb,var(--ink) 16%,transparent) 3px 6px)}
-.legend .l-award{background:var(--ink)}
+.legend{--c:#8C7A5B}
+.legend .l-apply{background:color-mix(in srgb,var(--c) 22%,var(--sheet));border:1px solid color-mix(in srgb,var(--c) 38%,var(--sheet))}
+.legend .l-survey{background:color-mix(in srgb,var(--c) 48%,var(--sheet))}
+.legend .l-notice{background:color-mix(in srgb,var(--c) 85%,var(--sheet))}
+.legend .l-award{background:color-mix(in srgb,var(--c) 62%,#0b0b14)}
 .legend .disc{margin-left:auto;color:var(--ink-3)}
 
 /* ── Footer ── */
@@ -590,6 +594,7 @@ body.se-open .se-fab{display:none}
         <span><i class="l-notice"></i>조사결과 안내</span>
         <span><i class="l-award"></i>발표·인증식</span>
         <span><i class="l-today"></i>오늘</span>
+        <span style="color:var(--ink-3)">· 막대 색은 지수별 로고 색이며 단계가 진행될수록 진해집니다</span>
         <span class="disc">일정은 예시이며 확정 일정은 공지사항을 기준으로 합니다.</span>
       </div>
     </div>
@@ -713,7 +718,7 @@ body.se-open .se-fab{display:none}
       /* the announcement is often a single day: its label keeps its own width instead of being clipped by the bar */
       const isLbl=k==='award',endSide=isLbl&&b>12.55;
       const pos=endSide?`right:${((1-b+1)*100).toFixed(2)}%`:`left:${((a-1)*100).toFixed(2)}%;width:${((b-a)*100).toFixed(2)}%`;
-      bars+=`<span class="seg ${k}${isLbl?' lbl':''}${endSide?' end':''}" data-i="${i.id}" data-ph="${k}" style="${pos};--d:${(row*.09+(a-1)*.035).toFixed(2)}s">${lab}</span>`;
+      bars+=`<span class="seg ${k}${isLbl?' lbl':''}${endSide?' end':''}" data-i="${i.id}" data-ph="${k}" style="${pos};--c:${i.color};--d:${(row*.09+(a-1)*.035).toFixed(2)}s">${lab}</span>`;
     });
     for(let m=1;m<=12;m++){
       let segs=m===1?bars:'';
@@ -722,7 +727,7 @@ body.se-open .se-fab{display:none}
     }
     let st='';
     if(pos){if(inR(s.apply))st='<em class="st st-apply">부문 설정 중</em>';else if(inR(s.survey))st='<em class="st st-survey">조사 · 평가 중</em>';else if(inR(s.notice))st='<em class="st st-notice">결과 안내 중</em>';else if(inR(s.award))st='<em class="st st-award">발표 시즌</em>';else{const n=parseD(s.apply[0]);st=n&&n>today0?`<em class="st st-next">다음 부문 설정 ${n.getMonth()+1}월 ${n.getDate()}일</em>`:''}}
-    return `<tr><th scope="row">${i.name}<span>${i.code}</span>${st}</th>${cells}</tr>`;
+    return `<tr><th scope="row" style="--c:${i.color}">${i.name}<span>${i.code}</span>${st}</th>${cells}</tr>`;
   }).join('')}
   renderSched();
   /* hover a bar: every piece of it lights up and a tooltip gives the exact dates */
@@ -732,7 +737,7 @@ body.se-open .se-fab{display:none}
   function showTip(seg,x,y){const id=seg.dataset.i,ph=seg.dataset.ph,key=id+ph,r=SCHED[id][ph],a=parseD(r[0]),b=parseD(r[1]),ix=byId[id];
     if(key!==tipKey){tipKey=key;document.querySelectorAll('#sched .seg.hot').forEach(e=>e.classList.remove('hot'));document.querySelectorAll(`#sched .seg[data-i="${id}"][data-ph="${ph}"]`).forEach(e=>e.classList.add('hot'));
       const days=Math.round((b-a)/864e5)+1;
-      tip.innerHTML=`<span class="tt-h"><i class="tt-dot ${ph}"></i><b>${ix.code}</b> ${PH[ph]}</span><span class="tt-d">${fmtD(a)} – ${fmtD(b)}</span><span class="tt-n">${days}일간</span>`}
+      tip.innerHTML=`<span class="tt-h"><i class="tt-dot ${ph}" style="--c:${ix.color}"></i><b>${ix.code}</b> ${PH[ph]}</span><span class="tt-d">${fmtD(a)} – ${fmtD(b)}</span><span class="tt-n">${days}일간</span>`}
     tip.hidden=false;const w=tip.offsetWidth,h=tip.offsetHeight;tip.style.left=Math.min(innerWidth-w-8,Math.max(8,x-w/2))+'px';tip.style.top=(y-h-14<8?y+18:y-h-14)+'px'}
   function hideTip(){tip.hidden=true;tipKey='';document.querySelectorAll('#sched .seg.hot').forEach(e=>e.classList.remove('hot'))}
   const schedT=$('#sched');
