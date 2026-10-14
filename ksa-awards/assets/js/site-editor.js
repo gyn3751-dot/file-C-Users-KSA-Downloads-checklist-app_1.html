@@ -45,7 +45,7 @@
     planetClick:'homepage',
     sections:Object.fromEntries(SECTIONS.map(([id])=>{const e=secEls(id);return[id,{title:multi(e.h),desc:text(e.p)}]})),
     steps:stepEls().map(li=>({t:text(li.querySelector('h3')),p:text(li.querySelector('p'))})),
-    indices:Object.fromEntries(IDX.map(x=>[x.id,Object.assign(Object.fromEntries(INDEX_FIELDS.map(([k])=>[k,x[k]||''])),{charts:[{title:DIMS_TITLE,inline:false,dims:x.dims.map(d=>[d[0],d[1]])}],song:{title:'',text:'',audio:'',dur:0}})])),
+    indices:Object.fromEntries(IDX.map(x=>[x.id,Object.assign(Object.fromEntries(INDEX_FIELDS.map(([k])=>[k,x[k]||''])),{charts:Array.isArray(x.charts)&&x.charts.length?clone(x.charts):[{title:DIMS_TITLE,inline:false,dims:x.dims.map(d=>[d[0],d[1]])}],song:{title:'',text:'',audio:'',dur:0}})])),
     schedule:JSON.parse(JSON.stringify(K0.schedule||{})),
     logos:Object.fromEntries(IDX.map(x=>[x.id,''])),
     explore:Object.assign({},SC.EXPLORE_DEF||{}),
