@@ -306,6 +306,11 @@ section[id]{scroll-margin-top:72px}
 .dt-items{list-style:none;margin:0;padding:10px;display:grid;grid-template-columns:repeat(var(--cols,3),minmax(0,1fr));gap:8px;border-radius:14px;background:color-mix(in srgb,var(--gc) 16%,var(--sheet));border:1px solid color-mix(in srgb,var(--gc) 35%,var(--rule))}
 .dt-items li{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:14px 6px;border-radius:10px;background:var(--sheet);font-size:1.02rem;font-weight:500;letter-spacing:-.01em;line-height:1.35;box-shadow:0 1px 0 color-mix(in srgb,var(--gc) 30%,transparent);animation:chip-in .55s var(--ease) both;animation-delay:calc(var(--k)*.04s)}
 .dt-items .no{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-mono);font-size:.68rem;border:1.5px solid var(--gc);color:color-mix(in srgb,var(--gc) 55%,var(--ink))}
+/* slim cards: number beside the name, minimal vertical padding */
+.dtree.compact .dt-items{gap:6px;padding:8px}
+.dtree.compact .dt-items li{flex-direction:row;justify-content:flex-start;gap:7px;padding:5px 8px;text-align:left;line-height:1.25;border-radius:8px}
+.dtree.compact .dt-items .no{flex:none;width:20px;height:20px;font-size:.58rem;border-width:1.2px}
+.dtree.compact .dt-items .nm{word-break:keep-all}
 @media (max-width:640px){.dt-groups{grid-template-columns:minmax(0,1fr)!important}.dt-g::after{display:none}.dt-g+.dt-g{padding-top:20px}}
 @media (prefers-reduced-motion:reduce){.dt-items li{animation:none}}
 @keyframes chip-in{from{opacity:0;transform:translateY(6px)}}
@@ -692,10 +697,12 @@ body.se-open .se-fab{display:none}
   const onC=hex=>{const n=parseInt(String(hex).slice(1),16),l=v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)};return .2126*l(n>>16&255)+.7152*l(n>>8&255)+.0722*l(n&255)>.42?'#1d1a14':'#fff'};
   const chip=([n],k)=>{const [nm]=splitCode(n);return `<li style="--k:${k}"><span class="no">${String(k+1).padStart(2,'0')}</span><span class="nm">${esc(nm)}</span></li>`};
   /* one group: a row of numbered chips; two or more: a small tree (측정 차원 → groups → items) */
+  /* indices whose dimension cards use the slim one-line layout (trying it on KS-QEI first) */
+  const COMPACT=new Set(['qei']);
   function dimsHTML(i){const cs=chartsOf(i);
     if(cs.length<1)return chartRows(cs).map(row=>`<div class="d-row${row.length>1?' multi':''}" style="--n:${row.length}">${row.map(ch=>`<div class="d-dims"><h4>${esc(cleanTitle(ch.title))}</h4><ol class="dchips">${ch.dims.map(chip).join('')}</ol></div>`).join('')}</div>`).join('');
     let k0=0;const per=c=>{const n=c.dims.length;return cs.length>=3?Math.min(2,Math.max(1,n)):n<=3?Math.max(1,n):3}; /* three or more groups: two items per row */const cols=cs.map(c=>per(c)+'fr').join(' ');
-    return `<div class="d-dims dtree"><h4>측정 차원</h4><div class="dt-root"><span>${esc(i.name)}</span></div>
+    return `<div class="d-dims dtree${COMPACT.has(i.id)?' compact':''}"><h4>측정 차원</h4><div class="dt-root"><span>${esc(i.name)}</span></div>
       <div class="dt-groups" style="grid-template-columns:${cols}">${cs.map((ch,g)=>{const gc=g?shade(i.color,Math.min(.55,.22+g*.18)):(onC(i.color)==='#fff'?i.color:shade(i.color,.16)), /* light logo colours (yellow, green) start a shade deeper */[t]=splitCode(cleanTitle(ch.title));
         const html=`<section class="dt-g${cs.length===1?' solo':''}" style="--gc:${gc};--gt:#fff;--cols:${per(ch)}">${cs.length===1&&t==='측정 차원'?'':`<h5 class="dt-pill">${esc(t)}</h5>`}<ol class="dt-items">${ch.dims.map((d,k)=>chip(d,k0+k)).join('')}</ol></section>`;k0+=ch.dims.length;return html}).join('')}</div></div>`}
   let curId='qei';
