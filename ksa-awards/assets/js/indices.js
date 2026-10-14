@@ -33,6 +33,9 @@ window.KSA_INDICES=[
   {id:'dcxi',character:'assets/characters/dcxi.webp',motion:'glitch',greet:'디지털 경험, 지금 연결합니다!',color:'#7B93F5',homepage:HOME.dcxi,code:'DCXI',name:'디지털고객경험지수',en:'Digital Customer Experience Index',logo:'assets/logos/dcxi.png',
    desc:'앱과 웹 등 디지털 채널에서 고객이 겪는 경험의 질을 측정합니다. 사용 편의성과 기능 완성도, 개인화, 보안 신뢰를 평가해 디지털 고객경험 수준을 진단합니다.',
    target:'앱 · 웹 서비스 운영 기업',method:'채널 진단 + 고객 설문',announce:'12월',
-   dims:[['사용 편의성',30],['기능 완성도',25],['개인화',20],['보안 · 신뢰',25]]}
+   charts:[{title:'시스템 품질',inline:false,dims:[['신뢰성',0],['사용 용이성',0],['반응성',0],['동기화',0],['유연성',0]]},
+           {title:'정보 품질',inline:true,dims:[['완전성',0],['정확성',0],['포맷',0],['최신성',0]]},
+           {title:'개인화 요인',inline:true,dims:[['공감성',0],['프라이버시',0]]}],
+   dims:[['신뢰성',0],['사용 용이성',0],['반응성',0],['동기화',0],['유연성',0],['완전성',0],['정확성',0],['포맷',0],['최신성',0],['공감성',0],['프라이버시',0]]}
 ];
 })();
