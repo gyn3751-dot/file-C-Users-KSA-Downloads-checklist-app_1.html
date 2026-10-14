@@ -82,7 +82,9 @@
         <div id="xeIdx"></div>
       </div></details>
       <details><summary>탐사 완료 이벤트</summary><div class="xe-f">
-        <p class="xe-help">다섯 지수를 모두 찾으면 캐릭터들이 모여 선물 상자를 열고 나오는 축하 카드입니다.</p>
+        <p class="xe-help">다섯 지수를 모두 찾으면 ‘탐사 완료’ 문구와 함께 지도 한가운데에 빛나는 별이 나타나고, 별을 누르면 캐릭터들이 모여 선물 상자를 엽니다.</p>
+        ${inp('explore.doneTitle','탐사 완료 문구')}${inp('explore.doneText','완료 안내',{area:1,rows:2})}
+        <p class="xe-sub">선물 상자가 열린 뒤 나오는 축하 카드</p>
         ${inp('event.title','카드 제목')}${inp('event.text','카드 내용',{area:1,rows:3})}
         <div class="xe-row" style="align-items:stretch"><div style="flex:1">${inp('event.btn','버튼 글자')}</div><div style="flex:1">${inp('event.link','버튼 링크',{url:1,hint:'비우면 메인'})}</div></div>
         <button type="button" class="xe-btn" id="xePreview">이벤트 미리보기 ▶</button>

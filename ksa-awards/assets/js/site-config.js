@@ -66,7 +66,8 @@
   /* texts of the explore page's start screen (edited on that page, kept in the same config under "explore") */
   const EXPLORE_DEF={eyebrow:'KSA Index Expedition · Sol 01',title:'붉은 행성에서\n우리 기업의 지수를 찾아보세요',
     desc:'게일 분화구 곳곳에 다섯 개의 지수 신호가 착륙해 있습니다. 빛기둥을 따라 다가가면 로고가 드러나고, 원하는 지수를 선택해 공식 홈페이지로 이동할 수 있습니다.',
-    start:'탐사 시작',list:'지수 목록 바로 보기'};
+    start:'탐사 시작',list:'지수 목록 바로 보기',
+    doneTitle:'탐사 완료!',doneText:'다섯 지수의 신호를 모두 찾았어요. 지도 한가운데에 나타난 빛나는 별을 찾아 클릭해 보세요.'};
 
   /* logo-song upload helper: the asset store keeps video/webm (not audio types), so a file is re-recorded in the page
    * as Opus/WebM (takes as long as the song). Resolves {blob, dur}. Errors: 'noenc' (no recorder), 'decode'. */

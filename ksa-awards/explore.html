@@ -199,6 +199,22 @@ body.xe-on .radar{top:calc(var(--pad) + 118px + env(safe-area-inset-top,0px))}
 .fin-card .row{flex-wrap:wrap}.fin-card .row .btn{min-width:120px}
 .fin-skip{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:29;font-size:.8rem;height:38px}
 .fin-skip[hidden]{display:none}
+/* mission complete: big title, then a small chip that leads to the star */
+.done{position:fixed;left:50%;top:24%;transform:translateX(-50%);z-index:9;text-align:center;pointer-events:none;width:min(560px,92vw);animation:done-in 1s cubic-bezier(.2,1.3,.4,1) both}
+.done[hidden]{display:none}
+.done.out{animation:done-out .7s ease-in both}
+.done-k{margin:0;font-family:var(--f-mono);font-size:.74rem;letter-spacing:.3em;color:var(--gold)}
+.done h2{margin:6px 0 8px;font-family:var(--f-display);font-size:clamp(2.2rem,6vw,3.6rem);letter-spacing:-.02em;color:#FFF3D6;text-shadow:0 0 18px rgba(255,200,90,.85),0 0 46px rgba(255,170,60,.6),0 4px 18px rgba(0,0,0,.5)}
+.done p.done-d{margin:0;font-size:.95rem;color:var(--fg);text-shadow:0 2px 10px rgba(0,0,0,.7)}
+@keyframes done-in{from{opacity:0;transform:translateX(-50%) scale(.7)}}
+@keyframes done-out{to{opacity:0;transform:translateX(-50%) translateY(-20px) scale(.96)}}
+.done-chip{position:fixed;left:50%;bottom:calc(var(--pad) + 62px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:7;display:flex;align-items:center;gap:10px;padding:10px 12px 10px 16px;border-radius:999px;color:var(--fg);font-size:.86rem;cursor:pointer;white-space:nowrap;box-shadow:0 0 0 1px rgba(226,188,116,.55),0 10px 30px -10px rgba(255,180,60,.6);animation:chip-glow 2.2s ease-in-out infinite}
+.done-chip[hidden]{display:none}
+.done-chip .st{color:#FFD36A;font-size:1.05rem;text-shadow:0 0 10px #FFB627}
+.done-chip b{background:var(--gold);color:#1A0E0B;border-radius:999px;padding:5px 12px;font-size:.8rem}
+@keyframes chip-glow{50%{box-shadow:0 0 0 1px rgba(226,188,116,.9),0 10px 34px -6px rgba(255,180,60,.85)}}
+@media (max-width:700px){.done-chip{bottom:calc(var(--pad) + 120px + env(safe-area-inset-bottom,0px));font-size:.78rem}.done-chip .tx{display:none}}
+@media (prefers-reduced-motion:reduce){.done,.done-chip{animation:none}}
 @media (prefers-reduced-motion:reduce){.fin-card,.fin-chars img{animation:none}}
 .list{display:flex;flex-direction:column}
 .list button{display:grid;grid-template-columns:52px 1fr auto;gap:14px;align-items:center;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:12px 0;cursor:pointer}
@@ -284,6 +300,8 @@ body.xe-on .radar{top:calc(var(--pad) + 118px + env(safe-area-inset-top,0px))}
   <button class="btn ghost" type="button" id="finClose" style="width:100%;margin-top:8px">계속 탐사하기</button>
 </div></div>
 <button class="btn ghost glass fin-skip" type="button" id="finSkip" hidden>건너뛰기 ›</button>
+<div class="done" id="done" hidden aria-live="polite"><p class="done-k">MISSION COMPLETE · 5 / 5</p><h2 id="doneT"></h2><p class="done-d" id="doneD"></p></div>
+<button class="done-chip glass" type="button" id="doneChip" hidden><span class="st" aria-hidden="true">★</span><span class="tx" id="doneChipT">탐사 완료 · 가운데의 빛나는 별을 클릭하세요</span><b>별로 이동 →</b></button>
 
 <aside class="drawer glass" id="drawer" aria-live="polite" aria-label="지수 상세">
   <button class="dr-x" id="drClose" type="button" aria-label="닫기">✕</button>
@@ -551,7 +569,7 @@ api.go=i=>{
 };
 function aim(i){const [bx,bz]=BEACONS[i];pitchGoal=Math.atan2(height(bx,bz)+7.2-(camY||0),Math.hypot(bx-P.x,bz-P.z))}
 api.next=()=>{let best=-1,bd=1e9;IDX.forEach((x,i)=>{if(!found.has(x.id)){const d=api.dist(i);if(d<bd){bd=d;best=i}}});
-  if(best<0){toast('모든 신호를 찾았습니다','원하는 지수를 선택해 홈페이지로 이동하세요');openList();return}api.go(best)};
+  if(best<0){if(STAR.on){goStar();return}toast('모든 신호를 찾았습니다','원하는 지수를 선택해 홈페이지로 이동하세요');openList();return}api.go(best)};
 
 /* marker for ground travel */
 const marker=new THREE.Mesh(new THREE.RingGeometry(.7,.9,48),new THREE.MeshBasicMaterial({color:lin('#F6EEE7'),transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));marker.rotation.x=-Math.PI/2;scene.add(marker);
@@ -563,13 +581,13 @@ function setNDC(e){const r=cv.getBoundingClientRect();ndc.set((e.clientX-r.left)
 function pickBeacon(e){setNDC(e);const h=ray.intersectObjects(hits,false);return h.length?h[0].object.userData.i:-1}
 cv.addEventListener('pointerdown',e=>{if(FIN.on&&!FIN.cardShown)return;down={x:e.clientX,y:e.clientY,lx:e.clientX,ly:e.clientY,m:0,id:e.pointerId};cv.setPointerCapture(e.pointerId);cv.classList.add('drag')});
 cv.addEventListener('pointermove',e=>{
-  if(!down){cv.classList.toggle('hot',pickBeacon(e)>=0);return}
+  if(!down){const pk=pickBeacon(e);cv.classList.toggle('hot',pk==='star'||pk>=0);return}
   const dx=e.clientX-down.lx,dy=e.clientY-down.ly;down.lx=e.clientX;down.ly=e.clientY;down.m=Math.max(down.m,Math.hypot(e.clientX-down.x,e.clientY-down.y));
   if(down.m>5){const k=e.pointerType==='touch'?.0065:.0042;P.yaw+=dx*k;P.pitch=THREE.MathUtils.clamp(P.pitch+dy*k*.8,-.75,.45);yawGoal=null;pitchGoal=null}
 });
 function up(e){
   if(!down)return;const tap=down.m<=5;down=null;cv.classList.remove('drag');if(!tap)return;
-  const b=pickBeacon(e);if(b>=0){api.go(b);return}
+  const b=pickBeacon(e);if(b==='star'){goStar();return}if(b>=0){api.go(b);return}
   const h=ray.intersectObject(ground,false);
   if(h.length){const p=h[0].point;if(Math.hypot(p.x,p.z)<300){travel={x:p.x,z:p.z,beacon:-1};marker.position.set(p.x,p.y+.15,p.z);marker.material.opacity=1;marker.scale.setScalar(1);focus=-1;closeDrawer()}}
 }
@@ -600,6 +618,8 @@ function drawRadar(t){const S=300,C=S/2,R=C-8,range=170;rc.clearRect(0,0,S,S);
   const cs=Math.cos(P.yaw),sn=Math.sin(P.yaw);
   IDX.forEach((x,i)=>{const dx=BEACONS[i][0]-P.x,dz=BEACONS[i][1]-P.z;let rx=dx*cs-dz*sn,rz=dx*sn+dz*cs;let px=rx/range*R,pz=rz/range*R;const l=Math.hypot(px,pz);if(l>R-6){px*=(R-6)/l;pz*=(R-6)/l}
     rc.beginPath();rc.arc(C+px,C+pz,found.has(x.id)?8:7,0,7);if(found.has(x.id)){rc.fillStyle=x.color;rc.fill()}else{rc.strokeStyle=x.color;rc.lineWidth=3;rc.stroke()}});
+  if(STAR.on){const dx=STAR.x-P.x,dz=STAR.z-P.z;let px=(dx*cs-dz*sn)/range*R,pz=(dx*sn+dz*cs)/range*R;const l=Math.hypot(px,pz);if(l>R-8){px*=(R-8)/l;pz*=(R-8)/l}
+    rc.save();rc.translate(C+px,C+pz);rc.fillStyle='#FFD36A';rc.shadowColor='#FFB020';rc.shadowBlur=12;rc.beginPath();for(let k=0;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,r=k%2?5:12;rc.lineTo(Math.cos(a)*r,Math.sin(a)*r)}rc.closePath();rc.fill();rc.restore()}
   rc.fillStyle='#F6EEE7';rc.beginPath();rc.moveTo(C,C-11);rc.lineTo(C+7,C+8);rc.lineTo(C,C+4);rc.lineTo(C-7,C+8);rc.closePath();rc.fill();}
 
 /* ───────── finale: all five found → characters walk in, gather, and a gift pops open ───────── */
@@ -628,14 +648,14 @@ function charTex(img){const t=new THREE.Texture(img);t.needsUpdate=true;t.encodi
 function finAdd(o){scene.add(o);FIN.objs.push(o);return o}
 function clearFinale(){FIN.objs.forEach(o=>{scene.remove(o);o.traverse&&o.traverse(m=>{if(m.geometry)m.geometry.dispose()})});FIN.objs=[];FIN.chars=[];FIN.box=null;FIN.conf=null}
 const easeIO=k=>k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2,back=k=>{const c=1.7;return 1+(c+1)*Math.pow(k-1,3)+c*Math.pow(k-1,2)};
-function startFinale(){
+function startFinale(at){
   if(FIN.on||!beacons.length)return;
   (charImgs?Promise.resolve(charImgs):Promise.all(IDX.map(x=>load(x.character)))).then(imgs=>{
     charImgs=imgs;if(FIN.on)return;
     clearFinale();closeDrawer();travel=null;keys.clear();focus=-1;$('fin').hidden=true;
     FIN.on=true;FIN.t=reduce?8.4:0;FIN.cardShown=false;$('finSkip').hidden=false;
     /* the gathering spot: just ahead of the explorer, away from the beacon pads */
-    const [fx,fz]=fwd();let gx=P.x+fx*13,gz=P.z+fz*13;
+    const [fx,fz]=fwd();let gx=at?at.x:P.x+fx*13,gz=at?at.z:P.z+fz*13;
     BEACONS.forEach(([bx,bz])=>{const d=Math.hypot(gx-bx,gz-bz);if(d<9){gx=bx+(gx-bx)/(d||1)*9;gz=bz+(gz-bz)/(d||1)*9}});
     const G={x:gx,z:gz,y:height(gx,gz)};FIN.G=G;
     const dcx=gx-P.x,dcz=gz-P.z,dist=Math.hypot(dcx,dcz);
@@ -690,7 +710,7 @@ function showCard(){
 }
 function endFinale(){FIN.on=false;$('fin').hidden=true;$('finSkip').hidden=true}
 $('finClose').onclick=endFinale;
-$('finAgain').onclick=()=>{endFinale();startFinale()};
+$('finAgain').onclick=()=>{const g=FIN.G;endFinale();startFinale(g?{x:g.x,z:g.z}:null)};
 $('finSkip').onclick=()=>{if(FIN.on&&!FIN.cardShown)FIN.t=Math.max(FIN.t,10.4)};
 api.finale=startFinale;
 window.KSA_FINALE={start:startFinale,seek:s=>{FIN.t=s}}; /* used by the preview link and tests */
@@ -736,13 +756,62 @@ function finaleTick(dt,t){
   if(T>=10.4&&!FIN.cardShown)showCard();
 }
 
+/* ───────── mission complete: a glowing 3D star rises at the centre of the five signals; clicking it starts the finale ───────── */
+const STAR={on:false,g:null,x:0,z:0,y:0,t:0,tag:null,hit:null,gone:0};
+{let sx=0,sz=0;BEACONS.forEach(([bx,bz])=>{sx+=bx;sz+=bz});STAR.x=sx/BEACONS.length;STAR.z=sz/BEACONS.length}
+function starShape(R,r){const s=new THREE.Shape();for(let k=0;k<10;k++){const a=Math.PI/2+k*Math.PI/5,rr=k%2?r:R;const x=Math.cos(a)*rr,y=Math.sin(a)*rr;if(k)s.lineTo(x,y);else s.moveTo(x,y)}s.closePath();return s}
+function showStar(){
+  if(STAR.on||!beacons.length)return;STAR.on=true;STAR.t=0;STAR.gone=0;STAR.y=height(STAR.x,STAR.z);
+  const g=new THREE.Group();g.position.set(STAR.x,STAR.y,STAR.z);scene.add(g);STAR.g=g;
+  const geo=new THREE.ExtrudeGeometry(starShape(2.3,.98),{depth:.7,bevelEnabled:true,bevelThickness:.28,bevelSize:.22,bevelSegments:3,curveSegments:2});geo.center();
+  const mat=new THREE.MeshStandardMaterial({color:lin('#FFD36A'),emissive:lin('#FFB020'),emissiveIntensity:.85,metalness:.55,roughness:.22});
+  const piv=new THREE.Group();piv.position.y=9;g.add(piv);const star=new THREE.Mesh(geo,mat);piv.add(star);
+  const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:lin('#FFC85A'),transparent:true,opacity:.9,depthWrite:false,blending:THREE.AdditiveBlending}));halo.scale.set(16,16,1);piv.add(halo);
+  const core=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:lin('#FFF6DA'),transparent:true,opacity:.9,depthWrite:false,blending:THREE.AdditiveBlending}));core.scale.set(6,6,1);piv.add(core);
+  const pillar=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,160,24,1,true),pillarMat(new THREE.Color('#FFC24A')));pillar.geometry.translate(0,80,0);g.add(pillar);
+  const pulses=[0,1,2].map(k=>{const m=new THREE.Mesh(new THREE.RingGeometry(.92,1,64),new THREE.MeshBasicMaterial({color:lin('#FFD36A'),transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;m.position.y=.25;m.userData.o=k/3;g.add(m);return m});
+  const orb=new THREE.Group();piv.add(orb);
+  for(let k=0;k<5;k++){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:lin(IDX[k%IDX.length].color),transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));sp.scale.set(1.3,1.3,1);const a=k/5*Math.PI*2;sp.position.set(Math.cos(a)*3.8,Math.sin(a*2)*.5,Math.sin(a)*3.8);orb.add(sp)}
+  const hit=new THREE.Mesh(new THREE.SphereGeometry(4.2,12,8),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));hit.position.y=9;hit.userData.i='star';g.add(hit);pillar.userData.i='star';hits.push(hit,pillar);STAR.hit=[hit,pillar];
+  Object.assign(STAR,{piv,star,halo,core,pillar,pulses,orb});
+  const tag=document.createElement('div');tag.className='tag';tag.style.setProperty('--c','#FFD36A');tag.innerHTML='<span class="chip"><b>★ 탐사 완료</b><i></i></span><span class="stem"></span>';$('tags').appendChild(tag);STAR.tag=tag;STAR.tagI=tag.querySelector('i');
+}
+function removeStar(){if(!STAR.g)return;scene.remove(STAR.g);STAR.g.traverse(m=>{if(m.geometry)m.geometry.dispose()});STAR.hit.forEach(h=>{const k=hits.indexOf(h);if(k>=0)hits.splice(k,1)});STAR.tag.remove();STAR.g=null;STAR.on=false}
+function missionComplete(){
+  showStar();
+  const d=$('done');$('doneT').textContent=EXPLORE.doneTitle||'탐사 완료!';$('doneD').textContent=EXPLORE.doneText||'';d.classList.remove('out');d.hidden=false;
+  setTimeout(()=>{d.classList.add('out');setTimeout(()=>{d.hidden=true;if(STAR.on&&!FIN.on)$('doneChip').hidden=false},700)},4600);
+}
+function goStar(){
+  if(!STAR.on||FIN.on)return;closeDrawer();focus=-1;
+  const dx=STAR.x-P.x,dz=STAR.z-P.z,d=Math.hypot(dx,dz);yawGoal=Math.atan2(-dx,-dz);
+  if(d<19){openStar();return}
+  travel={x:STAR.x-dx/d*15,z:STAR.z-dz/d*15,beacon:-2};toast('빛나는 별로 이동 중',Math.round(d)+' m','#FFD36A');
+}
+function openStar(){if(!STAR.on||FIN.on)return;$('doneChip').hidden=true;$('done').hidden=true;STAR.gone=.001;startFinale({x:STAR.x,z:STAR.z})}
+$('doneChip').onclick=goStar;
+function starTick(dt,t){
+  if(!STAR.on)return;STAR.t+=dt;const T=STAR.t;
+  const rise=Math.min(1,T/1.6),e=1-Math.pow(1-rise,3);
+  if(STAR.gone>0){STAR.gone+=dt;const k=Math.max(0,1-STAR.gone/.8);STAR.piv.scale.setScalar(k*1.2);STAR.pillar.material.uniforms.k.value=k;if(STAR.gone>.8){removeStar();return}}
+  else{STAR.piv.scale.setScalar(e*(1+Math.sin(t*2.4)*.05));STAR.pillar.material.uniforms.k.value=e*1.1}
+  STAR.piv.position.y=2+e*7+(reduce?0:Math.sin(t*1.4)*.4);
+  STAR.star.rotation.y+=dt*(reduce?0:1.3);STAR.star.rotation.x=Math.sin(t*.9)*.18;
+  STAR.halo.material.opacity=.65+Math.sin(t*3)*.25;STAR.core.material.opacity=.7+Math.sin(t*5)*.2;STAR.orb.rotation.y-=dt*1.1;
+  STAR.pillar.material.uniforms.t.value=t;
+  STAR.pulses.forEach(p=>{const ph=(t*.45+p.userData.o)%1;p.scale.setScalar(2+ph*8);p.material.opacity=(1-ph)*.4*e});
+  v3.set(STAR.x,STAR.y+STAR.piv.position.y+4.6,STAR.z).project(camera);
+  const vis=v3.z<1&&Math.abs(v3.x)<1.15&&Math.abs(v3.y)<1.15&&!FIN.on;
+  if(vis){STAR.tag.style.opacity=1;STAR.tag.style.transform=`translate(${(v3.x*.5+.5)*innerWidth}px,${(-v3.y*.5+.5)*innerHeight}px) translate(-50%,-100%)`;if(tick%6===0)STAR.tagI.textContent=Math.round(Math.hypot(STAR.x-P.x,STAR.z-P.z))+' m'}else STAR.tag.style.opacity=0;
+}
+
 /* discovery */
 let quiet=false;
 function discover(b){found.add(b.x.id);b.front.map=b.logoTex;b.front.emissiveMap=b.logoTex;b.front.emissiveIntensity=.35;b.front.needsUpdate=true;b.pop=1;
   const s=$('slot-'+b.x.id);s.classList.add('ok','pop');setTimeout(()=>s.classList.remove('pop'),800);
   $('foundN').textContent=found.size+' / '+N;
   if(!quiet)toast('신호 해독 완료 · '+b.x.code,b.x.name+' ('+found.size+'/'+N+')',b.x.color);
-  if(found.size===N&&!quiet)setTimeout(()=>{toast('다섯 지수를 모두 찾았습니다','캐릭터 친구들이 모이고 있어요…');setTimeout(startFinale,1400)},2600);
+  if(found.size===N&&!quiet)setTimeout(missionComplete,2400); /* a moment to look at the last logo first */
 }
 
 /* telemetry */
@@ -757,7 +826,7 @@ function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);c
 addEventListener('resize',resize);resize();
 function frame(now){
   requestAnimationFrame(frame);const dt=Math.min((now-last)/1000,.05);last=now;const t=now/1000;
-  finaleTick(dt,t);
+  finaleTick(dt,t);starTick(dt,t);
   /* keyboard drive */
   const sp=(keys.has('shift')?34:16)*dt;let [fx,fz]=fwd();
   let mx=0,mz=0;if(keys.has('w')||keys.has('arrowup')){mx+=fx;mz+=fz}if(keys.has('s')||keys.has('arrowdown')){mx-=fx;mz-=fz}
@@ -766,7 +835,7 @@ function frame(now){
   if(mx||mz){const l=Math.hypot(mx,mz);P.x+=mx/l*sp;P.z+=mz/l*sp}
   /* auto travel */
   if(travel&&!(FIN.on&&!FIN.cardShown)){const dx=travel.x-P.x,dz=travel.z-P.z,d=Math.hypot(dx,dz);
-    if(d<.4){if(travel.beacon>=0){focus=travel.beacon;aim(focus);openDetail(travel.beacon)}travel=null}
+    if(d<.4){if(travel.beacon>=0){focus=travel.beacon;aim(focus);openDetail(travel.beacon)}else if(travel.beacon===-2)openStar();travel=null}
     else{const s=Math.min(d,Math.min(30,d*1.4+5)*dt);P.x+=dx/d*s;P.z+=dz/d*s}}
   if(yawGoal!==null){let d=((yawGoal-P.yaw+Math.PI*3)%(Math.PI*2))-Math.PI;P.yaw+=d*(1-Math.pow(.02,dt));if(Math.abs(d)<.002)yawGoal=null}
   if(pitchGoal!==null){const d=pitchGoal-P.pitch;P.pitch+=d*(1-Math.pow(.03,dt));if(Math.abs(d)<.002)pitchGoal=null}
@@ -828,6 +897,7 @@ const texSrc=x=>SC?SC.textureSrc(x):((window.KSA_LOGO_DATA||{})[x.id]||x.logo);
 Promise.all([cfgReady.then(()=>Promise.all(IDX.map(x=>load(texSrc(x)).then(im=>im||load((window.KSA_LOGO_DATA||{})[x.id]))))),document.fonts?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))]):0]).then(([imgs])=>{
   if(imgs.some(x=>!x))return noGL();
   buildBeacons(imgs);
+  if(location.hash==='#complete'){quiet=true;beacons.forEach(b=>{if(!found.has(b.x.id))discover(b)});quiet=false;startTrip();setTimeout(missionComplete,600)}
   if(location.hash==='#finale'){quiet=true;beacons.forEach(b=>{if(!found.has(b.x.id))discover(b)});quiet=false;startTrip();setTimeout(startFinale,600)}
   terrainReady=true;$('goBtn').disabled=false;$('goLabel').textContent=EXPLORE.start||'탐사 시작';
   requestAnimationFrame(frame);
