@@ -693,7 +693,7 @@ body.se-open .se-fab{display:none}
   /* one group: a row of numbered chips; two or more: a small tree (측정 차원 → groups → items) */
   function dimsHTML(i){const cs=chartsOf(i);
     if(cs.length<2)return chartRows(cs).map(row=>`<div class="d-row${row.length>1?' multi':''}" style="--n:${row.length}">${row.map(ch=>`<div class="d-dims"><h4>${esc(cleanTitle(ch.title))}</h4><ol class="dchips">${ch.dims.map(chip).join('')}</ol></div>`).join('')}</div>`).join('');
-    let k0=0;const per=c=>{const n=c.dims.length;return n<=3?Math.max(1,n):Math.min(4,Math.ceil(n/2))};const cols=cs.map(c=>per(c)+'fr').join(' ');
+    let k0=0;const per=c=>{const n=c.dims.length;return n<=3?Math.max(1,n):3};const cols=cs.map(c=>per(c)+'fr').join(' ');
     return `<div class="d-dims dtree"><h4>측정 차원</h4><div class="dt-root"><span>${esc(i.name)}</span></div>
       <div class="dt-groups" style="grid-template-columns:${cols}">${cs.map((ch,g)=>{const gc=g?shade(i.color,Math.min(.55,.22+g*.18)):i.color,[t]=splitCode(cleanTitle(ch.title));
         const html=`<section class="dt-g" style="--gc:${gc};--gt:${onC(gc)};--cols:${per(ch)}"><h5 class="dt-pill">${esc(t)}</h5><ol class="dt-items">${ch.dims.map((d,k)=>chip(d,k0+k)).join('')}</ol></section>`;k0+=ch.dims.length;return html}).join('')}</div></div>`}
