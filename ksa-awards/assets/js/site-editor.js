@@ -241,10 +241,13 @@
   /* weights are no longer shown or edited */
   function sums(){return;IDX.forEach(x=>cfg.indices[x.id].charts.forEach((ch,c)=>{const el=panel.querySelector(`[data-sum="${x.id}:${c}"]`);if(!el)return;const t=ch.dims.reduce((a,d)=>a+(+d[1]||0),0);el.textContent=`합계 ${t}%`+(t===100?'':' · 100%가 되도록 맞춰 주세요');el.dataset.bad=t===100?'':'1'}))}
   let dirty=false;
-  /* unsaved edits are kept as a draft in this browser, so a reload or a closed tab does not lose them */
-  const draft={put(){try{localStorage.setItem(LS_DRAFT,JSON.stringify(cfg))}catch(_){}},drop(){try{localStorage.removeItem(LS_DRAFT)}catch(_){}},
+  /* unsaved edits are kept as a draft in this browser, so a reload or a closed tab does not lose them.
+   * Only the changed fields are kept and laid over the latest stored copy, so an old draft never brings back stale values;
+   * drafts from before this format held a whole old copy of the site and are discarded. */
+  const draft={put(){try{localStorage.setItem(LS_DRAFT,JSON.stringify({v:2,patch:SC.diff(base||saved||DEFAULTS,cfg)||{}}))}catch(_){}},drop(){try{localStorage.removeItem(LS_DRAFT)}catch(_){}},
     restore(){let d=null;try{d=JSON.parse(localStorage.getItem(LS_DRAFT)||'null')}catch(_){}if(!d)return;
-      const c=sanitize(merge(DEFAULTS,upgrade(d)));if(JSON.stringify(c)===JSON.stringify(saved||DEFAULTS)){draft.drop();return}
+      if(d.v!==2||!d.patch||typeof d.patch!=='object'){draft.drop();return}
+      const c=sanitize(merge(DEFAULTS,upgrade(deepAssign(clone(saved||DEFAULTS),d.patch))));if(JSON.stringify(c)===JSON.stringify(saved||DEFAULTS)){draft.drop();return}
       if(!base)base=clone(saved||DEFAULTS);cfg=c;dirty=true;apply(cfg);if(!panel.hidden)fill();setStatus('저장하지 않은 편집 내용을 복원했습니다. 저장을 눌러야 사이트에 반영됩니다.','err')}};
   function changed(){dirty=JSON.stringify(cfg)!==JSON.stringify(saved||DEFAULTS);apply(cfg);if(dirty)draft.put();else draft.drop();setStatus(dirty?'저장하지 않은 변경 사항이 있습니다.':'')}
   addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});

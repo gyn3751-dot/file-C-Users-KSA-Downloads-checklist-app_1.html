@@ -122,7 +122,7 @@
       const s=o.song;x.song={title:s.title,text:s.text,audio:SC.audioUrl(s.audio),dur:+s.dur||0}});
     X.refresh();
   }
-  const draft={put(){try{localStorage.setItem(LS_DRAFT,JSON.stringify(cfg))}catch(_){}},drop(){try{localStorage.removeItem(LS_DRAFT)}catch(_){}}};
+  const draft={put(){try{localStorage.setItem(LS_DRAFT,JSON.stringify({v:2,patch:SC.diff(saved,cfg)||{}}))}catch(_){}},drop(){try{localStorage.removeItem(LS_DRAFT)}catch(_){}}};
   function changed(){dirty=JSON.stringify(cfg)!==JSON.stringify(saved);apply();if(dirty)draft.put();else draft.drop();setStatus(dirty?'저장하지 않은 변경 사항이 있습니다.':'')}
   addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
 
@@ -188,7 +188,10 @@
     if(c&&c.event&&typeof c.event.link==='string')cfg.event.link=c.event.link;
     saved=clone(cfg);
     let d=null;try{d=JSON.parse(localStorage.getItem(LS_DRAFT)||'null')}catch(_){}
-    if(d&&d.explore&&d.indices&&d.event&&JSON.stringify(d)!==JSON.stringify(saved)){deepAssign(cfg,d);dirty=true;apply();setStatus('저장하지 않은 편집 내용을 복원했습니다. 저장을 눌러야 반영됩니다.','err')}
+    /* a draft holds only the changed fields; an older whole-copy draft keeps just its start-screen and finale texts
+     * (its index fields would bring back stale values) */
+    const pd=d&&d.v===2&&d.patch&&typeof d.patch==='object'?d.patch:d&&d.explore&&d.event?{explore:d.explore,event:d.event}:null;
+    if(pd){const t=deepAssign(clone(cfg),pd);if(JSON.stringify(t)!==JSON.stringify(saved)){cfg=t;dirty=true;apply();setStatus('저장하지 않은 편집 내용을 복원했습니다. 저장을 눌러야 반영됩니다.','err')}else draft.drop()}
   }
   const wantsEdit=()=>{try{if(location.hash==='#edit')localStorage.setItem(LS_EDIT,'1');return location.hash==='#edit'||localStorage.getItem(LS_EDIT)==='1'}catch(_){return location.hash==='#edit'}};
   const showFab=on=>{fab.hidden=!on;document.body.classList.toggle('xe-on',!!on)};
