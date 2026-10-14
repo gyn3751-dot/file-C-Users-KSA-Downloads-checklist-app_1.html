@@ -164,10 +164,11 @@
   function deepAssign(t,s){for(const k of Object.keys(s)){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])&&t[k]&&typeof t[k]==='object'&&!Array.isArray(t[k]))deepAssign(t[k],s[k]);else t[k]=s[k]}return t}
   $('#xeSave').onclick=async()=>{const btn=$('#xeSave');btn.disabled=true;setStatus('저장 중…');
     try{
-      const p=patch();
+      /* only what was changed on this page is written, so other pages' edits stay as they are */
+      const p=SC.diff(saved,cfg)||{};
       if(backend==='db'){
         const snap=await docRef.get();
-        const go=d=>snap.exists?docRef.update(d):docRef.set(d);
+        const go=d=>!Object.keys(d).length?Promise.resolve():snap.exists?docRef.update(d):docRef.set(patch());
         try{await go(p)}catch(e){if(e&&e.code==='unavailable'){await new Promise(r=>setTimeout(r,700));await go(p)}else throw e}
         setStatus('저장했습니다. 이 페이지를 보는 모든 사람에게 반영됩니다.','ok');
       }else{
@@ -193,15 +194,20 @@
   const showFab=on=>{fab.hidden=!on;document.body.classList.toggle('xe-on',!!on)};
   const waitCfg=()=>new Promise(r=>{const t0=Date.now();(function poll(){if(X.cfg!==null||Date.now()-t0>3500)r();else setTimeout(poll,120)})()});
   waitCfg().then(()=>{
-    seed();
     const C=window.claude;
-    if(!C||!C.use){backend='local';$('#xeMode').textContent='이 브라우저에만 저장';showFab(wantsEdit());return}
+    if(!C||!C.use){seed();backend='local';$('#xeMode').textContent='이 브라우저에만 저장';showFab(wantsEdit());return}
     C.use('assets').then(a=>{assets=a||null}).catch(()=>{});
     Promise.all([C.use('db'),C.use('user')]).then(async([db,u])=>{
-      if(!db){backend='local';$('#xeMode').textContent='이 브라우저에만 저장';showFab(wantsEdit());return}
+      if(!db){seed();backend='local';$('#xeMode').textContent='이 브라우저에만 저장';showFab(wantsEdit());return}
       docRef=db.doc('site/config');backend='db';
+      /* seed from the stored document itself (the page's own load may have timed out) */
+      try{const snap=await docRef.get();if(snap.exists){const c=snap.data();X.cfg=c;SC.applyIndices(c);
+        if(c.explore)for(const k of Object.keys(X.EXPLORE))if(typeof c.explore[k]==='string'&&c.explore[k].trim())X.EXPLORE[k]=c.explore[k];
+        if(c.event)for(const k of Object.keys(X.EVENT))if(typeof c.event[k]==='string'&&(c.event[k].trim()||k==='link'))X.EVENT[k]=c.event[k];
+        X.applyIntro();X.refresh()}}catch(_){}
+      seed();
       const can=u?(await u.canEdit().catch(()=>false))||(await u.isOwner().catch(()=>false)):false;
       $('#xeMode').textContent='저장 시 모든 방문자에게 반영';showFab(can);
-    }).catch(()=>{backend='local';showFab(wantsEdit())});
+    }).catch(()=>{if(!cfg)seed();backend='local';showFab(wantsEdit())});
   });
 })();

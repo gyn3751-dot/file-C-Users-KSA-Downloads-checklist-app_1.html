@@ -53,7 +53,7 @@
     brand:{logo:'',name:text($('.brand-text b')),sub:text($('.brand-text span')),showText:!($('.brand-text')||{}).hidden},
     homepages:Object.fromEntries(IDX.map(x=>[x.id,x.homepage]))
   };
-  let saved=null,cfg=clone(DEFAULTS),backend='none',db=null,docRef=null;
+  let saved=null,base=null,cfg=clone(DEFAULTS),backend='none',db=null,docRef=null; /* base: the stored copy the current edits started from */
 
   const DIM_MAX=12,CHART_MAX=6;
   function clone(o){return JSON.parse(JSON.stringify(o))}
@@ -245,7 +245,7 @@
   const draft={put(){try{localStorage.setItem(LS_DRAFT,JSON.stringify(cfg))}catch(_){}},drop(){try{localStorage.removeItem(LS_DRAFT)}catch(_){}},
     restore(){let d=null;try{d=JSON.parse(localStorage.getItem(LS_DRAFT)||'null')}catch(_){}if(!d)return;
       const c=sanitize(merge(DEFAULTS,upgrade(d)));if(JSON.stringify(c)===JSON.stringify(saved||DEFAULTS)){draft.drop();return}
-      cfg=c;dirty=true;apply(cfg);if(!panel.hidden)fill();setStatus('저장하지 않은 편집 내용을 복원했습니다. 저장을 눌러야 사이트에 반영됩니다.','err')}};
+      if(!base)base=clone(saved||DEFAULTS);cfg=c;dirty=true;apply(cfg);if(!panel.hidden)fill();setStatus('저장하지 않은 편집 내용을 복원했습니다. 저장을 눌러야 사이트에 반영됩니다.','err')}};
   function changed(){dirty=JSON.stringify(cfg)!==JSON.stringify(saved||DEFAULTS);apply(cfg);if(dirty)draft.put();else draft.drop();setStatus(dirty?'저장하지 않은 변경 사항이 있습니다.':'')}
   addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
   function setStatus(t,kind){status.textContent=t;status.dataset.kind=kind||''}
@@ -331,11 +331,14 @@
       if(backend==='none')await Promise.race([backendReady,new Promise(r=>setTimeout(r,8000))]);
       if(backend==='none')throw new Error('connect');
       /* set() resolving means the store accepted the write (a read straight after can still return the previous copy) */
-      if(backend==='db'){const data=clone(cfg);
-        try{await docRef.set(data)}catch(e){if(e&&e.code==='unavailable'){await new Promise(r=>setTimeout(r,600+Math.random()*600));await docRef.set(data)}else throw e}
+      if(backend==='db'){
+        /* write only what was changed here, so edits made elsewhere meanwhile (explore page, logo songs) are kept */
+        const snap=await docRef.get();const patch=snap.exists?SC.diff(base||saved||DEFAULTS,cfg):clone(cfg);
+        const go=()=>patch===undefined?Promise.resolve():snap.exists?docRef.update(patch):docRef.set(patch);
+        try{await go()}catch(e){if(e&&e.code==='unavailable'){await new Promise(r=>setTimeout(r,600+Math.random()*600));await go()}else throw e}
         setStatus('저장했습니다. 이 페이지를 보는 모든 사람에게 반영됩니다.','ok')}
-      else{try{localStorage.setItem(LS_KEY,JSON.stringify(cfg))}catch(_){throw new Error('local')}setStatus('이 브라우저에 저장했습니다. 사이트 전체에 반영하려면 "설정 복사"로 받은 내용을 전달해 주세요.','ok')}
-      saved=clone(cfg);dirty=false;draft.drop();
+      else{try{let o=null;try{o=JSON.parse(localStorage.getItem(LS_KEY)||'null')}catch(_){}const p=SC.diff(base||saved||DEFAULTS,cfg);localStorage.setItem(LS_KEY,JSON.stringify(p&&o&&typeof o==='object'?deepAssign(o,p):cfg))}catch(_){throw new Error('local')}setStatus('이 브라우저에 저장했습니다. 사이트 전체에 반영하려면 "설정 복사"로 받은 내용을 전달해 주세요.','ok')}
+      saved=clone(cfg);base=clone(cfg);dirty=false;draft.drop();
     }catch(e){
       if(e&&e.code==='invalid_argument')setStatus('저장 권한이 없습니다. 편집 권한이 있는 계정으로 열어 주세요.','err');
       else if(e&&e.message==='local')setStatus('이 브라우저에서는 저장소를 쓸 수 없습니다. "설정 복사"를 이용해 주세요.','err');
@@ -391,7 +394,7 @@ JSON 하나만 답하세요: {"patch": {바꿀 필드만, 위와 같은 구조},
 
   /* ── boot: local first, then the shared store when the viewer provides it ── */
   window.KSA_SITE={autoRotate:true,planetClick:DEFAULTS.planetClick};
-  try{const raw=localStorage.getItem(LS_KEY);if(raw){saved=sanitize(merge(DEFAULTS,upgrade(JSON.parse(raw))));cfg=clone(saved);apply(cfg)}}catch(_){}
+  try{const raw=localStorage.getItem(LS_KEY);if(raw){saved=sanitize(merge(DEFAULTS,upgrade(JSON.parse(raw))));cfg=clone(saved);base=clone(saved);apply(cfg)}}catch(_){}
   const wantsEdit=()=>{try{if(location.hash==='#edit')localStorage.setItem(LS_EDIT,'1');return location.hash==='#edit'||localStorage.getItem(LS_EDIT)==='1'}catch(_){return location.hash==='#edit'}};
   let backendSet;const backendReady=new Promise(r=>backendSet=r);
   function showLocal(){backend='local';backendSet();draft.restore();$('#seMode').textContent='이 브라우저에만 저장';setEditable(wantsEdit())}
@@ -406,7 +409,7 @@ JSON 하나만 답하세요: {"patch": {바꿀 필드만, 위와 같은 구조},
     db=d;docRef=db.doc('site/config');
     let first=true;
     docRef.onSnapshot(snap=>{
-      if(snap.exists){saved=sanitize(merge(DEFAULTS,upgrade(snap.data())));if(!dirty){cfg=clone(saved);apply(cfg);if(!panel.hidden)fill()}}
+      if(snap.exists){saved=sanitize(merge(DEFAULTS,upgrade(snap.data())));if(!dirty){cfg=clone(saved);base=clone(saved);apply(cfg);if(!panel.hidden)fill()}}
       else if(!saved)saved=clone(DEFAULTS);
       if(first){first=false;draft.restore()}
     },()=>{});

@@ -87,6 +87,16 @@
     return {blob:new Blob(parts,{type:'video/webm'}),dur:buf.duration};
   }
 
+  /* the smallest patch that turns a into b: nested objects recurse, anything else (arrays included) is sent whole.
+   * Editors save with this so a write never resets fields they did not change (e.g. another page's edits). */
+  function diff(a,b){
+    if(JSON.stringify(a)===JSON.stringify(b))return undefined;
+    if(a&&b&&typeof a==='object'&&typeof b==='object'&&!Array.isArray(a)&&!Array.isArray(b)){
+      const o={};for(const k of Object.keys(b)){const d=diff(a[k],b[k]);if(d!==undefined)o[k]=d}
+      return Object.keys(o).length?o:undefined}
+    return b===undefined?null:JSON.parse(JSON.stringify(b));
+  }
+
   /* read the saved config once: shared store when the viewer offers it, else this browser; never waits longer than `ms` */
   function load(ms){
     return new Promise(res=>{
@@ -99,5 +109,5 @@
     });
   }
 
-  window.KSA_SITE_CONFIG={LS_KEY,EXPLORE_DEF,toWebm,DEFAULT_LOGO,logoUrl,audioUrl,textureSrc,applyIndices,applyBrand,load};
+  window.KSA_SITE_CONFIG={LS_KEY,EXPLORE_DEF,diff,toWebm,DEFAULT_LOGO,logoUrl,audioUrl,textureSrc,applyIndices,applyBrand,load};
 })();
