@@ -420,6 +420,8 @@ JSON 하나만 답하세요: {"patch": {바꿀 필드만, 위와 같은 구조},
   $('#se-ask').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();ask()}});
 
   /* ── boot: local first, then the shared store when the viewer provides it ── */
+  /* the last saved settings ship with the page (site-saved.js) and act as its defaults */
+  if(window.KSA_SAVED_CONFIG&&typeof window.KSA_SAVED_CONFIG==='object'){try{const b=sanitize(merge(DEFAULTS,upgrade(clone(window.KSA_SAVED_CONFIG))));for(const k of Object.keys(DEFAULTS))DEFAULTS[k]=b[k];cfg=clone(DEFAULTS);apply(cfg)}catch(_){}}
   window.KSA_SITE={autoRotate:true,planetClick:DEFAULTS.planetClick};
   try{const raw=localStorage.getItem(LS_KEY);if(raw){saved=sanitize(merge(DEFAULTS,upgrade(JSON.parse(raw))));cfg=clone(saved);base=clone(saved);apply(cfg)}}catch(_){}
   const wantsEdit=()=>{try{if(location.hash==='#edit')localStorage.setItem(LS_EDIT,'1');return location.hash==='#edit'||localStorage.getItem(LS_EDIT)==='1'}catch(_){return location.hash==='#edit'}};

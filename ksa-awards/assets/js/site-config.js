@@ -103,6 +103,7 @@
     return new Promise(res=>{
       let done=false;const fin=c=>{if(!done){done=true;res(c||null)}};const got=c=>{if(!done)fin(c);else if(c&&late)late(c)};
       let local=null;try{local=JSON.parse(localStorage.getItem(LS_KEY)||'null')}catch(_){}
+      if(!local&&window.KSA_SAVED_CONFIG)local=window.KSA_SAVED_CONFIG; /* the settings shipped with the page */
       const C=window.claude;
       if(!C||!C.use)return fin(local);
       setTimeout(()=>fin(local),ms||2500);
