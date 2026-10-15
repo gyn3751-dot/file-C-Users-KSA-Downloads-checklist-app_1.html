@@ -83,8 +83,16 @@ main{padding:24px;min-width:0}
 .grid>.card{display:flex;flex-direction:column;position:relative}
 .grid>.card[data-span="2"]{grid-column:span 2}.grid>.card[data-span="3"]{grid-column:span 3}.grid>.card[data-span="4"]{grid-column:span 4}
 .grid>.card[data-rows="2"]{grid-row:span 2}.grid>.card[data-rows="3"]{grid-row:span 3}
-.grid>.card.has-h{height:var(--h);overflow:auto}
-.grid>.card.is-hidden{display:none}
+.grid>.card.has-h{height:var(--h)}
+.grid>.card.is-hidden{display:none!important}
+.cbody{flex:1;min-height:0;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+.cbody.scroll{overflow:auto}
+.cbody>*{flex-shrink:0}
+.cbody>.chart-box.grow{flex-shrink:1}
+.grid>.card{container-type:inline-size}
+@container (max-width:440px){.grid .plist.cols{grid-template-columns:1fr}}
+.has-h .chart-box.grow{min-height:70px!important}
+.zoom-tag{display:none}
 .plist.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px 24px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:var(--shadow);min-width:0}
 .card-h{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:16px}
@@ -191,12 +199,23 @@ td.r,th.r{text-align:right}
 body.editing .edit-btn{background:var(--c1);border-color:var(--c1);color:#fff}
 .ed-tools,.ed-resize,.ed-badge{display:none}
 body.editing .grid>.card{outline:1.5px dashed var(--c1);outline-offset:-1px;overflow:visible}
-body.editing .grid>.card.is-hidden{display:flex;opacity:.4}
 body.editing .ed-tools{display:flex;position:absolute;top:-14px;right:12px;z-index:5;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:2px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
 .ed-tools button{width:28px;height:26px;border:none;background:none;color:var(--text2);border-radius:6px;cursor:pointer;font:600 12px Inter,sans-serif;display:grid;place-items:center}
 .ed-tools button:hover{background:var(--surface2);color:var(--text)}
 .ed-tools .drag{cursor:grab}
 .ed-tools .sep{width:1px;background:var(--border);margin:4px 2px}
+body.editing .zoom-tag{display:block;position:absolute;bottom:6px;left:12px;font-size:10.5px;color:var(--c1);font-weight:600;pointer-events:none;z-index:5}
+body.editing .zoom-tag:empty{display:none}
+.ed-tools .del:hover{background:var(--down-bg);color:var(--down)}
+.ed-pop{display:none;position:fixed;left:50%;bottom:76px;transform:translateX(-50%);z-index:51;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.2);padding:8px;min-width:260px;max-height:50vh;overflow:auto}
+.ed-pop.open{display:block}
+.ed-pop .row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 8px;font-size:13px;border-radius:8px}
+.ed-pop .row:hover{background:var(--surface2)}
+.ed-pop .row button{height:28px;padding:0 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.ed-pop .empty{padding:10px;color:var(--text3);font-size:13px}
+.ed-pop h4{font-size:12px;color:var(--text3);font-weight:600;padding:4px 8px 6px}
+.ed-toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:#111827;color:#fff;border-radius:10px;padding:8px 8px 8px 14px;font-size:13px;display:flex;gap:10px;align-items:center;z-index:52;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.ed-toast button{height:28px;padding:0 10px;border-radius:7px;border:none;background:#7c3aed;color:#fff;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
 body.editing .ed-badge{display:block;position:absolute;top:-11px;left:12px;font-size:11px;font-weight:600;background:var(--c1);color:#fff;padding:1px 8px;border-radius:10px;z-index:5;pointer-events:none}
 body.editing .ed-resize{display:block;position:absolute;right:-1px;bottom:-1px;width:22px;height:22px;cursor:nwse-resize;z-index:5;border-radius:0 0 14px 0;background:linear-gradient(135deg,transparent 50%,var(--c1) 50%)}
 body.editing [data-edit]{outline:1px dashed transparent;border-radius:4px;cursor:text}
@@ -345,8 +364,9 @@ body.editing main{padding-bottom:110px}
 </div>
 <div id="tip"></div>
 <div class="ed-bar" id="edBar" role="toolbar" aria-label="편집 도구">
-  <span class="msg"><b>편집 모드</b> · ⠿ 끌어서 이동 · 모서리 끌어 크기 조절 · 글자 클릭해 수정</span>
+  <span class="msg"><b>편집 모드</b> · ⠿ 이동 · 모서리 끌어 크기 조절(내용 자동 축소) · ✕ 삭제 · 글자 클릭해 수정</span>
   <span class="saved" id="edSaved">✓ 저장됨</span>
+  <button type="button" id="edTrash">삭제한 항목 <span id="edTrashN">0</span></button>
   <button type="button" id="edReset">초기화</button>
   <button type="button" id="edExport">설정 내보내기</button>
   <button type="button" id="edImport">설정 가져오기</button>
@@ -354,6 +374,7 @@ body.editing main{padding-bottom:110px}
   <button type="button" class="pri" id="edDone">완료</button>
   <input type="file" id="edFile" accept="application/json,.json" hidden>
 </div>
+<div class="ed-pop" id="edPop" role="dialog" aria-label="삭제한 항목"></div>
 <script type="application/json" id="layout-default">null</script>
 
 <script>
@@ -595,13 +616,59 @@ function applyLayout(){
     if (h){ c.style.setProperty('--h', h+'px'); c.classList.add('has-h'); delete c.dataset.rows; }
     else { c.style.removeProperty('--h'); c.classList.remove('has-h'); if (c.dataset.rows0) c.dataset.rows = c.dataset.rows0; }
     c.classList.toggle('is-hidden', LAY.hidden.includes(id));
-    const eye = c.querySelector('.ed-tools [data-act="hide"]');
-    if (eye) eye.textContent = LAY.hidden.includes(id) ? '표시' : '숨김';
   });
   document.querySelectorAll('[data-edit]').forEach(el => {
     const v = LAY.text[el.dataset.edit];
     const want = v != null ? v : textDefaults[el.dataset.edit];
     if (el.textContent !== want && document.activeElement !== el) el.textContent = want;
+  });
+  $('edTrashN').textContent = LAY.hidden.filter(id => byId(id)).length;
+  if ($('edPop').classList.contains('open')) renderTrash();
+  requestAnimationFrame(() => cards.forEach(fitCard));
+}
+
+/* shrink a card's content to fit its box (CSS zoom keeps layout and hit-testing consistent) */
+const MIN_ZOOM = 0.45;
+function fitCard(c){
+  const b = c._body;
+  if (!b || c.classList.contains('is-hidden')) return;
+  b.style.zoom = ''; b.classList.remove('scroll');
+  const tag = c.querySelector('.zoom-tag');
+  const sh = b.scrollHeight, ch = b.clientHeight, sw = b.scrollWidth, cw = b.clientWidth;
+  const limitH = c.classList.contains('has-h');
+  let z = Math.min(1, limitH && sh > ch + 1 ? ch / sh : 1, sw > cw + 1 ? cw / sw : 1);
+  if (z < 0.995){
+    z = Math.max(MIN_ZOOM, Math.floor(z * 100) / 100);
+    b.style.zoom = z;
+    if (z === MIN_ZOOM) b.classList.add('scroll');
+  }
+  if (tag) tag.textContent = z < 0.995 ? `내용 ${Math.round(z*100)}%` : '';
+}
+const ro = new ResizeObserver(entries => requestAnimationFrame(() => entries.forEach(e => fitCard(e.target))));
+cards.forEach(c => ro.observe(c));
+
+/* delete / restore */
+let toastT;
+function deleteCard(id){
+  if (!LAY.hidden.includes(id)) LAY.hidden.push(id);
+  applyLayout(); saveLayout();
+  document.querySelector('.ed-toast')?.remove();
+  const t = document.createElement('div');
+  t.className = 'ed-toast';
+  t.innerHTML = `<span>‘${esc(byId(id).dataset.name)}’ 항목을 삭제했습니다</span><button type="button">되돌리기</button>`;
+  t.querySelector('button').onclick = () => { restoreCard(id); t.remove(); };
+  document.body.appendChild(t);
+  clearTimeout(toastT); toastT = setTimeout(() => t.remove(), 5000);
+}
+function restoreCard(id){ LAY.hidden = LAY.hidden.filter(x => x !== id); applyLayout(); saveLayout(); }
+function renderTrash(){
+  const del = LAY.hidden.filter(id => byId(id));
+  $('edPop').innerHTML = '<h4>삭제한 항목</h4>' + (del.length
+    ? del.map(id => `<div class="row"><span>${esc(byId(id).dataset.name)}</span><button type="button" data-id="${id}">복원</button></div>`).join('')
+      + (del.length > 1 ? '<div class="row"><span></span><button type="button" data-id="*">모두 복원</button></div>' : '')
+    : '<div class="empty">삭제한 항목이 없습니다.</div>');
+  $('edPop').querySelectorAll('button').forEach(b => b.onclick = () => {
+    if (b.dataset.id === '*'){ LAY.hidden = []; applyLayout(); saveLayout(); } else restoreCard(b.dataset.id);
   });
 }
 let saveT;
@@ -611,6 +678,15 @@ function saveLayout(){
 }
 const gridCols = () => getComputedStyle(grid).gridTemplateColumns.split(' ').length;
 function currentOrder(){ return cards.slice().sort((a,b) => a.style.order - b.style.order).map(c => c.dataset.id); }
+
+/* wrap each card's content so it can be scaled to fit */
+cards.forEach(c => {
+  const b = document.createElement('div');
+  b.className = 'cbody';
+  while (c.firstChild) b.appendChild(c.firstChild);
+  c.appendChild(b);
+  c._body = b;
+});
 
 /* per-card tools */
 cards.forEach(c => {
@@ -626,16 +702,17 @@ cards.forEach(c => {
       <button type="button" data-act="h+" title="높이 늘리기" aria-label="높이 늘리기">⇣</button>
       <button type="button" data-act="fit" title="크기 원래대로" aria-label="크기 원래대로">↺</button>
       <span class="sep"></span>
-      <button type="button" data-act="hide" style="width:auto;padding:0 8px" title="숨기기/표시">숨김</button>
+      <button type="button" data-act="del" class="del" title="이 항목 삭제" aria-label="이 항목 삭제">✕</button>
     </div>
-    <div class="ed-resize" title="끌어서 크기 조절"></div>`);
+    <div class="ed-resize" title="끌어서 크기 조절"></div>
+    <span class="zoom-tag"></span>`);
   c.querySelectorAll('.ed-tools [data-act]').forEach(b => b.onclick = () => {
     const a = b.dataset.act, span = +(LAY.span[id] || c.dataset.span0);
     if (a === 'w-') LAY.span[id] = Math.max(1, span-1);
     if (a === 'w+') LAY.span[id] = Math.min(4, span+1);
     if (a === 'h-' || a === 'h+') LAY.h[id] = Math.max(120, (LAY.h[id] || c.offsetHeight) + (a === 'h+' ? 40 : -40));
     if (a === 'fit'){ delete LAY.span[id]; delete LAY.h[id]; }
-    if (a === 'hide') LAY.hidden = LAY.hidden.includes(id) ? LAY.hidden.filter(x => x !== id) : LAY.hidden.concat(id);
+    if (a === 'del'){ deleteCard(id); return; }
     applyLayout(); saveLayout();
   });
 
@@ -682,16 +759,19 @@ document.querySelectorAll('[data-edit]').forEach(el => {
 });
 function setEditing(on){
   document.body.classList.toggle('editing', on);
+  if (!on) $('edPop').classList.remove('open');
   document.querySelectorAll('[data-edit]').forEach(el => on ? el.setAttribute('contenteditable','plaintext-only') : el.removeAttribute('contenteditable'));
   $('editBtn').querySelector('span').textContent = on ? '편집 중' : '편집';
 }
 $('editBtn').onclick = () => setEditing(!document.body.classList.contains('editing'));
+$('edTrash').onclick = e => { e.stopPropagation(); renderTrash(); $('edPop').classList.toggle('open'); };
+document.addEventListener('click', e => { if (!e.target.closest('#edPop,#edTrash')) $('edPop').classList.remove('open'); });
 $('edDone').onclick = () => setEditing(false);
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.body.classList.contains('editing') && !e.target.closest('[data-edit]')) setEditing(false); });
 
 /* reset / export / import / save html */
 $('edReset').onclick = () => {
-  if (!confirm('배치·크기·문구를 처음 상태로 되돌릴까요?')) return;
+  if (!confirm('배치·크기·문구·삭제한 항목을 처음 상태로 되돌릴까요?')) return;
   try { localStorage.removeItem(LKEY); } catch(e){}
   LAY = Object.assign(blank(), BAKED || {}); applyLayout(); saveLayout();
 };
