@@ -695,7 +695,14 @@ $('edReset').onclick = () => {
   try { localStorage.removeItem(LKEY); } catch(e){}
   LAY = Object.assign(blank(), BAKED || {}); applyLayout(); saveLayout();
 };
-function download(name, text, type){
+let dlNs;
+if (window.claude && typeof window.claude.use === 'function') window.claude.use('downloads').then(ns => dlNs = ns).catch(() => {});
+async function download(name, text, type){
+  if (dlNs){
+    try { await dlNs.save({filename:name, data:text}); }
+    catch(err){ if (err && err.code !== 'declined') alert('파일을 저장할 수 없습니다. (' + (err.code || 'error') + ')'); }
+    return;
+  }
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([text], {type}));
   a.download = name; document.body.appendChild(a); a.click(); a.remove();
