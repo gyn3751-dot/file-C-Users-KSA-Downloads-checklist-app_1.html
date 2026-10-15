@@ -49,8 +49,10 @@ aside{background:var(--surface);border-right:1px solid var(--border);position:st
 .brand small{display:block;font-size:11px;font-weight:500;color:var(--text3);letter-spacing:0}
 .brand{border-radius:10px;min-height:52px}
 #brandImg{display:block;object-fit:contain;flex-shrink:0}
-#brandImg.icon{width:var(--lh,32px);height:var(--lh,32px);border-radius:8px}
-#brandImg.full{height:var(--lh,44px);width:auto;max-width:100%;object-position:left center}
+#brandImg.icon{width:var(--lh,48px);height:var(--lh,48px);border-radius:10px}
+#brandImg.full{height:var(--lh,72px);width:100%;max-width:100%;object-position:left center}
+.brand.full{padding:6px 4px 18px}
+.lt-size b{display:inline-grid;place-items:center;min-width:40px;font-size:11.5px;color:var(--text3);font-weight:600}
 .brand.full .brand-text,.brand.has-img .logo{display:none}
 .logo-tools{display:none;flex-wrap:wrap;gap:4px;padding:0 8px 12px}
 body.editing .logo-tools{display:flex}
@@ -328,7 +330,7 @@ body.editing main{padding-bottom:110px}
     <div class="logo-tools" id="logoTools" role="group" aria-label="로고 이미지 편집">
       <button type="button" id="logoUp">이미지 올리기</button>
       <button type="button" id="logoMode" hidden></button>
-      <span class="lt-size" id="logoSize" hidden><button type="button" data-d="-1" aria-label="로고 작게">−</button><button type="button" data-d="1" aria-label="로고 크게">＋</button></span>
+      <span class="lt-size" id="logoSize" hidden><button type="button" data-d="-1" aria-label="로고 작게">−</button><b id="logoPx"></b><button type="button" data-d="1" aria-label="로고 크게">＋</button></span>
       <button type="button" id="logoReset" hidden>기본 로고</button>
       <input type="file" id="logoFile" accept="image/*" hidden>
       <p class="lt-hint">이미지를 이 영역에 끌어다 놓아도 됩니다</p>
@@ -998,7 +1000,50 @@ let dragId = null;
 })();
 
 /* 왼쪽 위 로고(홈) 이미지 */
+const LOGO_DEF = {icon:48, full:72}, LOGO_MAX = {icon:96, full:180};
+// 이미지 가장자리의 빈 여백(투명 또는 배경색)을 잘라내 로고가 꽉 차 보이게 함
+function trimToCanvas(im, maxSide){
+  const s = Math.min(1, maxSide / Math.max(im.naturalWidth, im.naturalHeight));
+  const w = Math.max(1, Math.round(im.naturalWidth * s)), h = Math.max(1, Math.round(im.naturalHeight * s));
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  const cx = cv.getContext('2d', {willReadFrequently:true}); cx.drawImage(im, 0, 0, w, h);
+  let px; try { px = cx.getImageData(0, 0, w, h).data; } catch(e){ return cv; }
+  const at = (x,y) => (y*w + x) * 4;
+  const transparentBg = px[3] < 16;
+  const br = px[0], bg = px[1], bb = px[2];
+  const isBg = i => transparentBg ? px[i+3] < 16 : (px[i+3] < 16 || Math.abs(px[i]-br) + Math.abs(px[i+1]-bg) + Math.abs(px[i+2]-bb) < 36);
+  let x0 = w, y0 = h, x1 = -1, y1 = -1;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (!isBg(at(x,y))){ if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  if (x1 < 0) return cv;
+  const pad = Math.round(Math.max(x1-x0, y1-y0) * 0.02);
+  x0 = Math.max(0, x0-pad); y0 = Math.max(0, y0-pad); x1 = Math.min(w-1, x1+pad); y1 = Math.min(h-1, y1+pad);
+  if (x0 === 0 && y0 === 0 && x1 === w-1 && y1 === h-1) return cv;
+  const out = document.createElement('canvas'); out.width = x1-x0+1; out.height = y1-y0+1;
+  out.getContext('2d').drawImage(cv, x0, y0, out.width, out.height, 0, 0, out.width, out.height);
+  return out;
+}
+function canvasToSrc(cv){
+  let src = cv.toDataURL('image/png');
+  if (src.length > 900000) src = cv.toDataURL('image/webp', 0.9);
+  return src;
+}
+// 이전 버전에서 올린 로고: 여백 잘라내고 새 기본 크기로 한 번만 맞춤
+let logoMigrating = false;
+function migrateLogo(){
+  const L = LAY.logo;
+  if (!L || !L.src || L.v === 2 || logoMigrating) return;
+  logoMigrating = true;
+  const im = new Image();
+  im.onload = () => {
+    const cv = trimToCanvas(im, 600);
+    L.src = canvasToSrc(cv); L.h = LOGO_DEF[L.mode === 'full' ? 'full' : 'icon']; L.v = 2;
+    logoMigrating = false; applyLayout(); saveLayout();
+  };
+  im.onerror = () => { L.v = 2; logoMigrating = false; };
+  im.src = L.src;
+}
 function applyLogo(){
+  migrateLogo();
   const L = LAY.logo, brand = $('brand'), img = $('brandImg');
   const has = !!(L && L.src);
   brand.classList.toggle('has-img', has);
@@ -1008,7 +1053,9 @@ function applyLogo(){
     if (img.getAttribute('src') !== L.src) img.src = L.src;
     img.className = L.mode === 'full' ? 'full' : 'icon';
     img.alt = L.mode === 'full' ? '홈' : '';
-    brand.style.setProperty('--lh', (L.h || (L.mode === 'full' ? 44 : 32)) + 'px');
+    const hpx = L.h || LOGO_DEF[L.mode === 'full' ? 'full' : 'icon'];
+    brand.style.setProperty('--lh', hpx + 'px');
+    $('logoPx').textContent = hpx + 'px';
   } else brand.style.removeProperty('--lh');
   $('logoMode').hidden = $('logoSize').hidden = $('logoReset').hidden = !has;
   if (has) $('logoMode').textContent = L.mode === 'full' ? '아이콘으로' : '로고 전체로';
@@ -1021,19 +1068,11 @@ function readLogo(file){
     const url = fr.result;
     const im = new Image();
     im.onload = () => {
-      const ratio = im.naturalWidth / Math.max(1, im.naturalHeight);
+      // 여백을 잘라내고, 저장 공간을 위해 긴 변 600px 이하로 축소 (투명 배경 유지)
+      const cv = trimToCanvas(im, 600);
+      const ratio = cv.width / Math.max(1, cv.height);
       const mode = ratio > 1.6 ? 'full' : 'icon';
-      let src = url;
-      // 큰 이미지는 저장 공간을 위해 축소 (투명 배경 유지)
-      if (file.type !== 'image/svg+xml' || url.length > 300000){
-        const max = 480, s = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight));
-        const cv = document.createElement('canvas');
-        cv.width = Math.round(im.naturalWidth * s); cv.height = Math.round(im.naturalHeight * s);
-        cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height);
-        src = cv.toDataURL('image/png');
-        if (src.length > 900000) src = cv.toDataURL('image/webp', 0.9);
-      }
-      LAY.logo = {src, mode, h: mode === 'full' ? 44 : 32};
+      LAY.logo = {src: canvasToSrc(cv), mode, h: LOGO_DEF[mode], v: 2};
       applyLayout(); saveLayout();
     };
     im.onerror = () => alert('이미지를 읽을 수 없습니다.');
@@ -1044,10 +1083,10 @@ function readLogo(file){
 $('brand').addEventListener('click', e => { if (document.body.classList.contains('editing')){ e.preventDefault(); $('logoFile').click(); } });
 $('logoUp').onclick = () => $('logoFile').click();
 $('logoFile').onchange = e => { readLogo(e.target.files[0]); e.target.value = ''; };
-$('logoMode').onclick = () => { const L = LAY.logo; L.mode = L.mode === 'full' ? 'icon' : 'full'; L.h = L.mode === 'full' ? 44 : 32; applyLayout(); saveLayout(); };
+$('logoMode').onclick = () => { const L = LAY.logo; L.mode = L.mode === 'full' ? 'icon' : 'full'; L.h = LOGO_DEF[L.mode]; applyLayout(); saveLayout(); };
 $('logoSize').querySelectorAll('button').forEach(b => b.onclick = () => {
-  const L = LAY.logo, max = L.mode === 'full' ? 120 : 56;
-  L.h = Math.max(20, Math.min(max, (L.h || 32) + (+b.dataset.d) * 4)); applyLayout(); saveLayout();
+  const L = LAY.logo, m = L.mode === 'full' ? 'full' : 'icon';
+  L.h = Math.max(24, Math.min(LOGO_MAX[m], (L.h || LOGO_DEF[m]) + (+b.dataset.d) * 8)); applyLayout(); saveLayout();
 });
 $('logoReset').onclick = () => { LAY.logo = null; applyLayout(); saveLayout(); };
 ['dragenter','dragover'].forEach(ev => $('side').addEventListener(ev, e => {
