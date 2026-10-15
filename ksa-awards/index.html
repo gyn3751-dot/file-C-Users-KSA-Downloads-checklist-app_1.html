@@ -221,6 +221,10 @@ p{margin:0}
 .orbit .drag-hint i{font-style:normal;display:inline-block;animation:nudge 1.6s var(--ease) infinite}
 .orbit .drag-hint i:last-child{animation-direction:reverse}
 .orbit .drag-hint.gone{opacity:0;transform:translate(-50%,-6px)}
+.orbit .drag-hint{background:linear-gradient(110deg,rgba(255,255,255,.05) 38%,rgba(255,224,160,.24) 50%,rgba(255,255,255,.05) 62%) 0 0/260% 100%;border-color:rgba(255,220,160,.28);animation:hintSun 5.5s ease-in-out infinite}
+/* soft sunlight: a warm band drifts across the pill while its halo slowly breathes */
+@keyframes hintSun{0%{background-position:100% 0;box-shadow:0 0 0 0 rgba(255,210,140,0),0 0 10px 0 rgba(255,210,140,.08)}50%{box-shadow:0 0 0 1px rgba(255,220,160,.18),0 0 22px 4px rgba(255,205,130,.28)}100%{background-position:-60% 0;box-shadow:0 0 0 0 rgba(255,210,140,0),0 0 10px 0 rgba(255,210,140,.08)}}
+@media (prefers-reduced-motion:reduce){.orbit .drag-hint{animation:none}}
 @keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(-4px)}}
 .board-foot .hint b{font-family:var(--f-mono);font-weight:500;margin-right:4px}
 .hint-link{background:none;border:0;color:var(--brass);font:inherit;cursor:pointer;padding:0;margin-left:10px}
