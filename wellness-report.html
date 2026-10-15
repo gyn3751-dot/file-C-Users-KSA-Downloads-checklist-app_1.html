@@ -47,6 +47,21 @@ aside{background:var(--surface);border-right:1px solid var(--border);position:st
 .brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px;font-weight:700;font-size:16px;letter-spacing:-.2px}
 .brand .logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--c1),var(--c3));display:grid;place-items:center;color:#fff}
 .brand small{display:block;font-size:11px;font-weight:500;color:var(--text3);letter-spacing:0}
+.brand{border-radius:10px;min-height:52px}
+#brandImg{display:block;object-fit:contain;flex-shrink:0}
+#brandImg.icon{width:var(--lh,32px);height:var(--lh,32px);border-radius:8px}
+#brandImg.full{height:var(--lh,44px);width:auto;max-width:100%;object-position:left center}
+.brand.full .brand-text,.brand.has-img .logo{display:none}
+.logo-tools{display:none;flex-wrap:wrap;gap:4px;padding:0 8px 12px}
+body.editing .logo-tools{display:flex}
+body.editing .brand{outline:1.5px dashed var(--c1);outline-offset:2px;cursor:pointer}
+.brand.drop{background:var(--c1-soft)}
+.logo-tools button{height:26px;padding:0 9px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.logo-tools button:hover{background:var(--surface2);color:var(--text)}
+.lt-size{display:inline-flex;gap:2px}
+.lt-size[hidden],.logo-tools [hidden]{display:none}
+.lt-size button{width:26px;padding:0}
+.lt-hint{width:100%;font-size:11px;color:var(--text3);margin-top:2px}
 .nav-group{font-size:11px;font-weight:600;color:var(--text3);padding:14px 10px 6px}
 .nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--text2);font-weight:500;font-size:13.5px}
 .nav a:hover{background:var(--surface2);color:var(--text)}
@@ -76,7 +91,16 @@ main{padding:24px;min-width:0}
 .page-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;gap:24px;margin-bottom:20px}
 .ph-title{padding-top:4px}
 .crumb{padding-top:10px;white-space:nowrap}
-.ai-box{background:linear-gradient(135deg,var(--c1-soft),var(--c3-soft));border:1px solid var(--border);border-radius:14px;padding:12px 16px 14px;min-width:0;max-width:760px;justify-self:center;width:100%}
+.ai-box{background:linear-gradient(135deg,var(--c1-soft),var(--c3-soft));border:1px solid var(--border);border-radius:14px;padding:12px 16px 14px;min-width:0;max-width:var(--aiw,760px);justify-self:center;width:100%;position:relative}
+.grid>.ai-box{max-width:none;padding:18px 20px}
+.page-head>.ai-box{order:0!important}
+.ai-box.card{background:linear-gradient(135deg,var(--c1-soft),var(--c3-soft))}
+.ai-box .cbody{overflow:visible}
+.grid>.ai-box .cbody{overflow:hidden}
+.page-head>.ai-box .ed-tools [data-act="h-"],.page-head>.ai-box .ed-tools [data-act="h+"],.page-head>.ai-box .ed-resize{display:none!important}
+body.editing .page-head>.ai-box{outline:1.5px dashed var(--c1);outline-offset:-1px}
+.page-head.drop-head{box-shadow:0 0 0 3px var(--c1);border-radius:14px}
+.ed-tools .pos{width:auto;padding:0 8px;font-family:inherit}
 .ai-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ai-head .sp{flex:1}
 .ai-tag{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:var(--c1)}
@@ -109,7 +133,7 @@ main{padding:24px;min-width:0}
 .grid>.card[data-span="2"]{grid-column:span 2}.grid>.card[data-span="3"]{grid-column:span 3}.grid>.card[data-span="4"]{grid-column:span 4}
 .grid>.card[data-rows="2"]{grid-row:span 2}.grid>.card[data-rows="3"]{grid-row:span 3}
 .grid>.card.has-h{height:var(--h)}
-.grid>.card.is-hidden{display:none!important}
+.card.is-hidden{display:none!important}
 .cbody{flex:1;min-height:0;min-width:0;display:flex;flex-direction:column;overflow:hidden}
 .cbody.scroll{overflow:auto}
 .cbody>*{flex-shrink:0}
@@ -286,10 +310,19 @@ body.editing main{padding-bottom:110px}
 
 <div class="app">
   <aside id="side">
-    <a class="brand" href="?type=0">
-      <span class="logo"><svg class="i"><use href="#i-heart"/></svg></span>
-      <span><span data-edit="side.name">Wellness Index</span><small data-edit="side.sub">한국웰니스지수 2026</small></span>
+    <a class="brand" id="brand" href="?type=0" aria-label="홈">
+      <span class="logo" id="brandIcon"><svg class="i"><use href="#i-heart"/></svg></span>
+      <img id="brandImg" alt="" hidden>
+      <span class="brand-text"><span data-edit="side.name">Wellness Index</span><small data-edit="side.sub">한국웰니스지수 2026</small></span>
     </a>
+    <div class="logo-tools" id="logoTools" role="group" aria-label="로고 이미지 편집">
+      <button type="button" id="logoUp">이미지 올리기</button>
+      <button type="button" id="logoMode" hidden></button>
+      <span class="lt-size" id="logoSize" hidden><button type="button" data-d="-1" aria-label="로고 작게">−</button><button type="button" data-d="1" aria-label="로고 크게">＋</button></span>
+      <button type="button" id="logoReset" hidden>기본 로고</button>
+      <input type="file" id="logoFile" accept="image/*" hidden>
+      <p class="lt-hint">이미지를 이 영역에 끌어다 놓아도 됩니다</p>
+    </div>
     <div class="nav-group">대시보드</div>
     <nav class="nav" id="nav0"></nav>
     <div class="nav-group">지수별 결과</div>
@@ -318,7 +351,7 @@ body.editing main{padding-bottom:110px}
     <main>
       <div class="page-head">
         <div class="ph-title"><h1 id="pTitle"></h1><p id="pSub"></p></div>
-        <section class="ai-box" id="aiBox" aria-label="AI 시사점">
+        <section class="ai-box card" id="aiBox" aria-label="AI 시사점" data-id="ai" data-span0="4" data-name="AI 시사점">
           <div class="ai-head">
             <span class="ai-tag"><svg class="i"><use href="#i-ai"/></svg>AI 시사점</span>
             <span class="ai-src">Claude가 조사 데이터를 분석해 작성</span>
@@ -407,7 +440,7 @@ body.editing main{padding-bottom:110px}
 </div>
 <div id="tip"></div>
 <div class="ed-bar" id="edBar" role="toolbar" aria-label="편집 도구">
-  <span class="msg"><b>편집 모드</b> · ⠿ 이동 · 모서리 끌어 크기 조절(내용 자동 축소) · ✕ 삭제 · 글자 클릭해 수정</span>
+  <span class="msg"><b>편집 모드</b> · ⠿ 이동 · 모서리 끌어 크기 조절 · ✕ 삭제 · 글자 클릭해 수정 · 왼쪽 위 로고 클릭해 이미지 변경</span>
   <span class="saved" id="edSaved">✓ 저장됨</span>
   <button type="button" id="edTrash">삭제한 항목 <span id="edTrashN">0</span></button>
   <button type="button" id="edReset">초기화</button>
@@ -712,9 +745,10 @@ const INSIGHTS = {
 /* ───────── 편집 모드: 카드 배치·크기·문구 ───────── */
 const LKEY = 'wi-layout-v1';
 const grid = $('grid');
-const cards = [...grid.querySelectorAll(':scope > [data-id]')];
+const aiBox = $('aiBox');
+const cards = [...grid.querySelectorAll(':scope > [data-id]'), aiBox].filter(Boolean);
 const byId = id => cards.find(c => c.dataset.id === id);
-const blank = () => ({order:[], span:{}, h:{}, hidden:[], text:{}});
+const blank = () => ({order:[], span:{}, h:{}, hidden:[], text:{}, aiPos:'head', aiW:null, logo:null});
 let BAKED = null;
 try { BAKED = JSON.parse($('layout-default').textContent); } catch(e){}
 function loadLayout(){
@@ -726,7 +760,17 @@ let LAY = loadLayout();
 const textDefaults = {};
 document.querySelectorAll('[data-edit]').forEach(el => textDefaults[el.dataset.edit] = el.textContent);
 
+function placeAi(){
+  if (!aiBox) return;
+  const inGrid = LAY.aiPos === 'grid';
+  if (inGrid && aiBox.parentElement !== grid) grid.appendChild(aiBox);
+  if (!inGrid && aiBox.parentElement === grid) $('crumb').before(aiBox);
+  if (LAY.aiW) aiBox.style.setProperty('--aiw', LAY.aiW + 'px'); else aiBox.style.removeProperty('--aiw');
+  const pos = aiBox.querySelector('.ed-tools .pos');
+  if (pos) pos.textContent = inGrid ? '제목 옆으로' : '카드로 이동';
+}
 function applyLayout(){
+  placeAi(); applyLogo();
   const ids = cards.map(c => c.dataset.id);
   const order = LAY.order.filter(id => ids.includes(id)).concat(ids.filter(id => !LAY.order.includes(id)));
   order.forEach((id,i) => {
@@ -794,7 +838,8 @@ function renderTrash(){
 }
 let saveT;
 function saveLayout(){
-  try { localStorage.setItem(LKEY, JSON.stringify(LAY)); } catch(e){}
+  try { localStorage.setItem(LKEY, JSON.stringify(LAY)); }
+  catch(e){ if (LAY.logo) alert('이미지가 너무 커서 브라우저에 저장하지 못했습니다. 더 작은 이미지를 사용해 주세요.'); }
   const s = $('edSaved'); s.classList.add('on'); clearTimeout(saveT); saveT = setTimeout(() => s.classList.remove('on'), 1200);
 }
 const gridCols = () => getComputedStyle(grid).gridTemplateColumns.split(' ').length;
@@ -806,7 +851,7 @@ cards.forEach(c => {
   const b = document.createElement('div');
   b.className = 'cbody';
   [...c.childNodes].forEach(n => {
-    if (n.nodeType === 1 && n.matches('.card-h, .top, .head')) return;
+    if (n.nodeType === 1 && n.matches('.card-h, .top, .head, .ai-head')) return;
     b.appendChild(n);
   });
   c.appendChild(b);
@@ -826,6 +871,7 @@ cards.forEach(c => {
       <button type="button" data-act="h-" title="높이 줄이기" aria-label="높이 줄이기">⇡</button>
       <button type="button" data-act="h+" title="높이 늘리기" aria-label="높이 늘리기">⇣</button>
       <button type="button" data-act="fit" title="크기 원래대로" aria-label="크기 원래대로">↺</button>
+      ${id === 'ai' ? '<button type="button" data-act="pos" class="pos" title="위치 바꾸기"></button>' : ''}
       <span class="sep"></span>
       <button type="button" data-act="del" class="del" title="이 항목 삭제" aria-label="이 항목 삭제">✕</button>
     </div>
@@ -833,6 +879,18 @@ cards.forEach(c => {
     <span class="zoom-tag"></span>`);
   c.querySelectorAll('.ed-tools [data-act]').forEach(b => b.onclick = () => {
     const a = b.dataset.act, span = +(LAY.span[id] || c.dataset.span0);
+    const aiHead = id === 'ai' && LAY.aiPos !== 'grid';
+    if (aiHead && (a === 'w-' || a === 'w+')){
+      // 제목 옆에 있을 때는 박스 최대 너비를 조절
+      LAY.aiW = Math.max(360, Math.min(1400, (LAY.aiW || c.offsetWidth) + (a === 'w+' ? 80 : -80)));
+      applyLayout(); saveLayout(); return;
+    }
+    if (a === 'pos'){
+      LAY.aiPos = LAY.aiPos === 'grid' ? 'head' : 'grid';
+      if (LAY.aiPos === 'grid' && !LAY.order.includes('ai')) LAY.order = ['ai'].concat(currentOrder().filter(x => x !== 'ai'));
+      applyLayout(); saveLayout(); c.scrollIntoView({behavior:'smooth', block:'center'}); return;
+    }
+    if (a === 'fit' && id === 'ai') LAY.aiW = null;
     if (a === 'w-') LAY.span[id] = Math.max(1, span-1);
     if (a === 'w+') LAY.span[id] = Math.min(4, span+1);
     if (a === 'h-' || a === 'h+') LAY.h[id] = Math.max(120, (LAY.h[id] || c.offsetHeight) + (a === 'h+' ? 40 : -40));
@@ -861,19 +919,92 @@ cards.forEach(c => {
 
   // drag to reorder
   const handle = c.querySelector('.drag');
-  handle.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', id); e.dataTransfer.setDragImage(c, 20, 20); c.classList.add('dragging'); });
-  handle.addEventListener('dragend', () => { c.classList.remove('dragging'); cards.forEach(x => x.classList.remove('drag-over')); });
-  c.addEventListener('dragover', e => { if (document.body.classList.contains('editing')){ e.preventDefault(); c.classList.add('drag-over'); } });
+  handle.addEventListener('dragstart', e => { dragId = id; e.dataTransfer.setData('text/plain', id); e.dataTransfer.setDragImage(c, 20, 20); c.classList.add('dragging'); });
+  handle.addEventListener('dragend', () => { dragId = null; c.classList.remove('dragging'); cards.forEach(x => x.classList.remove('drag-over')); document.querySelector('.page-head').classList.remove('drop-head'); });
+  c.addEventListener('dragover', e => { if (document.body.classList.contains('editing') && c.parentElement === grid){ e.preventDefault(); e.stopPropagation(); c.classList.add('drag-over'); } });
   c.addEventListener('dragleave', () => c.classList.remove('drag-over'));
   c.addEventListener('drop', e => {
     e.preventDefault(); c.classList.remove('drag-over');
-    const from = e.dataTransfer.getData('text/plain'); if (!from || from === id) return;
+    e.stopPropagation();
+    const from = e.dataTransfer.getData('text/plain'); if (!from || from === id || c.parentElement !== grid) return;
+    if (from === 'ai') LAY.aiPos = 'grid';
     const ord = currentOrder().filter(x => x !== from);
     const r = c.getBoundingClientRect();
     const after = (e.clientY - r.top) > r.height/2 || (e.clientX - r.left) > r.width*0.66;
     ord.splice(ord.indexOf(id) + (after ? 1 : 0), 0, from);
     LAY.order = ord; applyLayout(); saveLayout();
   });
+});
+
+/* AI 시사점을 제목 옆으로 다시 끌어다 놓기 */
+let dragId = null;
+(() => {
+  const head = document.querySelector('.page-head');
+  head.addEventListener('dragover', e => { if (dragId === 'ai' && LAY.aiPos === 'grid'){ e.preventDefault(); head.classList.add('drop-head'); } });
+  head.addEventListener('dragleave', e => { if (!head.contains(e.relatedTarget)) head.classList.remove('drop-head'); });
+  head.addEventListener('drop', e => { head.classList.remove('drop-head'); if (dragId !== 'ai') return; e.preventDefault(); LAY.aiPos = 'head'; applyLayout(); saveLayout(); });
+})();
+
+/* 왼쪽 위 로고(홈) 이미지 */
+function applyLogo(){
+  const L = LAY.logo, brand = $('brand'), img = $('brandImg');
+  const has = !!(L && L.src);
+  brand.classList.toggle('has-img', has);
+  brand.classList.toggle('full', has && L.mode === 'full');
+  img.hidden = !has;
+  if (has){
+    if (img.getAttribute('src') !== L.src) img.src = L.src;
+    img.className = L.mode === 'full' ? 'full' : 'icon';
+    img.alt = L.mode === 'full' ? '홈' : '';
+    brand.style.setProperty('--lh', (L.h || (L.mode === 'full' ? 44 : 32)) + 'px');
+  } else brand.style.removeProperty('--lh');
+  $('logoMode').hidden = $('logoSize').hidden = $('logoReset').hidden = !has;
+  if (has) $('logoMode').textContent = L.mode === 'full' ? '아이콘으로' : '로고 전체로';
+  $('logoUp').textContent = has ? '이미지 바꾸기' : '이미지 올리기';
+}
+function readLogo(file){
+  if (!file || !/^image\//.test(file.type)) { alert('이미지 파일(PNG, JPG, SVG 등)을 선택해 주세요.'); return; }
+  const fr = new FileReader();
+  fr.onload = () => {
+    const url = fr.result;
+    const im = new Image();
+    im.onload = () => {
+      const ratio = im.naturalWidth / Math.max(1, im.naturalHeight);
+      const mode = ratio > 1.6 ? 'full' : 'icon';
+      let src = url;
+      // 큰 이미지는 저장 공간을 위해 축소 (투명 배경 유지)
+      if (file.type !== 'image/svg+xml' || url.length > 300000){
+        const max = 480, s = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight));
+        const cv = document.createElement('canvas');
+        cv.width = Math.round(im.naturalWidth * s); cv.height = Math.round(im.naturalHeight * s);
+        cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height);
+        src = cv.toDataURL('image/png');
+        if (src.length > 900000) src = cv.toDataURL('image/webp', 0.9);
+      }
+      LAY.logo = {src, mode, h: mode === 'full' ? 44 : 32};
+      applyLayout(); saveLayout();
+    };
+    im.onerror = () => alert('이미지를 읽을 수 없습니다.');
+    im.src = url;
+  };
+  fr.readAsDataURL(file);
+}
+$('brand').addEventListener('click', e => { if (document.body.classList.contains('editing')){ e.preventDefault(); $('logoFile').click(); } });
+$('logoUp').onclick = () => $('logoFile').click();
+$('logoFile').onchange = e => { readLogo(e.target.files[0]); e.target.value = ''; };
+$('logoMode').onclick = () => { const L = LAY.logo; L.mode = L.mode === 'full' ? 'icon' : 'full'; L.h = L.mode === 'full' ? 44 : 32; applyLayout(); saveLayout(); };
+$('logoSize').querySelectorAll('button').forEach(b => b.onclick = () => {
+  const L = LAY.logo, max = L.mode === 'full' ? 120 : 56;
+  L.h = Math.max(20, Math.min(max, (L.h || 32) + (+b.dataset.d) * 4)); applyLayout(); saveLayout();
+});
+$('logoReset').onclick = () => { LAY.logo = null; applyLayout(); saveLayout(); };
+['dragenter','dragover'].forEach(ev => $('side').addEventListener(ev, e => {
+  if (document.body.classList.contains('editing') && e.dataTransfer && [...e.dataTransfer.types].includes('Files')){ e.preventDefault(); $('brand').classList.add('drop'); }
+}));
+['dragleave','drop'].forEach(ev => $('side').addEventListener(ev, () => $('brand').classList.remove('drop')));
+$('side').addEventListener('drop', e => {
+  if (!document.body.classList.contains('editing') || !e.dataTransfer.files.length) return;
+  e.preventDefault(); readLogo(e.dataTransfer.files[0]);
 });
 
 /* editable text */
@@ -896,7 +1027,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.b
 
 /* reset / export / import / save html */
 $('edReset').onclick = () => {
-  if (!confirm('배치·크기·문구·삭제한 항목을 처음 상태로 되돌릴까요?')) return;
+  if (!confirm('배치·크기·문구·삭제한 항목·로고 이미지를 처음 상태로 되돌릴까요?')) return;
   try { localStorage.removeItem(LKEY); } catch(e){}
   LAY = Object.assign(blank(), BAKED || {}); applyLayout(); saveLayout();
 };
