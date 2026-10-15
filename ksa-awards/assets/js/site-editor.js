@@ -51,7 +51,8 @@
     explore:Object.assign({},SC.EXPLORE_DEF||{}),
     event:{title:'탐사 완료! 선물이 도착했어요',text:'다섯 지수의 신호를 모두 해독했어요.\n캐릭터 친구들이 준비한 선물을 확인해 보세요.',btn:'메인 사이트로',link:''},
     brand:{logo:'',name:text($('.brand-text b')),sub:text($('.brand-text span')),showText:!($('.brand-text')||{}).hidden},
-    homepages:Object.fromEntries(IDX.map(x=>[x.id,x.homepage]))
+    homepages:Object.fromEntries(IDX.map(x=>[x.id,x.homepage])),
+    results:Object.fromEntries(IDX.map(x=>[x.id,''])) /* each index's survey-results site; empty = button shows 준비 중 */
   };
   let saved=null,base=null,cfg=clone(DEFAULTS),backend='none',db=null,docRef=null; /* base: the stored copy the current edits started from */
 
@@ -79,6 +80,7 @@
     if(o&&o.schedule&&typeof o.schedule==='object')for(const id of Object.keys(o.schedule))for(const ph of Object.keys(o.schedule[id]||{})){const r=ST.normRange(o.schedule[id][ph]);if(r)o.schedule[id][ph]=r}return o}
   function sanitize(c){
     for(const id of Object.keys(c.homepages))if(!okUrl(c.homepages[id]))c.homepages[id]=DEFAULTS.homepages[id];
+    for(const id of Object.keys(c.results))if(c.results[id]&&!okUrl(c.results[id]))c.results[id]='';
     if(!['homepage','detail','flip'].includes(c.planetClick))c.planetClick='homepage';
     for(const id of Object.keys(c.logos))if(c.logos[id]&&!SC.logoUrl(c.logos[id]))c.logos[id]='';
     if(c.brand.logo&&!SC.logoUrl(c.brand.logo))c.brand.logo='';
@@ -120,6 +122,7 @@
     $$('#nav a[href="#schedule"],footer a[href="#schedule"]').forEach(a=>a.closest('li,a').hidden=!c.showSchedule);
     IDX.forEach(x=>{const o=c.indices[x.id]||{};INDEX_FIELDS.forEach(([f])=>{x[f]=o[f]});x.charts=(o.charts||[]).map(ch=>({title:ch.title,inline:!!ch.inline,dims:ch.dims.map(d=>[d[0],d[1]])}));if(x.charts.length)x.dims=x.charts[0].dims.map(d=>[d[0],d[1]]);
       if(c.homepages[x.id])x.homepage=c.homepages[x.id];
+      x.results=c.results[x.id]||'';
       const u=SC.logoUrl(c.logos[x.id]);x.logo=u||SC.DEFAULT_LOGO[x.id]||x.logo;x.logoCustom=!!u;
       $$(`.orb-plaque[data-idx="${x.id}"] img`).forEach(im=>{if(im.getAttribute('src')!==x.logo)im.src=x.logo})});
     if(K0.schedule)for(const id of Object.keys(c.schedule))if(K0.schedule[id])for(const [ph] of PHASES)K0.schedule[id][ph]=c.schedule[id][ph].slice();
@@ -166,6 +169,8 @@
         </div>
         <p class="se-help">연결할 공식 사이트 주소</p>
         ${IDX.map(x=>inp(`homepages.${x.id}`,esc(x.code),{type:'url',hint:esc(x.name)})).join('')}
+        <p class="se-help">조사결과 사이트 주소 · 지수 소개의 '조사결과 보기' 버튼에 연결됩니다. 비워 두면 '준비 중'으로 보입니다.</p>
+        ${IDX.map(x=>inp(`results.${x.id}`,esc(x.code)+' 조사결과',{type:'url',hint:esc(x.name)})).join('')}
       </div></details>
       <details><summary>지수별 내용</summary><div class="se-fields">
         ${IDX.map(x=>`<details class="se-sub"><summary><i style="background:${x.color}"></i>${esc(x.code)}</summary><div class="se-fields">
@@ -281,6 +286,7 @@
     if(!k)return;
     if(el.type==='checkbox'){setPath(cfg,k,el.checked);changed();return}
     if(k==='event.link'){if(el.value&&!okUrl(el.value)){el.setAttribute('aria-invalid','true');return}el.removeAttribute('aria-invalid');setPath(cfg,k,el.value);changed();return}
+    if(k.startsWith('results.')){if(el.value&&!okUrl(el.value)){el.setAttribute('aria-invalid','true');return}el.removeAttribute('aria-invalid');setPath(cfg,k,el.value.trim());changed();return}
     if(k.startsWith('homepages.')){if(el.value&&!okUrl(el.value)){el.setAttribute('aria-invalid','true');return}el.removeAttribute('aria-invalid');setPath(cfg,k,el.value||getPath(DEFAULTS,k));changed();return}
     if(k.startsWith('schedule.')){
       const ks=k.split('.'),r=cfg.schedule[ks[1]][ks[2]].slice();r[+ks[3]]=el.value;
@@ -398,6 +404,7 @@ ${JSON.stringify(cfg)}
 - event: {title, text, btn, link} — 화성 탐사 완료 이벤트의 축하 카드 (link는 https 주소 또는 빈칸)
 - logos, brand.logo, indices.*.song.audio/dur: 바꾸지 마세요 (song.title, song.text 는 바꿔도 됩니다) (brand.name/brand.sub/brand.showText 는 바꿔도 됩니다)
 - homepages: {qei|cqi|pbi|well|dcxi: https 주소}
+- results: {qei|cqi|pbi|well|dcxi: 조사결과 사이트 https 주소 또는 빈 문자열}
 
 사용자 요청: ${q}
 

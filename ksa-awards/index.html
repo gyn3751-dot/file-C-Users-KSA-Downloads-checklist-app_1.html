@@ -324,6 +324,7 @@ section[id]{scroll-margin-top:72px}
 @media (max-width:860px){.dim-scale{grid-template-columns:minmax(0,7rem) minmax(0,1fr) 2.8rem}}
 @keyframes grow{from{transform:scaleX(0)}}
 .d-actions{display:flex;flex-wrap:wrap;gap:var(--s-3);align-items:center}
+.d-actions .btn.is-off{opacity:.45;cursor:default;pointer-events:none}
 .d-actions .note{font-size:.8rem;color:var(--ink-3)}
 @media (max-width:860px){
   .explorer{grid-template-columns:minmax(0,1fr)}
@@ -729,7 +730,7 @@ body.se-open .se-fab{display:none}
       <p class="d-desc">${i.desc}</p>
       <dl class="d-meta"><div><dt>평가 대상</dt><dd>${i.target}</dd></div><div><dt>평가 방식</dt><dd>${i.method}</dd></div><div><dt>결과 발표</dt><dd>매년 ${i.announce}</dd></div></dl>
       ${dimsHTML(i)}
-      <div class="d-actions"><a href="${i.homepage}" class="btn" target="_blank" rel="noopener">${i.code} 공식 홈페이지 <span class="arr">↗</span></a><span class="note">세부 평가 기준은 공식 홈페이지에서 확인할 수 있습니다.</span></div>`;
+      <div class="d-actions"><a href="${i.homepage}" class="btn" target="_blank" rel="noopener">${i.code} 공식 홈페이지 <span class="arr">↗</span></a>${i.results?`<a href="${esc(i.results)}" class="btn ghost" target="_blank" rel="noopener">조사결과 보기 <span class="arr">↗</span></a>`:`<span class="btn ghost is-off" aria-disabled="true" title="조사결과 링크 준비 중">조사결과 · 준비 중</span>`}<span class="note">세부 평가 기준은 공식 홈페이지에서 확인할 수 있습니다.</span></div>`;
     detail.classList.remove('swap');void detail.offsetWidth;detail.classList.add('swap');
     if(scroll)document.getElementById('indices').scrollIntoView({behavior:'smooth'});
   }
