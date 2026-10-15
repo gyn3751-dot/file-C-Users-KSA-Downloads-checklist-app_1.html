@@ -168,10 +168,23 @@ body.editing .page-head>.ai-box{outline:1.5px dashed var(--c1);outline-offset:-1
 .chart-box{position:relative;height:260px}
 .chart-box.grow{flex:1;min-height:200px;height:auto}
 .year-inputs{display:none;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--surface2);font-size:13px;color:var(--text2)}
-body.editing .year-inputs{display:flex}
+body.editing .year-inputs{display:block}
+.yr-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-bottom:8px}
+.yr-head b{color:var(--text);font-size:13px}
+.yr-head small{color:var(--text3);font-size:12px}
+.yr-rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px 12px}
+.yr-row{display:flex;align-items:center;gap:6px}
+.yr-row label{display:inline-flex;align-items:center;gap:4px}
+.year-inputs .yr-y{width:70px}
+.yr-del{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text3);cursor:pointer;font-size:12px}
+.yr-del:hover{background:var(--down-bg);color:var(--down);border-color:transparent}
+.yr-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.yr-actions button{height:30px;padding:0 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+.yr-actions button:hover:not(:disabled){color:var(--text);background:var(--surface)}
+.yr-actions button:disabled{opacity:.45;cursor:not-allowed}
+.yr-actions .yr-add{color:var(--c1);border-color:var(--c1)}
 .year-inputs input{width:84px;height:30px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);padding:0 8px;font:inherit;font-size:13px}
 .year-inputs input:focus{outline:2px solid var(--c1);border-color:transparent}
-.year-inputs small{flex-basis:100%;color:var(--text3);font-size:12px}
 .kpi2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
 .kpi2>div{background:var(--surface2);border-radius:10px;padding:10px 12px;min-width:0}
 .kpi2 .l{font-size:12.5px;color:var(--text2);display:flex;justify-content:space-between;align-items:center;gap:4px;flex-wrap:wrap}
@@ -635,10 +648,13 @@ function drawCharts(){
 
   // 최근 3개년 종합 웰니스지수 (이전 연도 값은 편집 모드에서 입력)
   const yv = yearValues();
-  const prev = yv[yv.length-2];
-  $('barSub').textContent = `${SHORT[T]} · 최근 3개년` + (prev.v != null ? ` · 전년 대비 ${(D.index-prev.v>=0?'+':'')}${(D.index-prev.v).toFixed(2)}점` : '');
+  const last = yv[yv.length-1], prev = yv[yv.length-2];
+  const dlt = last && prev && last.v != null && prev.v != null ? last.v - prev.v : null;
+  $('barSub').textContent = `${SHORT[T]} · ${yv.length ? (yv.length > 1 ? `${yv[0].y}~${last.y}년` : `${last.y}년`) : '연도 없음'}` +
+    (dlt != null ? ` · ${prev.y}년 대비 ${dlt >= 0 ? '+' : ''}${dlt.toFixed(2)}점` : '');
   const yearDs = barDs('종합 웰니스지수', yv.map(y => y.v), yv.map((y,i) => i === yv.length-1 ? c1 : c1 + '80'));
   Object.assign(yearDs, {maxBarThickness:56, categoryPercentage:.7, barPercentage:.8});
+  if (yv.length > 7) yearDs.maxBarThickness = 36;
   charts.push(new Chart($('barChart'), {type:'bar', data:{labels:yv.map(y => y.y + '년'), datasets:[yearDs]},
     options:{maintainAspectRatio:false, layout:{padding:{top:18}}, plugins:{legend:{display:false},
       tooltip:Object.assign({}, tooltip, {callbacks:{label:ctx => ctx.parsed.y == null ? ' 값 입력 전' : ` 종합 웰니스지수: ${ctx.parsed.y.toFixed(2)}점`}}),
@@ -792,23 +808,70 @@ function loadLayout(){
 }
 let LAY = loadLayout();
 
-/* 최근 3개년: 올해 값은 데이터에서, 이전 2개년은 편집 모드에서 입력 (지수별로 저장) */
-const CUR_YEAR = 2026;
-function yearValues(){
-  const saved = (LAY.years && LAY.years[T]) || {};
-  return [CUR_YEAR-2, CUR_YEAR-1, CUR_YEAR].map(y => ({y, v: y === CUR_YEAR ? D.index : (saved[y] != null && saved[y] !== '' ? +saved[y] : null)}));
+/* 연도별 종합 웰니스지수: 연도·점수를 편집 모드에서 자유롭게 추가·삭제 (지수별로 저장)
+   조사 연도(CUR_YEAR) 점수를 비워 두면 조사 데이터 값을 사용 */
+const CUR_YEAR = 2026, MAX_YEARS = 12;
+function yearRows(){
+  LAY.yearRows = LAY.yearRows || {};
+  if (!LAY.yearRows[T]){
+    const old = (LAY.years && LAY.years[T]) || {};   // 이전 버전(2개년 입력칸) 값 이어받기
+    LAY.yearRows[T] = [CUR_YEAR-2, CUR_YEAR-1, CUR_YEAR].map(y => ({y, v: old[y] != null && old[y] !== '' ? +old[y] : null}));
+  }
+  return LAY.yearRows[T];
 }
+const yearValue = r => (r.v == null || r.v === '' || isNaN(r.v)) ? (r.y === CUR_YEAR ? D.index : null) : +r.v;
+function yearValues(){
+  return yearRows().filter(r => Number.isFinite(+r.y)).slice().sort((a,b) => a.y - b.y).map(r => ({y: +r.y, v: yearValue(r)}));
+}
+function redrawYears(){ saveLayout(); if (window.Chart) drawCharts(); }
 function renderYearInputs(){
-  const saved = (LAY.years && LAY.years[T]) || {};
-  $('yearInputs').innerHTML = [CUR_YEAR-2, CUR_YEAR-1].map(y =>
-    `<label>${y}년 <input type="number" step="0.01" min="0" max="100" inputmode="decimal" data-y="${y}" value="${saved[y] ?? ''}" placeholder="점수"></label>`).join('') +
-    `<span>${CUR_YEAR}년 <b class="num">${D.index.toFixed(2)}</b>점 (조사 데이터)</span><small>이전 연도 종합 웰니스지수를 입력하면 그래프에 바로 반영됩니다 · ${esc(SHORT[T])} 화면에만 저장</small>`;
-  $('yearInputs').querySelectorAll('input').forEach(inp => inp.oninput = () => {
-    LAY.years = LAY.years || {}; LAY.years[T] = LAY.years[T] || {};
-    const v = inp.value.trim();
-    if (v === '') delete LAY.years[T][inp.dataset.y]; else LAY.years[T][inp.dataset.y] = Math.max(0, Math.min(100, +v));
-    saveLayout(); if (window.Chart) drawCharts();
+  const rows = yearRows().slice().sort((a,b) => a.y - b.y);
+  LAY.yearRows[T] = rows;
+  $('yearInputs').innerHTML = `
+    <div class="yr-head"><b>연도별 점수 편집</b><small>${esc(SHORT[T])} 화면에만 저장 · ${CUR_YEAR}년 점수를 비우면 조사 데이터(${D.index.toFixed(2)}점) 사용</small></div>
+    <div class="yr-rows">${rows.map((r,i) => `
+      <div class="yr-row" data-i="${i}">
+        <label><input class="yr-y" type="number" step="1" min="1900" max="2100" inputmode="numeric" value="${r.y}" aria-label="연도">년</label>
+        <label><input class="yr-v" type="number" step="0.01" min="0" max="100" inputmode="decimal" value="${r.v ?? ''}" placeholder="${r.y === CUR_YEAR ? D.index.toFixed(2) : '점수'}" aria-label="${r.y}년 점수">점</label>
+        <button type="button" class="yr-del" title="이 연도 삭제" aria-label="${r.y}년 삭제">✕</button>
+      </div>`).join('')}
+    </div>
+    <div class="yr-actions">
+      <button type="button" class="yr-add" ${rows.length >= MAX_YEARS ? 'disabled' : ''}>＋ 이전 연도 추가</button>
+      <button type="button" class="yr-add-next" ${rows.length >= MAX_YEARS ? 'disabled' : ''}>＋ 다음 연도 추가</button>
+      <button type="button" class="yr-reset">기본값으로</button>
+    </div>`;
+  const box = $('yearInputs');
+  box.querySelectorAll('.yr-row').forEach(row => {
+    const r = rows[+row.dataset.i];
+    const yIn = row.querySelector('.yr-y'), vIn = row.querySelector('.yr-v');
+    vIn.oninput = () => { const s = vIn.value.trim(); r.v = s === '' ? null : Math.max(0, Math.min(100, +s)); redrawYears(); };
+    yIn.onchange = () => {
+      const y = Math.round(+yIn.value);
+      if (!Number.isFinite(y) || y < 1900 || y > 2100){ yIn.value = r.y; return; }
+      if (rows.some(o => o !== r && o.y === y)){ alert(`${y}년은 이미 있습니다.`); yIn.value = r.y; return; }
+      r.y = y; renderYearInputs(); redrawYears();
+    };
+    row.querySelector('.yr-del').onclick = () => {
+      const i = LAY.yearRows[T].indexOf(r); if (i >= 0) LAY.yearRows[T].splice(i, 1);
+      renderYearInputs(); redrawYears();
+    };
   });
+  const add = before => {
+    const ys = LAY.yearRows[T].map(r => r.y);
+    const y = ys.length ? (before ? Math.min(...ys) - 1 : Math.max(...ys) + 1) : CUR_YEAR;
+    LAY.yearRows[T].push({y, v: null});
+    renderYearInputs(); redrawYears();
+    const inp = [...box.querySelectorAll('.yr-y')].find(i => +i.value === y);
+    inp?.closest('.yr-row').querySelector('.yr-v').focus();
+  };
+  box.querySelector('.yr-add').onclick = () => add(true);
+  box.querySelector('.yr-add-next').onclick = () => add(false);
+  box.querySelector('.yr-reset').onclick = () => {
+    if (!confirm('연도 목록을 기본값(최근 3개년)으로 되돌릴까요? 입력한 점수는 지워집니다.')) return;
+    delete LAY.yearRows[T]; if (LAY.years) delete LAY.years[T];
+    renderYearInputs(); redrawYears();
+  };
 }
 renderYearInputs();
 const textDefaults = {};
