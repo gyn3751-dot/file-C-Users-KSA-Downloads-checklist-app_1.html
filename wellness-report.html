@@ -70,6 +70,15 @@ body.editing .brand{outline:1.5px dashed var(--c1);outline-offset:2px;cursor:poi
 .nav a.on{background:var(--c1-soft);color:var(--c1);font-weight:600}
 .nav a .tag{margin-left:auto;font-size:11px;color:var(--text3);font-weight:500}
 .nav a.on .tag{color:var(--c1)}
+.nav a.on-parent{color:var(--c1);font-weight:600}
+.nav-empty{font-size:12.5px;color:var(--text3);padding:6px 10px 2px;line-height:1.5}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:24px 12px;color:var(--text3);font-size:12.5px;border:1.5px dashed var(--border);border-radius:12px;min-height:140px;flex:1;line-height:1.5}
+.empty-state svg{width:26px;height:26px;color:var(--c1);opacity:.6}
+.empty-state b{color:var(--text2);font-size:14px}
+.chart-box.is-empty{display:flex;height:auto;min-height:160px}
+.ai-empty{color:var(--text3)!important;font-size:13.5px!important}
+.rings .empty-state{width:100%}
+.rings .empty-state svg{width:26px;height:26px}
 .side-card{margin-top:auto;background:var(--surface2);border-radius:12px;padding:16px;font-size:12px;color:var(--text2)}
 .side-card b{display:block;color:var(--text);font-size:13px;margin-bottom:4px}
 .side-card .big{font-size:22px;font-weight:700;color:var(--text);margin-top:8px}
@@ -330,15 +339,19 @@ body.editing main{padding-bottom:110px}
   <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
   <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/></symbol>
   <symbol id="i-ai" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8zM19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/></symbol>
+  <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="M8.5 14 7 22l5-3 5 3-1.5-8"/></symbol>
+  <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><path d="M4 14h3v6H5a1 1 0 0 1-1-1zM20 14h-3v6h2a1 1 0 0 0 1-1zM17 20a4 4 0 0 1-4 2h-1"/></symbol>
+  <symbol id="i-crown" viewBox="0 0 24 24"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/></symbol>
+  <symbol id="i-device" viewBox="0 0 24 24"><rect x="3" y="4" width="13" height="10" rx="1.5"/><path d="M7 18h5M9.5 14v4"/><rect x="17" y="8" width="5" height="12" rx="1"/></symbol>
   <symbol id="i-funnel" viewBox="0 0 24 24"><path d="M3 4h18l-7 9v6l-4 2v-8z"/></symbol>
 </svg>
 
 <div class="app">
   <aside id="side">
-    <a class="brand" id="brand" href="?type=0" aria-label="홈">
-      <span class="logo" id="brandIcon"><svg class="i"><use href="#i-heart"/></svg></span>
+    <a class="brand" id="brand" href="?index=wellness&amp;type=0" aria-label="홈">
+      <span class="logo" id="brandIcon"><svg class="i"><use href="#i-chart"/></svg></span>
       <img id="brandImg" alt="" hidden>
-      <span class="brand-text"><span data-edit="side.name">Wellness Index</span><small data-edit="side.sub">한국웰니스지수 2026</small></span>
+      <span class="brand-text"><span data-edit="side.name">Index Dashboard</span><small data-edit="side.sub">2026 지수 대시보드</small></span>
     </a>
     <div class="logo-tools" id="logoTools" role="group" aria-label="로고 이미지 편집">
       <button type="button" id="logoUp">이미지 올리기</button>
@@ -354,7 +367,7 @@ body.editing main{padding-bottom:110px}
     <nav class="nav" id="nav1"></nav>
     <div class="side-card">
       <b data-edit="side.t">조사 개요</b>
-      <span data-edit="side.s">전국 소비자 대상 웰니스 상품·서비스 평가 조사</span>
+      <span id="sideDesc"></span>
       <div class="big num" id="sideN"></div>
       <div id="sideSub"></div>
     </div>
@@ -488,9 +501,25 @@ const DATA = {"0":{"name":"한국웰니스 전체","n":60000,"index":64.52,"comp
 const ICON = {0:'i-home',1:'i-box',2:'i-spark',3:'i-building',4:'i-bank'};
 const SHORT = {0:'한국웰니스 전체',1:'제품',2:'서비스',3:'공간형 서비스',4:'금융 서비스'};
 
-let T = String(new URLSearchParams(location.search).get('type') ?? '0');
-if (!DATA[T]) T = '0';
-const D = DATA[T], ALL = DATA['0'], isAll = T === '0';
+/* 대시보드 지수 목록 — data가 있는 지수만 집계 결과를 표시하고, 나머지는 같은 구성으로 '데이터 등록 전' 상태 */
+const INDICES = [
+  {id:'quality',    name:'한국품질만족지수',   label:'품질만족지수',       icon:'i-award'},
+  {id:'callcenter', name:'콜센터품질지수',     label:'콜센터품질지수',     icon:'i-headset'},
+  {id:'premium',    name:'프리미엄브랜드지수', label:'프리미엄브랜드지수', icon:'i-crown'},
+  {id:'wellness',   name:'한국웰니스지수',     label:'웰니스지수',         icon:'i-heart', data:DATA, subs:['1','2','3','4']},
+  {id:'digital',    name:'디지털고객경험지수', label:'디지털고객경험지수', icon:'i-device'}
+];
+const QS = new URLSearchParams(location.search);
+let IDX = QS.get('index') || 'wellness';
+if (!INDICES.some(x => x.id === IDX)) IDX = 'wellness';
+const CUR = INDICES.find(x => x.id === IDX);
+const HAS_DATA = !!CUR.data;
+let T = String(QS.get('type') ?? '0');
+if (!HAS_DATA || !CUR.data[T]) T = '0';
+const D = HAS_DATA ? CUR.data[T] : null, ALL = HAS_DATA ? CUR.data['0'] : null, isAll = T === '0';
+const PAGE_NAME = HAS_DATA ? SHORT[T] : CUR.name;
+const MAIN_LABEL = '종합 ' + CUR.label;
+const pageHref = (id, t) => id === 'wellness' ? `?index=wellness&type=${t ?? 0}` : `?index=${id}`;
 const $ = id => document.getElementById(id);
 const fmt = n => n.toLocaleString('ko-KR');
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -515,15 +544,26 @@ $('menuBtn').onclick = () => document.body.classList.toggle('nav-open');
 document.addEventListener('click', e => { if (document.body.classList.contains('nav-open') && !e.target.closest('aside,#menuBtn')) document.body.classList.remove('nav-open'); });
 
 /* sidebar + header */
-const navItem = k => `<a href="?type=${k}" class="${k===T?'on':''}">${ic(ICON[k])}<span>${SHORT[k]}</span><span class="tag num">${DATA[k].index.toFixed(1)}</span></a>`;
-$('nav0').innerHTML = navItem('0');
-$('nav1').innerHTML = ['1','2','3','4'].map(navItem).join('');
-$('sideN').textContent = fmt(ALL.n) + '명';
-$('sideSub').textContent = `4개 지수 · ${ALL.nCat}개 부문 · ${ALL.nBrand}개 브랜드`;
-document.title = (isAll ? '한국웰니스지수' : D.name) + ' 대시보드';
-$('pTitle').textContent = isAll ? '한국웰니스지수 전체 평균' : D.name;
-$('pSub').textContent = isAll ? '4개 지수 전체 응답자 기준 종합 결과' : '한국웰니스 전체 평균과 비교한 결과';
-$('crumb').innerHTML = isAll ? `Home / <b>전체 평균</b>` : `Home / 한국웰니스지수 / <b>${esc(SHORT[T])}</b>`;
+$('nav0').innerHTML = INDICES.map(x => {
+  const cls = x.id !== IDX ? '' : (isAll ? 'on' : 'on-parent');
+  return `<a href="${pageHref(x.id)}" class="${cls}">${ic(x.icon)}<span>${esc(x.name)}</span>${x.data ? `<span class="tag num">${x.data['0'].index.toFixed(1)}</span>` : ''}</a>`;
+}).join('');
+// 지수별 결과: 지수마다 하위 결과를 설정 (현재는 한국웰니스지수만)
+$('nav1').innerHTML = (CUR.subs && CUR.subs.length)
+  ? CUR.subs.map(k => `<a href="${pageHref(IDX, k)}" class="${k===T?'on':''}">${ic(ICON[k])}<span>${SHORT[k]}</span><span class="tag num">${CUR.data[k].index.toFixed(1)}</span></a>`).join('')
+  : '<p class="nav-empty">아직 설정된 결과가 없습니다</p>';
+$('sideDesc').textContent = HAS_DATA ? '전국 소비자 대상 웰니스 상품·서비스 평가 조사' : '조사 자료 등록 전입니다';
+if (HAS_DATA){
+  $('sideN').textContent = fmt(ALL.n) + '명';
+  $('sideSub').textContent = `${CUR.name} · ${ALL.nCat}개 부문 · ${ALL.nBrand}개 브랜드`;
+} else {
+  $('sideN').textContent = '—';
+  $('sideSub').textContent = `${CUR.name} · 데이터 등록 전`;
+}
+document.title = (HAS_DATA ? (isAll ? CUR.name : D.name) : CUR.name) + ' 대시보드';
+$('pTitle').textContent = HAS_DATA ? (isAll ? `${CUR.name} 전체 평균` : D.name) : CUR.name;
+$('pSub').textContent = HAS_DATA ? (isAll ? '4개 지수 전체 응답자 기준 종합 결과' : '한국웰니스 전체 평균과 비교한 결과') : '데이터 등록 전 · 한국웰니스지수와 같은 구성으로 표시됩니다';
+$('crumb').innerHTML = HAS_DATA && !isAll ? `Home / ${esc(CUR.name)} / <b>${esc(PAGE_NAME)}</b>` : `Home / <b>${esc(HAS_DATA ? '전체 평균' : CUR.name)}</b>`;
 
 /* KPI cards */
 function kpi(el, label, val, unit, icon, diffHtml, foot){
@@ -531,7 +571,30 @@ function kpi(el, label, val, unit, icon, diffHtml, foot){
     <div class="row"><div class="ico">${ic(icon)}</div><div class="val num">${val}<small>${unit}</small></div></div>
     ${foot?`<div style="font-size:13px;color:var(--text3);margin-top:10px;text-align:right">${foot}</div>`:''}`;
 }
-kpi('k1','종합 웰니스지수', D.index.toFixed(2), '점', 'i-heart', isAll ? '' : badge(D.index-ALL.index), isAll ? '경쟁력·만족지수 평균' : `전체 평균 ${ALL.index.toFixed(2)}점`);
+const EMPTY_HTML = `<div class="empty-state">${ic('i-chart')}<b>데이터 등록 전</b><span>자료가 등록되면 한국웰니스지수와 같은 방식으로 집계됩니다</span></div>`;
+function renderEmptyState(){
+  kpi('k1', MAIN_LABEL, '—', '', CUR.icon, '', '데이터 등록 전');
+  $('k2').innerHTML = `<div class="top"><span>경쟁력·만족지수</span></div>
+    <div class="kpi2"><div><div class="l"><span>경쟁력지수</span></div><div class="v num">—</div></div>
+    <div><div class="l"><span>만족지수</span></div><div class="v num">—</div></div></div>
+    <div style="font-size:13px;color:var(--text3);margin-top:10px;text-align:right">데이터 등록 전</div>`;
+  kpi('k3', '전반적 만족도', '—', '', 'i-thumb', '', '데이터 등록 전');
+  kpi('k4', '응답자 수', '—', '', 'i-users', '', '데이터 등록 전');
+  ['region','income','gender','topCats','a2'].forEach(id => { $(id).innerHTML = EMPTY_HTML; });
+  $('a2').classList.remove('cols'); $('gender').classList.remove('duo');
+  $('rings').innerHTML = EMPTY_HTML; $('ringLegend').innerHTML = '';
+  $('recV').textContent = '—';
+  $('recB').innerHTML = '<span style="font-size:12px;color:var(--text3)">데이터 등록 전</span>';
+  $('lineSub').textContent = '데이터 등록 전'; $('lineLegend').innerHTML = '';
+  ['lineChart','areaChart','agChart'].forEach(id => { const box = $(id).parentElement; box.innerHTML = EMPTY_HTML; box.classList.add('is-empty'); });
+  document.querySelector('[data-id="ag"] .legend')?.remove();
+  $('brandSub').textContent = '데이터 등록 전'; $('catSel').hidden = true;
+  $('brandTbl').closest('.tbl').innerHTML = EMPTY_HTML;
+  $('q').disabled = true; $('q').placeholder = '데이터 등록 후 검색할 수 있습니다';
+}
+if (!HAS_DATA) renderEmptyState();
+else {
+kpi('k1',MAIN_LABEL, D.index.toFixed(2), '점', 'i-heart', isAll ? '' : badge(D.index-ALL.index), isAll ? '경쟁력·만족지수 평균' : `전체 평균 ${ALL.index.toFixed(2)}점`);
 $('k2').innerHTML = `<div class="top"><span>웰니스 경쟁력·만족지수</span></div>
   <div class="kpi2">
     <div><div class="l"><span>경쟁력지수</span>${isAll ? '' : badge(D.comp-ALL.comp)}</div><div class="v num">${D.comp.toFixed(2)}<small>점</small></div></div>
@@ -580,9 +643,12 @@ $('topCats').querySelectorAll('a').forEach(a => a.onclick = () => { selectCat(+a
 $('recV').textContent = D.rec.toFixed(1) + '%';
 $('recB').innerHTML = isAll ? '<span style="font-size:12px;color:var(--text3)">추천하고 싶다 (Top2)</span>' : badge(D.rec-ALL.rec,'%p') + ' <span style="font-size:12px;color:var(--text3)">전체 평균 대비</span>';
 
+}
+
 /* rings (A1) */
 const RING_COLORS = ['--c1','--c2','--c3','--c4','--c5'];
 function drawRings(){
+  if (!HAS_DATA) return;
   const items = [...D.a1].sort((a,b)=>b.v-a.v);
   const cx=95, cy=95, w=11, gap=5;
   let svg = `<svg viewBox="0 0 190 190" role="img" aria-label="중요 요소 비율">`;
@@ -650,31 +716,33 @@ function drawCharts(){
   const yv = yearValues();
   const last = yv[yv.length-1], prev = yv[yv.length-2];
   const dlt = last && prev && last.v != null && prev.v != null ? last.v - prev.v : null;
-  $('barSub').textContent = `${SHORT[T]} · ${yv.length ? (yv.length > 1 ? `${yv[0].y}~${last.y}년` : `${last.y}년`) : '연도 없음'}` +
+  $('barSub').textContent = `${PAGE_NAME} · ${yv.length ? (yv.length > 1 ? `${yv[0].y}~${last.y}년` : `${last.y}년`) : '연도 없음'}` +
     (dlt != null ? ` · ${prev.y}년 대비 ${dlt >= 0 ? '+' : ''}${dlt.toFixed(2)}점` : '');
-  const yearDs = barDs('종합 웰니스지수', yv.map(y => y.v), yv.map((y,i) => i === yv.length-1 ? c1 : c1 + '80'));
+  const yearDs = barDs(MAIN_LABEL, yv.map(y => y.v), yv.map((y,i) => i === yv.length-1 ? c1 : c1 + '80'));
   Object.assign(yearDs, {maxBarThickness:56, categoryPercentage:.7, barPercentage:.8});
   if (yv.length > 7) yearDs.maxBarThickness = 36;
   charts.push(new Chart($('barChart'), {type:'bar', data:{labels:yv.map(y => y.y + '년'), datasets:[yearDs]},
     options:{maintainAspectRatio:false, layout:{padding:{top:18}}, plugins:{legend:{display:false},
-      tooltip:Object.assign({}, tooltip, {callbacks:{label:ctx => ctx.parsed.y == null ? ' 값 입력 전' : ` 종합 웰니스지수: ${ctx.parsed.y.toFixed(2)}점`}}),
+      tooltip:Object.assign({}, tooltip, {callbacks:{label:ctx => ctx.parsed.y == null ? ' 값 입력 전' : ` ${MAIN_LABEL}: ${ctx.parsed.y.toFixed(2)}점`}}),
       valueLabels:{on:true, digits:2, emptyText:'입력 전'}}, scales:scales(0,100), interaction:{mode:'index',intersect:false}}}));
+
+  if (!HAS_DATA) return;
 
   // 평가차원별 점수 (지수별 화면만)
   if (!isAll && $('dimsChart')){
-    $('dimsSub').textContent = `${SHORT[T]} vs 한국웰니스 전체 평균`;
-    const dsets = [barDs(SHORT[T], D.dims.map(d=>d.v), c1), barDs('전체 평균', D.dims.map(d=>ALL.udims[d.u]), c3)];
+    $('dimsSub').textContent = `${PAGE_NAME} vs 한국웰니스 전체 평균`;
+    const dsets = [barDs(PAGE_NAME, D.dims.map(d=>d.v), c1), barDs('전체 평균', D.dims.map(d=>ALL.udims[d.u]), c3)];
     $('dimsLegend').innerHTML = dsets.map(s => `<span><i style="background:${s.backgroundColor}"></i>${esc(s.label)}</span>`).join('');
     charts.push(new Chart($('dimsChart'), {type:'bar', data:{labels:D.dims.map(d => d.k), datasets:dsets},
       options:{maintainAspectRatio:false, layout:{padding:{top:18}}, plugins:{legend:{display:false},tooltip,valueLabels:{on:true}}, scales:scales(0,100), interaction:{mode:'index',intersect:false}}}));
   }
 
   // line: age
-  const lsets = [{label: isAll?'전체 평균':SHORT[T], data:D.age.map(a=>a.v), borderColor:c1, backgroundColor:c1}];
+  const lsets = [{label: isAll?'전체 평균':PAGE_NAME, data:D.age.map(a=>a.v), borderColor:c1, backgroundColor:c1}];
   if (!isAll) lsets.push({label:'전체 평균', data:ALL.age.map(a=>a.v), borderColor:c3, backgroundColor:c3});
   lsets.forEach(s => Object.assign(s,{tension:.42,borderWidth:2.5,pointRadius:4,pointHoverRadius:6,pointBorderColor:surf,pointBorderWidth:2}));
   const vals = lsets.flatMap(s=>s.data);
-  $('lineSub').textContent = isAll ? '전체 응답자 기준' : `${SHORT[T]} vs 전체 평균`;
+  $('lineSub').textContent = isAll ? '전체 응답자 기준' : `${PAGE_NAME} vs 전체 평균`;
   $('lineLegend').innerHTML = lsets.map(s => `<span><i style="background:${s.borderColor}"></i>${esc(s.label)}</span>`).join('');
   charts.push(new Chart($('lineChart'), {type:'line', data:{labels:D.age.map(a=>a.k), datasets:lsets},
     options:{maintainAspectRatio:false, layout:{padding:{top:10}}, plugins:{legend:{display:false},tooltip,valueLabels:{on:true,only:0}},
@@ -695,7 +763,7 @@ function drawCharts(){
 }
 
 /* brand table */
-$('catSel').innerHTML = D.cats.map((c,i) => `<option value="${i}">${i+1}위 · ${esc(c.k)} (${c.v.toFixed(1)})</option>`).join('');
+if (HAS_DATA) $('catSel').innerHTML = D.cats.map((c,i) => `<option value="${i}">${i+1}위 · ${esc(c.k)} (${c.v.toFixed(1)})</option>`).join('');
 $('catSel').onchange = e => renderBrands(+e.target.value);
 function renderBrands(i, brandHL){
   const c = D.cats[i];
@@ -711,7 +779,7 @@ function selectCat(i, brand){ renderBrands(i, brand); $('brandCard').scrollIntoV
 
 /* search */
 const idx = [];
-D.cats.forEach((c,i) => { idx.push({t:c.k, s:'조사부문', i}); c.brands.forEach(b => idx.push({t:b.k, s:c.k, i, b:b.k})); });
+if (HAS_DATA) D.cats.forEach((c,i) => { idx.push({t:c.k, s:'조사부문', i}); c.brands.forEach(b => idx.push({t:b.k, s:c.k, i, b:b.k})); });
 const q = $('q'), qres = $('qres'); let hits = [], act = 0;
 function showHits(){
   qres.innerHTML = hits.map((h,j) => `<li class="${j===act?'act':''}" data-j="${j}">${esc(h.t)}<span>${esc(h.s)}</span></li>`).join('') || '<li style="color:var(--text3)">검색 결과 없음</li>';
@@ -773,9 +841,13 @@ const INSIGHTS = {
 };
 
 (function(){
-  const items = INSIGHTS[T] || [];
+  const items = HAS_DATA ? (INSIGHTS[T] || []) : [];
   const box = $('aiBox');
-  if (!items.length){ box.remove(); return; }
+  if (!items.length){
+    $('aiList').innerHTML = '<li class="on ai-empty">자료가 등록되면 AI 시사점이 표시됩니다.</li>';
+    $('aiNav').style.display = 'none'; $('aiAll').style.display = 'none';
+    return;
+  }
   $('aiList').innerHTML = items.map(([k,d], i) => `<li data-edit-html><span class="k" data-edit="ai.${T}.${i}.k">${esc(k)}</span><span data-edit="ai.${T}.${i}.d">${d}</span></li>`).join('');
   const lis = [...$('aiList').children];
   let cur = 0, timer = null;
@@ -794,7 +866,7 @@ const INSIGHTS = {
 /* ───────── 편집 모드: 카드 배치·크기·문구 ───────── */
 const LKEY = 'wi-layout-v1';
 const grid = $('grid');
-if (isAll) document.querySelector('[data-id="dims"]')?.remove();
+if (isAll || !HAS_DATA) document.querySelector('[data-id="dims"]')?.remove();
 const aiBox = $('aiBox');
 const cards = [...grid.querySelectorAll(':scope > [data-id]'), aiBox].filter(Boolean);
 const byId = id => cards.find(c => c.dataset.id === id);
@@ -811,28 +883,29 @@ let LAY = loadLayout();
 /* 연도별 종합 웰니스지수: 연도·점수를 편집 모드에서 자유롭게 추가·삭제 (지수별로 저장)
    조사 연도(CUR_YEAR) 점수를 비워 두면 조사 데이터 값을 사용 */
 const CUR_YEAR = 2026, MAX_YEARS = 12;
+const YK = IDX === 'wellness' ? T : IDX + ':' + T;   // 연도 목록 저장 키 (웰니스는 기존 키 유지)
 function yearRows(){
   LAY.yearRows = LAY.yearRows || {};
-  if (!LAY.yearRows[T]){
-    const old = (LAY.years && LAY.years[T]) || {};   // 이전 버전(2개년 입력칸) 값 이어받기
-    LAY.yearRows[T] = [CUR_YEAR-2, CUR_YEAR-1, CUR_YEAR].map(y => ({y, v: old[y] != null && old[y] !== '' ? +old[y] : null}));
+  if (!LAY.yearRows[YK]){
+    const old = (IDX === 'wellness' && LAY.years && LAY.years[T]) || {};   // 이전 버전(2개년 입력칸) 값 이어받기
+    LAY.yearRows[YK] = [CUR_YEAR-2, CUR_YEAR-1, CUR_YEAR].map(y => ({y, v: old[y] != null && old[y] !== '' ? +old[y] : null}));
   }
-  return LAY.yearRows[T];
+  return LAY.yearRows[YK];
 }
-const yearValue = r => (r.v == null || r.v === '' || isNaN(r.v)) ? (r.y === CUR_YEAR ? D.index : null) : +r.v;
+const yearValue = r => (r.v == null || r.v === '' || isNaN(r.v)) ? (r.y === CUR_YEAR && D ? D.index : null) : +r.v;
 function yearValues(){
   return yearRows().filter(r => Number.isFinite(+r.y)).slice().sort((a,b) => a.y - b.y).map(r => ({y: +r.y, v: yearValue(r)}));
 }
 function redrawYears(){ saveLayout(); if (window.Chart) drawCharts(); }
 function renderYearInputs(){
   const rows = yearRows().slice().sort((a,b) => a.y - b.y);
-  LAY.yearRows[T] = rows;
+  LAY.yearRows[YK] = rows;
   $('yearInputs').innerHTML = `
-    <div class="yr-head"><b>연도별 점수 편집</b><small>${esc(SHORT[T])} 화면에만 저장 · ${CUR_YEAR}년 점수를 비우면 조사 데이터(${D.index.toFixed(2)}점) 사용</small></div>
+    <div class="yr-head"><b>연도별 점수 편집</b><small>${esc(PAGE_NAME)} 화면에만 저장${D ? ` · ${CUR_YEAR}년 점수를 비우면 조사 데이터(${D.index.toFixed(2)}점) 사용` : ''}</small></div>
     <div class="yr-rows">${rows.map((r,i) => `
       <div class="yr-row" data-i="${i}">
         <label><input class="yr-y" type="number" step="1" min="1900" max="2100" inputmode="numeric" value="${r.y}" aria-label="연도">년</label>
-        <label><input class="yr-v" type="number" step="0.01" min="0" max="100" inputmode="decimal" value="${r.v ?? ''}" placeholder="${r.y === CUR_YEAR ? D.index.toFixed(2) : '점수'}" aria-label="${r.y}년 점수">점</label>
+        <label><input class="yr-v" type="number" step="0.01" min="0" max="100" inputmode="decimal" value="${r.v ?? ''}" placeholder="${r.y === CUR_YEAR && D ? D.index.toFixed(2) : '점수'}" aria-label="${r.y}년 점수">점</label>
         <button type="button" class="yr-del" title="이 연도 삭제" aria-label="${r.y}년 삭제">✕</button>
       </div>`).join('')}
     </div>
@@ -853,14 +926,14 @@ function renderYearInputs(){
       r.y = y; renderYearInputs(); redrawYears();
     };
     row.querySelector('.yr-del').onclick = () => {
-      const i = LAY.yearRows[T].indexOf(r); if (i >= 0) LAY.yearRows[T].splice(i, 1);
+      const i = LAY.yearRows[YK].indexOf(r); if (i >= 0) LAY.yearRows[YK].splice(i, 1);
       renderYearInputs(); redrawYears();
     };
   });
   const add = before => {
-    const ys = LAY.yearRows[T].map(r => r.y);
+    const ys = LAY.yearRows[YK].map(r => r.y);
     const y = ys.length ? (before ? Math.min(...ys) - 1 : Math.max(...ys) + 1) : CUR_YEAR;
-    LAY.yearRows[T].push({y, v: null});
+    LAY.yearRows[YK].push({y, v: null});
     renderYearInputs(); redrawYears();
     const inp = [...box.querySelectorAll('.yr-y')].find(i => +i.value === y);
     inp?.closest('.yr-row').querySelector('.yr-v').focus();
@@ -869,11 +942,20 @@ function renderYearInputs(){
   box.querySelector('.yr-add-next').onclick = () => add(false);
   box.querySelector('.yr-reset').onclick = () => {
     if (!confirm('연도 목록을 기본값(최근 3개년)으로 되돌릴까요? 입력한 점수는 지워집니다.')) return;
-    delete LAY.yearRows[T]; if (LAY.years) delete LAY.years[T];
+    delete LAY.yearRows[YK]; if (LAY.years && IDX === 'wellness') delete LAY.years[T];
     renderYearInputs(); redrawYears();
   };
 }
 renderYearInputs();
+// 웰니스 외 지수: 문구를 지수별로 따로 저장하고 웰니스 전용 표현은 일반 문구로
+const GENERIC_TEXT = {'line.t':'연령대별 지수','gender.t':'성별 지수','rings.t':'가장 중요한 요소','rings.s':'선택 시 최우선 고려 요소','a2.t':'소비자 라이프스타일','conv.s':'실천 수준별 추천 의향(%)','note':'※ 산출 기준은 자료가 등록되면 표시됩니다.'};
+document.querySelectorAll('[data-edit]').forEach(el => {
+  const k = el.dataset.edit;
+  if (k === 'bar.t') el.textContent = MAIN_LABEL + ' 추이';
+  if (IDX === 'wellness' || k.startsWith('side.')) return;
+  el.dataset.edit = IDX + '|' + k;
+  if (GENERIC_TEXT[k]) el.textContent = GENERIC_TEXT[k];
+});
 const textDefaults = {};
 document.querySelectorAll('[data-edit]').forEach(el => textDefaults[el.dataset.edit] = el.textContent);
 
@@ -1223,7 +1305,7 @@ $('edHtml').onclick = async () => {
 applyLayout();
 
 drawRings();
-renderBrands(0);
+if (HAS_DATA) renderBrands(0);
 if (window.Chart) drawCharts();
 else document.querySelectorAll('canvas').forEach(c => c.parentElement.innerHTML = '<p style="color:var(--text3);font-size:13px;padding:40px 0;text-align:center">차트 라이브러리를 불러오지 못했습니다.</p>');
 requestAnimationFrame(() => document.querySelectorAll('[data-w]').forEach(b => b.style.width = b.dataset.w + '%'));
