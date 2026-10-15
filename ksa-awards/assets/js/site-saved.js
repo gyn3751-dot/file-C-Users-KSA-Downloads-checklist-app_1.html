@@ -515,5 +515,8 @@ window.KSA_SAVED_CONFIG={
   }
  ],
  "title1": "고객이 고른 1위,",
- "title2": "한국표준협회가 증명합니다"
+ "title2": "한국표준협회가 증명합니다",
+ "results": {
+  "well": "https://claude.ai/artifact/1ga3aPwoMS874bZHegMuEL"
+ }
 };
