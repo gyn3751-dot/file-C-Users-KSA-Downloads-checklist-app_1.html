@@ -64,6 +64,10 @@ body.editing .brand{outline:1.5px dashed var(--c1);outline-offset:2px;cursor:poi
 .lt-size[hidden],.logo-tools [hidden]{display:none}
 .lt-size button{width:26px;padding:0}
 .lt-hint{width:100%;font-size:11px;color:var(--text3);margin-top:2px}
+.lt-color{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 8px 0 4px;border-radius:7px;border:1px solid var(--border);background:var(--surface);font-size:12px;font-weight:600;color:var(--text2);cursor:pointer}
+.lt-color input{width:20px;height:18px;border:none;padding:0;background:none;cursor:pointer}
+.lt-color input::-webkit-color-swatch-wrapper{padding:0}
+.lt-color input::-webkit-color-swatch{border:none;border-radius:4px}
 .nav-group{font-size:11px;font-weight:600;color:var(--text3);padding:14px 10px 6px}
 .nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--text2);font-weight:500;font-size:13.5px}
 .nav a:hover{background:var(--surface2);color:var(--text)}
@@ -300,7 +304,7 @@ body.editing .zoom-tag:empty{display:none}
 .ed-pop .empty{padding:10px;color:var(--text3);font-size:13px}
 .ed-pop h4{font-size:12px;color:var(--text3);font-weight:600;padding:4px 8px 6px}
 .ed-toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:#111827;color:#fff;border-radius:10px;padding:8px 8px 8px 14px;font-size:13px;display:flex;gap:10px;align-items:center;z-index:52;box-shadow:0 8px 24px rgba(0,0,0,.25)}
-.ed-toast button{height:28px;padding:0 10px;border-radius:7px;border:none;background:#7c3aed;color:#fff;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.ed-toast button{height:28px;padding:0 10px;border-radius:7px;border:none;background:var(--c1);color:#fff;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
 body.editing .ed-badge{display:block;position:absolute;top:-11px;left:12px;font-size:11px;font-weight:600;background:var(--c1);color:#fff;padding:1px 8px;border-radius:10px;z-index:5;pointer-events:none}
 body.editing .ed-resize{display:block;position:absolute;right:-1px;bottom:-1px;width:22px;height:22px;cursor:nwse-resize;z-index:5;border-radius:0 0 14px 0;background:linear-gradient(135deg,transparent 50%,var(--c1) 50%)}
 body.editing [data-edit]{outline:1px dashed transparent;border-radius:4px;cursor:text}
@@ -315,12 +319,13 @@ body.editing main{padding-bottom:110px}
 .ed-bar .msg b{color:#fff;font-weight:600}
 .ed-bar button{height:32px;padding:0 12px;border-radius:8px;border:1px solid #374151;background:#1f2937;color:#f3f4f6;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
 .ed-bar button:hover{background:#374151}
-.ed-bar button.pri{background:#7c3aed;border-color:#7c3aed}
+.ed-bar button.pri{background:var(--c1);border-color:var(--c1)}
 .ed-bar .saved{color:#4ade80;font-size:12px;opacity:0;transition:opacity .3s;margin:0 4px}
 .ed-bar .saved.on{opacity:1}
 @media (max-width:640px){.ed-bar .msg{display:none}.edit-btn span{display:none}.edit-btn{padding:0 10px}}
 .edit-btn{white-space:nowrap;flex-shrink:0}
 </style>
+<style id="themeDyn"></style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute">
@@ -359,7 +364,9 @@ body.editing main{padding-bottom:110px}
       <span class="lt-size" id="logoSize" hidden><button type="button" data-d="-1" aria-label="로고 작게">−</button><b id="logoPx"></b><button type="button" data-d="1" aria-label="로고 크게">＋</button></span>
       <button type="button" id="logoReset" hidden>기본 로고</button>
       <input type="file" id="logoFile" accept="image/*" hidden>
-      <p class="lt-hint">이미지를 이 영역에 끌어다 놓아도 됩니다</p>
+      <label class="lt-color" title="이 지수의 사이트 메인 색상"><input type="color" id="themeColor" aria-label="메인 색상"><span>메인 색상</span></label>
+      <button type="button" id="themeAuto" hidden>로고 색으로</button>
+      <p class="lt-hint" id="logoHint">이미지를 이 영역에 끌어다 놓아도 됩니다</p>
     </div>
     <div class="nav-group">대시보드</div>
     <nav class="nav" id="nav0"></nav>
@@ -870,14 +877,22 @@ if (isAll || !HAS_DATA) document.querySelector('[data-id="dims"]')?.remove();
 const aiBox = $('aiBox');
 const cards = [...grid.querySelectorAll(':scope > [data-id]'), aiBox].filter(Boolean);
 const byId = id => cards.find(c => c.dataset.id === id);
-const blank = () => ({order:[], span:{}, h:{}, hidden:[], text:{}, aiPos:'head', aiW:null, logo:null, years:{}});
+const blank = () => ({order:[], span:{}, h:{}, hidden:[], text:{}, aiPos:'head', aiW:null, logos:{}, themes:{}, years:{}});
 let BAKED = null;
 try { BAKED = JSON.parse($('layout-default').textContent); } catch(e){}
 function loadLayout(){
   let s = null;
   try { s = JSON.parse(localStorage.getItem(LKEY)); } catch(e){}
-  return Object.assign(blank(), s || BAKED || {});
+  return migrateLay(Object.assign(blank(), s || BAKED || {}));
 }
+// 이전 버전: 로고 하나를 모든 화면이 공유 → 한국웰니스지수 로고로 옮김
+function migrateLay(L){
+  L.logos = L.logos || {}; L.themes = L.themes || {};
+  if (L.logo){ if (!L.logos.wellness) L.logos.wellness = L.logo; delete L.logo; }
+  return L;
+}
+const getLogo = () => (LAY.logos && LAY.logos[IDX]) || null;
+const setLogo = v => { LAY.logos = LAY.logos || {}; if (v) LAY.logos[IDX] = v; else delete LAY.logos[IDX]; };
 let LAY = loadLayout();
 
 /* 연도별 종합 웰니스지수: 연도·점수를 편집 모드에서 자유롭게 추가·삭제 (지수별로 저장)
@@ -969,7 +984,7 @@ function placeAi(){
   if (pos) pos.textContent = inGrid ? '제목 옆으로' : '카드로 이동';
 }
 function applyLayout(){
-  placeAi(); applyLogo();
+  placeAi(); applyLogo(); applyTheme();
   const ids = cards.map(c => c.dataset.id);
   const order = LAY.order.filter(id => ids.includes(id)).concat(ids.filter(id => !LAY.order.includes(id)));
   order.forEach((id,i) => {
@@ -1038,7 +1053,7 @@ function renderTrash(){
 let saveT;
 function saveLayout(){
   try { localStorage.setItem(LKEY, JSON.stringify(LAY)); }
-  catch(e){ if (LAY.logo) alert('이미지가 너무 커서 브라우저에 저장하지 못했습니다. 더 작은 이미지를 사용해 주세요.'); }
+  catch(e){ if (getLogo()) alert('이미지가 너무 커서 브라우저에 저장하지 못했습니다. 더 작은 이미지를 사용해 주세요.'); }
   const s = $('edSaved'); s.classList.add('on'); clearTimeout(saveT); saveT = setTimeout(() => s.classList.remove('on'), 1200);
 }
 const gridCols = () => getComputedStyle(grid).gridTemplateColumns.split(' ').length;
@@ -1175,7 +1190,7 @@ function canvasToSrc(cv){
 // 이전 버전에서 올린 로고: 여백 잘라내고 새 기본 크기로 한 번만 맞춤
 let logoMigrating = false;
 function migrateLogo(){
-  const L = LAY.logo;
+  const L = getLogo();
   if (!L || !L.src || L.v === 2 || logoMigrating) return;
   logoMigrating = true;
   const im = new Image();
@@ -1189,7 +1204,7 @@ function migrateLogo(){
 }
 function applyLogo(){
   migrateLogo();
-  const L = LAY.logo, brand = $('brand'), img = $('brandImg');
+  const L = getLogo(), brand = $('brand'), img = $('brandImg');
   const has = !!(L && L.src);
   brand.classList.toggle('has-img', has);
   brand.classList.toggle('full', has && L.mode === 'full');
@@ -1217,7 +1232,8 @@ function readLogo(file){
       const cv = trimToCanvas(im, 600);
       const ratio = cv.width / Math.max(1, cv.height);
       const mode = ratio > 1.6 ? 'full' : 'icon';
-      LAY.logo = {src: canvasToSrc(cv), mode, h: LOGO_DEF[mode], v: 2};
+      const col = extractLogoColors(cv);
+      setLogo({src: canvasToSrc(cv), mode, h: LOGO_DEF[mode], v: 2, color: col ? col.c : null, color2: col ? col.c2 : null});
       applyLayout(); saveLayout();
     };
     im.onerror = () => alert('이미지를 읽을 수 없습니다.');
@@ -1225,15 +1241,17 @@ function readLogo(file){
   };
   fr.readAsDataURL(file);
 }
+$('brand').href = pageHref(IDX);
+$('logoHint').textContent = `${CUR.name} 로고·색상 · 이미지를 이 영역에 끌어다 놓아도 됩니다`;
 $('brand').addEventListener('click', e => { if (document.body.classList.contains('editing')){ e.preventDefault(); $('logoFile').click(); } });
 $('logoUp').onclick = () => $('logoFile').click();
 $('logoFile').onchange = e => { readLogo(e.target.files[0]); e.target.value = ''; };
-$('logoMode').onclick = () => { const L = LAY.logo; L.mode = L.mode === 'full' ? 'icon' : 'full'; L.h = LOGO_DEF[L.mode]; applyLayout(); saveLayout(); };
+$('logoMode').onclick = () => { const L = getLogo(); L.mode = L.mode === 'full' ? 'icon' : 'full'; L.h = LOGO_DEF[L.mode]; applyLayout(); saveLayout(); };
 $('logoSize').querySelectorAll('button').forEach(b => b.onclick = () => {
-  const L = LAY.logo, m = L.mode === 'full' ? 'full' : 'icon';
+  const L = getLogo(), m = L.mode === 'full' ? 'full' : 'icon';
   L.h = Math.max(24, Math.min(LOGO_MAX[m], (L.h || LOGO_DEF[m]) + (+b.dataset.d) * 8)); applyLayout(); saveLayout();
 });
-$('logoReset').onclick = () => { LAY.logo = null; applyLayout(); saveLayout(); };
+$('logoReset').onclick = () => { setLogo(null); applyLayout(); saveLayout(); };
 ['dragenter','dragover'].forEach(ev => $('side').addEventListener(ev, e => {
   if (document.body.classList.contains('editing') && e.dataTransfer && [...e.dataTransfer.types].includes('Files')){ e.preventDefault(); $('brand').classList.add('drop'); }
 }));
@@ -1242,6 +1260,123 @@ $('side').addEventListener('drop', e => {
   if (!document.body.classList.contains('editing') || !e.dataTransfer.files.length) return;
   e.preventDefault(); readLogo(e.dataTransfer.files[0]);
 });
+
+/* ───────── 지수별 사이트 색상: 로고 색을 추출해 메인 색으로 재해석 ─────────
+   밝기·채도는 기본 디자인(보라 #7c3aed / 하늘 #22b8d9)과 같은 범위로 맞추고 색상(hue)만 로고에서 가져온다 */
+const THEME_DEFAULT = {quality:'#2563eb', callcenter:'#0d9488', premium:'#b7791f', wellness:null, digital:'#db2777'};
+const _lin = c => { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+const _gam = c => Math.round(Math.max(0, Math.min(1, c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1/2.4) - 0.055)) * 255);
+function rgbToOklab(r, g, b){
+  r = _lin(r); g = _lin(g); b = _lin(b);
+  const l = Math.cbrt(0.4122214708*r + 0.5363325363*g + 0.0514459929*b);
+  const m = Math.cbrt(0.2119034982*r + 0.6806995451*g + 0.1073969566*b);
+  const s = Math.cbrt(0.0883024619*r + 0.2817188376*g + 0.6299787005*b);
+  return [0.2104542553*l + 0.7936177850*m - 0.0040720468*s, 1.9779984951*l - 2.4285922050*m + 0.4505937099*s, 0.0259040371*l + 0.7827717662*m - 0.8086757660*s];
+}
+function oklabToLinear(L, a, b){
+  const l = (L + 0.3963377774*a + 0.2158037573*b) ** 3, m = (L - 0.1055613458*a - 0.0638541728*b) ** 3, s = (L - 0.0894841775*a - 1.2914855480*b) ** 3;
+  return [4.0767416621*l - 3.3077115913*m + 0.2309699292*s, -1.2684380046*l + 2.6097574011*m - 0.3413193965*s, -0.0041960863*l - 0.7034186147*m + 1.7076147010*s];
+}
+// OKLCH → hex (sRGB 범위를 벗어나면 채도를 낮춰 맞춤)
+function oklchHex(L, C, h){
+  const hr = h * Math.PI / 180;
+  for (let c = C; c >= 0; c -= 0.004){
+    const v = oklabToLinear(L, c * Math.cos(hr), c * Math.sin(hr));
+    if (v.every(x => x >= -0.0005 && x <= 1.0005)) return '#' + v.map(x => _gam(x).toString(16).padStart(2, '0')).join('');
+  }
+  return '#808080';
+}
+const hexRgb = hex => { const n = parseInt(hex.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; };
+const hexLab = hex => rgbToOklab(...hexRgb(hex));
+function hexLch(hex){ const [L, a, b] = hexLab(hex); return [L, Math.hypot(a, b), (Math.atan2(b, a) * 180 / Math.PI + 360) % 360]; }
+const deltaE = (x, y) => { const A = hexLab(x), B = hexLab(y); return Math.hypot(A[0]-B[0], A[1]-B[1], A[2]-B[2]) * 100; };
+const hueDiff = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
+
+// 로고 이미지에서 대표 색(채도 높은 색 중 가장 많은 색)과 보조 색을 뽑는다
+function extractLogoColors(source){
+  const S = 64, cv = document.createElement('canvas');
+  const w0 = source.naturalWidth || source.width, h0 = source.naturalHeight || source.height;
+  const s = Math.min(1, S / Math.max(w0, h0));
+  cv.width = Math.max(1, Math.round(w0 * s)); cv.height = Math.max(1, Math.round(h0 * s));
+  const cx = cv.getContext('2d', {willReadFrequently:true});
+  cx.drawImage(source, 0, 0, cv.width, cv.height);
+  let px; try { px = cx.getImageData(0, 0, cv.width, cv.height).data; } catch(e){ return null; }
+  const bins = Array.from({length:24}, () => ({w:0, L:0, C:0, x:0, y:0}));
+  for (let i = 0; i < px.length; i += 4){
+    if (px[i+3] < 128) continue;
+    const [L, a, b] = rgbToOklab(px[i], px[i+1], px[i+2]);
+    const C = Math.hypot(a, b);
+    if (C < 0.05 || L > 0.96 || L < 0.18) continue;          // 흰색·검정·회색은 제외
+    const h = (Math.atan2(b, a) * 180 / Math.PI + 360) % 360;
+    const bin = bins[Math.floor(h / 15) % 24];
+    bin.w += C; bin.L += L * C; bin.C += C * C; bin.x += a; bin.y += b;
+  }
+  const ranked = bins.map((b, i) => ({...b, i})).filter(b => b.w > 0).sort((a, b) => b.w - a.w);
+  if (!ranked.length) return null;
+  const toHex = b => oklchHex(b.L / b.w, b.C / b.w, (Math.atan2(b.y, b.x) * 180 / Math.PI + 360) % 360);
+  const main = ranked[0], hMain = (Math.atan2(main.y, main.x) * 180 / Math.PI + 360) % 360;
+  const second = ranked.slice(1).find(b => b.w >= main.w * 0.12 && hueDiff((Math.atan2(b.y, b.x) * 180 / Math.PI + 360) % 360, hMain) >= 45);
+  return {c: toHex(main), c2: second ? toHex(second) : null};
+}
+
+// 기준 색 → 라이트/다크 팔레트
+function buildTheme(base, second){
+  const [, C0, h] = hexLch(base);
+  const C = Math.min(0.24, Math.max(0.11, C0));
+  const light = {}, dark = {};
+  light.c1 = oklchHex(0.54, C, h);               dark.c1 = oklchHex(0.66, Math.min(C, 0.2), h);
+  light['c1-soft'] = oklchHex(0.955, 0.03, h);    dark['c1-soft'] = oklchHex(0.28, 0.05, h);
+  let h2 = second ? hexLch(second)[2] : null;
+  if (h2 == null || hueDiff(h2, h) < 45) h2 = (h - 80 + 360) % 360;
+  let c3 = oklchHex(0.72, 0.13, h2);
+  if (deltaE(c3, light.c1) < 25){ h2 = (h + 150) % 360; c3 = oklchHex(0.72, 0.13, h2); }
+  light.c3 = c3;                                  dark.c3 = oklchHex(0.64, 0.12, h2);
+  light['c3-soft'] = oklchHex(0.955, 0.03, h2);   dark['c3-soft'] = oklchHex(0.29, 0.05, h2);
+  // 보조 계열색(여성·링 차트 등)은 기본 팔레트에서 메인·보조 색과 충분히 다른 것을 순서대로 선택
+  const POOL = [['#eb6834','#d95926'],['#e87ba4','#d55181'],['#eda100','#c98500'],['#1baf7a','#199e70'],['#2a78d6','#3987e5'],['#e34948','#e66767'],['#6250d6','#9085e9']];
+  const picks = POOL.filter(([l]) => deltaE(l, light.c1) >= 15 && deltaE(l, light.c3) >= 15).slice(0, 3);
+  while (picks.length < 3) picks.push(POOL[picks.length]);
+  [['c2', 0], ['c4', 1], ['c5', 2]].forEach(([k, i]) => { light[k] = picks[i][0]; dark[k] = picks[i][1]; });
+  return {light, dark};
+}
+let themeKey = null;
+function themeBase(){
+  const manual = LAY.themes && LAY.themes[IDX];
+  const L = getLogo();
+  if (manual) return {c: manual, c2: null, from: 'manual'};
+  if (L && L.color) return {c: L.color, c2: L.color2 || null, from: 'logo'};
+  return {c: THEME_DEFAULT[IDX], c2: null, from: 'default'};
+}
+function applyTheme(){
+  const L = getLogo();
+  // 이전에 올린 로고는 색을 아직 모르므로 한 번 추출해 저장
+  if (L && L.src && L.color === undefined && !L._reading){
+    L._reading = true;
+    const im = new Image();
+    im.onload = () => { const r = extractLogoColors(im); delete L._reading; L.color = r ? r.c : null; L.color2 = r ? r.c2 : null; saveLayout(); applyTheme(); };
+    im.onerror = () => { delete L._reading; L.color = null; };
+    im.src = L.src;
+  }
+  const b = themeBase();
+  const key = b.c ? b.c + '|' + (b.c2 || '') : '';
+  $('themeColor').value = b.c || '#7c3aed';
+  $('themeAuto').hidden = b.from !== 'manual';
+  $('themeAuto').textContent = L && L.color ? '로고 색으로' : '기본 색으로';
+  if (key === themeKey) return;
+  themeKey = key;
+  let css = '';
+  if (b.c){
+    const th = buildTheme(b.c, b.c2);
+    const vars = m => Object.entries(th[m]).map(([k, v]) => `--${k}:${v};`).join('');
+    css = `:root{${vars('light')}}\n@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){${vars('dark')}}}\n:root[data-theme="dark"]{${vars('dark')}}`;
+  }
+  $('themeDyn').textContent = css;
+  if (themeReady){ drawRings(); if (window.Chart) drawCharts(); }
+}
+let themeReady = false;
+$('themeColor').addEventListener('input', e => { LAY.themes = LAY.themes || {}; LAY.themes[IDX] = e.target.value; applyTheme(); });
+$('themeColor').addEventListener('change', () => saveLayout());
+$('themeAuto').onclick = () => { if (LAY.themes) delete LAY.themes[IDX]; applyTheme(); saveLayout(); };
 
 /* editable text */
 document.querySelectorAll('[data-edit]').forEach(el => {
@@ -1265,7 +1400,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.b
 $('edReset').onclick = () => {
   if (!confirm('배치·크기·문구·삭제한 항목·로고 이미지를 처음 상태로 되돌릴까요?')) return;
   try { localStorage.removeItem(LKEY); } catch(e){}
-  LAY = Object.assign(blank(), BAKED || {}); applyLayout(); saveLayout(); renderYearInputs(); if (window.Chart) drawCharts();
+  LAY = migrateLay(Object.assign(blank(), BAKED || {})); applyLayout(); saveLayout(); renderYearInputs(); if (window.Chart) drawCharts();
 };
 let dlNs;
 if (window.claude && typeof window.claude.use === 'function') window.claude.use('downloads').then(ns => dlNs = ns).catch(() => {});
@@ -1284,7 +1419,7 @@ $('edExport').onclick = () => download('wellness-layout.json', JSON.stringify(LA
 $('edImport').onclick = () => $('edFile').click();
 $('edFile').onchange = async e => {
   const f = e.target.files[0]; if (!f) return;
-  try { LAY = Object.assign(blank(), JSON.parse(await f.text())); applyLayout(); saveLayout(); renderYearInputs(); if (window.Chart) drawCharts(); }
+  try { LAY = migrateLay(Object.assign(blank(), JSON.parse(await f.text()))); applyLayout(); saveLayout(); renderYearInputs(); if (window.Chart) drawCharts(); }
   catch(err){ alert('설정 파일을 읽을 수 없습니다.'); }
   e.target.value = '';
 };
@@ -1303,6 +1438,7 @@ $('edHtml').onclick = async () => {
 };
 
 applyLayout();
+themeReady = true;
 
 drawRings();
 if (HAS_DATA) renderBrands(0);
