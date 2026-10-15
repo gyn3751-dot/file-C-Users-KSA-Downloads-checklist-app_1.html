@@ -801,10 +801,14 @@ const gridCols = () => getComputedStyle(grid).gridTemplateColumns.split(' ').len
 function currentOrder(){ return cards.slice().sort((a,b) => a.style.order - b.style.order).map(c => c.dataset.id); }
 
 /* wrap each card's content so it can be scaled to fit */
+// 제목·설명(머리글)은 항상 원래 크기로 두고, 그 아래 본문만 줄인다
 cards.forEach(c => {
   const b = document.createElement('div');
   b.className = 'cbody';
-  while (c.firstChild) b.appendChild(c.firstChild);
+  [...c.childNodes].forEach(n => {
+    if (n.nodeType === 1 && n.matches('.card-h, .top, .head')) return;
+    b.appendChild(n);
+  });
   c.appendChild(b);
   c._body = b;
 });
