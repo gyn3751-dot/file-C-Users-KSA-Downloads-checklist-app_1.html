@@ -264,7 +264,7 @@
     box.innerHTML=chs.map((ch,c)=>`<div class="se-chart"><div class="se-chart-h"><b>측정 차원 ${c+1}</b><button type="button" class="se-link" data-chart-del="${id}:${c}"${chs.length<=1?' disabled':''}>묶음 삭제</button></div>
       ${c?`<label class="se-check"><input type="checkbox" data-k="indices.${id}.charts.${c}.inline"${ch.inline?' checked':''}> 앞 묶음과 같은 줄에 나란히 놓기</label>`:''}
       <label for="se-indices.${id}.charts.${c}.title">제목</label><input id="se-indices.${id}.charts.${c}.title" data-k="indices.${id}.charts.${c}.title" value="${esc(ch.title)}">
-      <div class="se-dims">${ch.dims.map((d,j)=>`<div class="se-dim nw"><input aria-label="${esc(x.code)} 측정 차원 ${j+1}" data-k="indices.${id}.charts.${c}.dims.${j}.0" value="${esc(d[0])}"><button type="button" class="se-dim-del" data-dim-del="${id}:${c}:${j}" aria-label="${esc(x.code)} 그래프 ${c+1} 항목 ${j+1} 삭제"${ch.dims.length<=1?' disabled':''}>−</button></div>`).join('')}</div>
+      <div class="se-dims">${ch.dims.map((d,j)=>`<div class="se-dim nw mv" draggable="true" data-dim-at="${id}:${c}:${j}"><span class="se-grip" title="끌어서 위치 이동" aria-hidden="true">⠿</span><input aria-label="${esc(x.code)} 측정 차원 ${j+1}" data-k="indices.${id}.charts.${c}.dims.${j}.0" value="${esc(d[0])}"><button type="button" class="se-mv" data-dim-mv="${id}:${c}:${j}:-1"${c===0&&j===0?' disabled':''} aria-label="항목 ${j+1} 앞으로">↑</button><button type="button" class="se-mv" data-dim-mv="${id}:${c}:${j}:1"${c===chs.length-1&&j===ch.dims.length-1?' disabled':''} aria-label="항목 ${j+1} 뒤로">↓</button><button type="button" class="se-dim-del" data-dim-del="${id}:${c}:${j}" aria-label="${esc(x.code)} 그래프 ${c+1} 항목 ${j+1} 삭제"${ch.dims.length<=1?' disabled':''}>−</button></div>`).join('')}</div>
       <button type="button" class="se-btn ghost se-dim-add" data-dim-add="${id}:${c}"${ch.dims.length>=DIM_MAX?' disabled':''}>＋ 항목 추가</button></div>`).join('');
     const add=panel.querySelector(`[data-chart-add="${id}"]`);if(add)add.disabled=chs.length>=CHART_MAX}
   /* weights are no longer shown or edited */
@@ -355,6 +355,22 @@
     else if(a.dataset.chartDel){const [id,c]=a.dataset.chartDel.split(':'),chs=cfg.indices[id].charts;if(chs.length<=1)return;chs.splice(+c,1);renderCharts(id);sums();changed()}
     else if(a.dataset.dimAdd){const [id,c]=a.dataset.dimAdd.split(':'),ds=cfg.indices[id].charts[+c].dims;if(ds.length>=DIM_MAX)return;ds.push(['새 항목',0]);renderCharts(id);sums();changed();const ins=panel.querySelectorAll(`[data-charts="${id}"] .se-chart:nth-child(${+c+1}) .se-dim input:not([type])`);const l=ins[ins.length-1];if(l){l.focus();l.select()}}
     else{const [id,c,j]=a.dataset.dimDel.split(':'),ds=cfg.indices[id].charts[+c].dims;if(ds.length<=1)return;ds.splice(+j,1);renderCharts(id);sums();changed()}});
+  /* 측정 항목 order: ↑ ↓ step through the list (crossing into the neighbouring group at its ends), or drag a row onto another */
+  function moveDim(id,c,j,tc,tj){const chs=cfg.indices[id].charts,src=chs[c].dims;if(src.length<=1&&c!==tc)return false;
+    const [d]=src.splice(j,1);if(c===tc&&tj>j)tj--;chs[tc].dims.splice(Math.max(0,Math.min(tj,chs[tc].dims.length)),0,d);renderCharts(id);changed();return true}
+  panel.addEventListener('click',e=>{const a=e.target.closest('[data-dim-mv]');if(!a||a.disabled)return;
+    const [id,cs,js,ds]=a.dataset.dimMv.split(':'),c=+cs,j=+js,d=+ds,chs=cfg.indices[id].charts;let tc=c,tj=j+d;
+    if(d>0)tj=j+2; /* insert after the next item */
+    if(d<0&&j===0){if(!c)return;tc=c-1;tj=chs[tc].dims.length}
+    else if(d>0&&j===chs[c].dims.length-1){if(c===chs.length-1)return;tc=c+1;tj=0}
+    if(moveDim(id,c,j,tc,tj)){const k=tc===c?j+d:tj;const b=panel.querySelector(`[data-dim-mv="${id}:${tc}:${Math.max(0,k)}:${d}"]`);if(b&&!b.disabled)b.focus()}});
+  let dragFrom=null;
+  panel.addEventListener('dragstart',e=>{const r=e.target.closest&&e.target.closest('[data-dim-at]');if(!r||e.target.tagName==='INPUT')return;dragFrom=r.dataset.dimAt;r.classList.add('dragging');e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',dragFrom)}catch(_){}});
+  panel.addEventListener('dragend',()=>{dragFrom=null;panel.querySelectorAll('.dragging,.drop-at').forEach(x=>x.classList.remove('dragging','drop-at'))});
+  panel.addEventListener('dragover',e=>{if(!dragFrom)return;const r=e.target.closest('[data-dim-at]');if(!r||r.dataset.dimAt.split(':')[0]!==dragFrom.split(':')[0])return;e.preventDefault();panel.querySelectorAll('.drop-at').forEach(x=>x!==r&&x.classList.remove('drop-at'));r.classList.add('drop-at')});
+  panel.addEventListener('drop',e=>{if(!dragFrom)return;const r=e.target.closest('[data-dim-at]');if(!r)return;e.preventDefault();
+    const [id,c,j]=dragFrom.split(':'),[tid,tc,tj]=r.dataset.dimAt.split(':');dragFrom=null;if(id!==tid||(c===tc&&j===tj))return;
+    const after=e.clientY>r.getBoundingClientRect().top+r.offsetHeight/2;moveDim(id,+c,+j,+tc,+tj+(after?1:0))});
   panel.addEventListener('click',e=>{const b=e.target.closest('[data-logo-reset]');if(!b)return;const r=b.dataset.logoReset;if(r==='__brand')cfg.brand.logo='';else cfg.logos[r]='';fill();changed()});
 
   async function save(){
