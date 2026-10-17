@@ -263,6 +263,12 @@ section[id]{scroll-margin-top:72px}
 .explorer{--c:var(--brass)}
 .idx-detail{padding:clamp(1.5rem,4vw,3rem);min-width:0;display:flex;flex-direction:column;gap:var(--s-6);background:radial-gradient(75% 65% at 100% 0%,color-mix(in srgb,var(--c) 14%,transparent),transparent 72%)}
 .idx-detail.swap{animation:fade .5s var(--ease)}
+/* tighter spacing between the description blocks (indices listed in TIGHT) */
+.idx-detail.tight{gap:var(--s-4)}
+.idx-detail.tight .d-meta div{padding-top:var(--s-3)}
+.idx-detail.tight .d-dims h4{margin-bottom:var(--s-2)}
+.idx-detail.tight .dt-pill{margin-bottom:8px}
+.idx-detail.tight .dt-items li{padding:11px 6px}
 @keyframes fade{from{opacity:.2;transform:translateY(6px)}to{opacity:1;transform:none}}
 .d-top{display:flex;gap:var(--s-5);align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
 .d-code{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.1em;color:var(--brass)}
@@ -731,11 +737,12 @@ body.se-open .se-fab{display:none}
     return `<div class="d-dims dtree flat"><h4>측정 차원</h4>
       <div class="dt-groups" style="grid-template-columns:${cols}">${cs.map((ch,g)=>{const gc=g?shade(i.color,Math.min(.55,.22+g*.18)):(onC(i.color)==='#fff'?i.color:shade(i.color,.16)), /* light logo colours (yellow, green) start a shade deeper */[t]=splitCode(cleanTitle(ch.title));
         const html=`<section class="dt-g${cs.length===1?' solo':''}" style="--gc:${gc};--gt:#fff;--cols:${per(ch)}">${cs.length===1&&t==='측정 차원'?'':`<h5 class="dt-pill">${esc(t)}</h5>`}<ol class="dt-items">${ch.dims.map((d,k)=>chip(d,k0+k)).join('')}</ol></section>`;k0+=ch.dims.length;return html}).join('')}</div></div>`}
+  const TIGHT=new Set(['qei']);
   let curId='qei';
   function show(id,scroll){
     const i=byId[id];if(!i)return;curId=id;
     list.querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',b.dataset.idx===id));
-    detail.setAttribute('aria-labelledby','tab-'+id);
+    detail.setAttribute('aria-labelledby','tab-'+id);detail.classList.toggle('tight',TIGHT.has(id));
     detail.closest('.explorer').style.setProperty('--c',i.color);
     detail.innerHTML=`<div class="d-top"><div><p class="d-code">${i.code}</p><h3 class="d-title">${i.name}</h3><p class="d-en">${i.en}</p></div>
       <div class="d-logo"><img src="${i.logo}" alt="${i.code} 인증 로고"></div></div>
