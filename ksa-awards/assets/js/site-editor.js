@@ -148,7 +148,7 @@
       </section>
       <details open><summary>메인 문구</summary><div class="se-fields">
         ${inp('eyebrow','영문 소제목')}${inp('title1','제목 첫째 줄')}${inp('title2','제목 둘째 줄')}
-        ${inp('highlight','금색 강조 단어',{hint:'제목 안에 있는 단어'})}${inp('lede','소개 문구',{area:1})}
+        ${inp('highlight','금색 강조 단어',{hint:'제목 안에 있는 단어'})}${inp('lede','소개 문구',{area:1,hint:'줄바꿈 = 엔터'})}
         <div class="se-2"><div>${inp('cta1','첫째 버튼')}</div><div>${inp('cta2','둘째 버튼')}</div></div>
       </div></details>
       <details open><summary>사이트 로고 (왼쪽 위)</summary><div class="se-fields">
