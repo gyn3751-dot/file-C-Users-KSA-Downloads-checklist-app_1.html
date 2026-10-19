@@ -353,6 +353,7 @@ section[id]{scroll-margin-top:72px}
 .dtree.card .dt-items li::before{content:"";position:absolute;left:50%;top:0;width:28px;height:3px;margin-left:-14px;border-radius:0 0 3px 3px;background:var(--gc);opacity:.7}
 .dtree.card .dt-items li:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--gc) 55%,var(--rule));box-shadow:0 12px 22px -14px color-mix(in srgb,var(--gc) 90%,transparent)}
 .dtree.card .dt-items .no{border:0;background:color-mix(in srgb,var(--gc) 16%,var(--sheet));color:color-mix(in srgb,var(--gc) 60%,var(--ink));font-weight:600}
+.dtree.card .dt-g.solo .dt-items{max-width:none;margin:0}
 @media (prefers-reduced-motion:reduce){.dtree.card .dt-pill::before{animation:none;display:none}}
 @media (max-width:640px){.dt-groups{grid-template-columns:minmax(0,1fr)!important}.dt-g::after{display:none}.dt-g+.dt-g{padding-top:20px}}
 @media (prefers-reduced-motion:reduce){.dt-items li{animation:none}}
@@ -773,12 +774,11 @@ body.se-open .se-fab{display:none}
   const chip=([n],k)=>{const [nm]=splitCode(n);const parts=nm.split('/').map(t=>t.trim()).filter(Boolean);
     return `<li style="--k:${k}"><span class="no">${String(k+1).padStart(2,'0')}</span><span class="nm${parts.length>1?' pair':''}">${parts.length>1?parts.map(esc).join('<i class="dot" aria-hidden="true"></i>'):esc(nm)}</span></li>`};
   /* one group: a row of numbered chips; two or more: a small tree (측정 차원 → groups → items) */
-  const CARD=new Set(['qei']); /* indices shown with the card-style groups */
   function dimsHTML(i){const cs=chartsOf(i);
     if(cs.length<1)return chartRows(cs).map(row=>`<div class="d-row${row.length>1?' multi':''}" style="--n:${row.length}">${row.map(ch=>`<div class="d-dims"><h4>${esc(cleanTitle(ch.title))}</h4><ol class="dchips">${ch.dims.map(chip).join('')}</ol></div>`).join('')}</div>`).join('');
     let k0=0;const per=c=>{const n=c.dims.length;return cs.length>=3?Math.min(2,Math.max(1,n)):n<=3?Math.max(1,n):3}; /* three or more groups: two items per row */const cols=cs.map(c=>per(c)+'fr').join(' ');
     /* only the groups are shown: no root pill and no connecting lines */
-    return `<div class="d-dims dtree flat${CARD.has(i.id)?' card':''}"><h4>측정 차원</h4>
+    return `<div class="d-dims dtree flat card"><h4>측정 차원</h4>
       <div class="dt-groups" style="grid-template-columns:${cols}">${cs.map((ch,g)=>{const gc=g?shade(i.color,Math.min(.55,.22+g*.18)):(onC(i.color)==='#fff'?i.color:shade(i.color,.16)), /* light logo colours (yellow, green) start a shade deeper */[t]=splitCode(cleanTitle(ch.title));
         const html=`<section class="dt-g${cs.length===1?' solo':''}" style="--gc:${gc};--gt:#fff;--cols:${per(ch)}">${cs.length===1&&t==='측정 차원'?'':`<h5 class="dt-pill" data-n="${ch.dims.length}">${esc(t)}</h5>`}<ol class="dt-items">${ch.dims.map((d,k)=>chip(d,k0+k)).join('')}</ol></section>`;k0+=ch.dims.length;return html}).join('')}</div></div>`}
   let curId='qei';
