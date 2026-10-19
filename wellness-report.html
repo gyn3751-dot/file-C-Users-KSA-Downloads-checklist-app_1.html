@@ -335,19 +335,6 @@ body:not(.editing) .card:hover{
 body:not(.editing) .ai-box.card:hover{box-shadow:0 0 0 1px var(--c1), 0 10px 28px -6px color-mix(in srgb, var(--c1) 30%, transparent)}
 @media (prefers-reduced-motion:reduce){.card{transition:border-color .2s ease, box-shadow .2s ease}body:not(.editing) .card:hover{transform:none}}
 @media (hover:none){body:not(.editing) .card:hover{transform:none;box-shadow:var(--shadow);border-color:var(--border)}}
-
-/* ── 왼쪽 위 로고: 지수 색으로 은은하게 빛나는 효과 ── */
-.brand{position:relative;isolation:isolate}
-.brand::before{
-  content:"";position:absolute;inset:-6px -4px 4px;z-index:-1;border-radius:18px;pointer-events:none;
-  background:radial-gradient(60% 75% at 30% 45%, color-mix(in srgb, var(--c1) 22%, transparent), transparent 72%);
-  filter:blur(8px);opacity:.75;animation:logoGlow 4.5s ease-in-out infinite;
-}
-.brand.full::before{background:radial-gradient(70% 80% at 50% 45%, color-mix(in srgb, var(--c1) 22%, transparent), transparent 72%)}
-#brandImg,.brand .logo{filter:drop-shadow(0 0 6px color-mix(in srgb, var(--c1) 35%, transparent));animation:logoShine 4.5s ease-in-out infinite}
-@keyframes logoGlow{0%,100%{opacity:.55;transform:scale(.98)}50%{opacity:1;transform:scale(1.03)}}
-@keyframes logoShine{0%,100%{filter:drop-shadow(0 0 4px color-mix(in srgb, var(--c1) 25%, transparent))}50%{filter:drop-shadow(0 0 10px color-mix(in srgb, var(--c1) 50%, transparent))}}
-@media (prefers-reduced-motion:reduce){.brand::before,#brandImg,.brand .logo{animation:none}}
 </style>
 <style id="themeDyn"></style>
 </head>
