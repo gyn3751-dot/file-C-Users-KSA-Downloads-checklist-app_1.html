@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>경품 추첨 이벤트 응모</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232636;
+    --border: #2e3246;
+    --accent: #5b7ff5;
+    --accent2: #7c5bf5;
+    --green: #34c97e;
+    --yellow: #f5c04a;
+    --red: #f55b5b;
+    --text: #e8eaf2;
+    --text2: #8b8fa8;
+    --text3: #5a5d72;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .header-title {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    user-select: none;
+  }
+  .header-event {
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    background: rgba(91,127,245,0.12);
+    padding: 3px 9px;
+    border-radius: 20px;
+  }
+
+  .content {
+    padding: 20px;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    background: linear-gradient(135deg, rgba(91,127,245,0.18), rgba(124,91,245,0.18));
+    border: 1.5px solid rgba(91,127,245,0.3);
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .hero .emoji { font-size: 38px; margin-bottom: 8px; }
+  .hero h1 { font-size: 20px; font-weight: 800; margin-bottom: 6px; letter-spacing: -0.4px; }
+  .hero p { font-size: 13px; color: var(--text2); line-height: 1.6; word-break: keep-all; }
+
+  /* ── Form ── */
+  .card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 16px 20px;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .field { margin-top: 14px; }
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text2);
+    margin-bottom: 6px;
+  }
+  .field label .req { color: var(--red); margin-left: 2px; }
+  .field input {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 15px;
+    padding: 12px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .field input:focus { border-color: var(--accent); }
+  .field input.invalid { border-color: var(--red); }
+  .field input[readonly] { cursor: pointer; }
+  .field .error {
+    display: none;
+    font-size: 11px;
+    color: var(--red);
+    margin-top: 5px;
+  }
+  .field.has-error .error { display: block; }
+  .field.has-error input { border-color: var(--red); }
+
+  .addr-row { display: flex; gap: 8px; }
+  .addr-row input { flex: 1; min-width: 0; }
+  .btn-addr {
+    flex-shrink: 0;
+    padding: 0 14px;
+    border-radius: var(--radius-sm);
+    background: var(--surface2);
+    color: var(--text);
+    border: 1.5px solid var(--border);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .addr-detail { margin-top: 8px; }
+
+  /* ── Consent ── */
+  .consent-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.7;
+    margin-top: 10px;
+  }
+  .consent-box b { color: var(--text); font-weight: 600; }
+  .consent-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .consent-check input { display: none; }
+  .check-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .check-circle svg { opacity: 0; transition: opacity 0.2s; }
+  .consent-check input:checked + .check-circle { background: var(--green); border-color: var(--green); }
+  .consent-check input:checked + .check-circle svg { opacity: 1; }
+  .consent-check.has-error .check-circle { border-color: var(--red); }
+
+  /* ── Buttons ── */
+  .btn {
+    width: 100%;
+    padding: 15px;
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; }
+  .btn-secondary { background: var(--surface2); color: var(--text2); border: 1.5px solid var(--border); }
+  .btn-row { display: flex; gap: 8px; margin-top: 10px; }
+  .btn-row .btn { font-size: 13px; padding: 12px; }
+
+  /* ── Done screen ── */
+  .done {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+    background: var(--surface);
+    border: 1.5px solid rgba(52,201,126,0.3);
+    border-radius: var(--radius);
+  }
+  .done .emoji { font-size: 44px; margin-bottom: 12px; }
+  .done h2 { font-size: 19px; color: var(--green); margin-bottom: 8px; }
+  .done p { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 22px; word-break: keep-all; }
+
+  /* ── Admin ── */
+  .admin { display: none; }
+  .admin.open { display: block; }
+  .stat-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .stat {
+    flex: 1;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+  }
+  .stat .label { font-size: 11px; color: var(--text2); }
+  .stat .value { font-size: 22px; font-weight: 800; margin-top: 2px; }
+  .draw-row { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+  .draw-row input {
+    width: 80px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 15px;
+    padding: 11px;
+    text-align: center;
+    font-family: inherit;
+    outline: none;
+  }
+  .draw-row span { font-size: 13px; color: var(--text2); }
+  .draw-row .btn { flex: 1; padding: 12px; font-size: 14px; }
+
+  .entry-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .entry {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 11px 12px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .entry.winner { border-color: var(--yellow); background: rgba(245,192,74,0.08); }
+  .entry-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .entry-name { font-weight: 700; }
+  .entry-name small { font-weight: 500; color: var(--text2); margin-left: 4px; }
+  .entry-meta { font-size: 12px; color: var(--text2); word-break: keep-all; }
+  .badge {
+    font-size: 10px;
+    font-weight: 700;
+    color: #1a1d27;
+    background: var(--yellow);
+    border-radius: 10px;
+    padding: 2px 7px;
+    flex-shrink: 0;
+  }
+  .empty { font-size: 13px; color: var(--text3); text-align: center; padding: 16px 0; }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 30px;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 13px;
+    padding: 10px 16px;
+    border-radius: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.25s;
+    z-index: 300;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <!-- 제목을 5번 연속 탭하면 관리자(추첨) 화면이 열립니다 -->
+  <div class="header-title" id="headerTitle">🎁 경품 추첨 이벤트</div>
+  <div class="header-event" id="eventLabel">2026 조찬회</div>
+</div>
+
+<div class="content">
+
+  <!-- ── 응모 화면 ── -->
+  <div id="entryView">
+    <div class="hero">
+      <div class="emoji">🎁</div>
+      <h1>경품 추첨 이벤트</h1>
+      <p>아래 정보를 입력해 주시면 추첨을 통해<br>당첨되신 분께 경품을 배송해 드립니다.</p>
+    </div>
+
+    <form id="entryForm" novalidate>
+      <div class="card">
+        <div class="card-title">응모자 정보</div>
+
+        <div class="field" data-field="company">
+          <label for="company">회사명<span class="req">*</span></label>
+          <input type="text" id="company" autocomplete="organization" placeholder="예: 한국표준협회">
+          <div class="error">회사명을 입력해 주세요.</div>
+        </div>
+
+        <div class="field" data-field="name">
+          <label for="name">성함<span class="req">*</span></label>
+          <input type="text" id="name" autocomplete="name" placeholder="예: 홍길동">
+          <div class="error">성함을 입력해 주세요.</div>
+        </div>
+
+        <div class="field" data-field="position">
+          <label for="position">직위<span class="req">*</span></label>
+          <input type="text" id="position" autocomplete="organization-title" placeholder="예: 부장">
+          <div class="error">직위를 입력해 주세요.</div>
+        </div>
+
+        <div class="field" data-field="phone">
+          <label for="phone">연락처<span class="req">*</span></label>
+          <input type="tel" id="phone" inputmode="numeric" autocomplete="tel" placeholder="010-0000-0000" maxlength="13">
+          <div class="error">올바른 휴대폰 번호를 입력해 주세요.</div>
+        </div>
+
+        <div class="field" data-field="address">
+          <label for="address">배송받을 주소<span class="req">*</span></label>
+          <div class="addr-row">
+            <input type="text" id="zipcode" placeholder="우편번호" readonly style="max-width:110px">
+            <button type="button" class="btn-addr" onclick="searchAddress()">주소 검색</button>
+          </div>
+          <input type="text" id="address" class="addr-detail" autocomplete="street-address" placeholder="기본 주소">
+          <input type="text" id="addressDetail" class="addr-detail" placeholder="상세 주소 (동·호수, 층 등)">
+          <div class="error">배송받을 주소를 입력해 주세요.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">개인정보 수집·이용 동의</div>
+        <div class="consent-box">
+          <b>수집 항목</b> 회사명, 성함, 직위, 연락처, 주소<br>
+          <b>이용 목적</b> 경품 추첨, 당첨자 안내 및 경품 배송<br>
+          <b>보유 기간</b> 경품 배송 완료 후 즉시 파기<br>
+          동의를 거부하실 수 있으나, 거부 시 이벤트 응모가 제한됩니다.
+        </div>
+        <label class="consent-check" id="consentLabel">
+          <input type="checkbox" id="consent">
+          <span class="check-circle">
+            <svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          위 내용에 동의합니다 (필수)
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-primary">응모하기</button>
+    </form>
+  </div>
+
+  <!-- ── 완료 화면 ── -->
+  <div class="done" id="doneView">
+    <div class="emoji">🎉</div>
+    <h2>응모가 완료되었습니다!</h2>
+    <p id="doneMsg">추첨 결과는 당첨되신 분께 개별 연락드립니다.<br>참여해 주셔서 감사합니다.</p>
+    <button class="btn btn-primary" onclick="showEntry()">다음 분 응모하기</button>
+  </div>
+
+  <!-- ── 관리자(추첨) 화면 ── -->
+  <div class="admin" id="adminView">
+    <div class="card">
+      <div class="card-title">🛠 관리자 · 경품 추첨</div>
+      <div class="field">
+        <label for="eventNameInput">행사명</label>
+        <input type="text" id="eventNameInput" placeholder="예: 443회 조찬회">
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="label">응모자</div><div class="value" id="statTotal">0</div></div>
+      <div class="stat"><div class="label">당첨자</div><div class="value" id="statWinners" style="color:var(--yellow)">0</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">추첨하기</div>
+      <div class="draw-row">
+        <input type="number" id="drawCount" min="1" value="1">
+        <span>명</span>
+        <button class="btn btn-primary" onclick="drawWinners()">🎲 추첨</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="clearWinners()">당첨 초기화</button>
+        <button class="btn btn-secondary" onclick="downloadCSV(true)">당첨자 CSV</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">응모자 명단</div>
+      <div class="entry-list" id="entryList"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="downloadCSV(false)">전체 CSV</button>
+        <button class="btn btn-secondary" onclick="deleteAll()" style="color:var(--red)">전체 삭제</button>
+      </div>
+    </div>
+
+    <button class="btn btn-secondary" onclick="closeAdmin()">응모 화면으로</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ──
+const STORAGE_KEY = 'event_entry_state';
+let state = {
+  eventName: '2026 조찬회',
+  entries: []   // { id, company, name, position, phone, zipcode, address, addressDetail, createdAt, winner }
+};
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state.eventName = parsed.eventName || state.eventName;
+      state.entries = parsed.entries || [];
+    }
+  } catch(e) {}
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ── Phone auto-format ──
+function formatPhone(v) {
+  const d = v.replace(/\D/g, '').slice(0, 11);
+  if (d.length < 4) return d;
+  if (d.length < 8) return d.slice(0, 3) + '-' + d.slice(3);
+  if (d.length === 10) return d.slice(0, 3) + '-' + d.slice(3, 6) + '-' + d.slice(6);
+  return d.slice(0, 3) + '-' + d.slice(3, 7) + '-' + d.slice(7);
+}
+document.getElementById('phone').addEventListener('input', e => {
+  e.target.value = formatPhone(e.target.value);
+});
+
+// ── Address search (다음 우편번호 서비스, 인터넷 연결 시) ──
+let postcodeLoading = null;
+function loadPostcode() {
+  if (window.daum && window.daum.Postcode) return Promise.resolve();
+  if (postcodeLoading) return postcodeLoading;
+  postcodeLoading = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+    s.onload = resolve;
+    s.onerror = () => { postcodeLoading = null; reject(); };
+    document.head.appendChild(s);
+  });
+  return postcodeLoading;
+}
+function searchAddress() {
+  loadPostcode().then(() => {
+    new daum.Postcode({
+      oncomplete: data => {
+        document.getElementById('zipcode').value = data.zonecode;
+        document.getElementById('address').value = data.roadAddress || data.jibunAddress;
+        document.getElementById('addressDetail').focus();
+      }
+    }).open();
+  }).catch(() => {
+    toast('주소 검색을 불러올 수 없어요. 직접 입력해 주세요.');
+    document.getElementById('address').focus();
+  });
+}
+document.getElementById('zipcode').addEventListener('click', searchAddress);
+
+// ── Validation & submit ──
+function setError(field, on) {
+  document.querySelector(`.field[data-field="${field}"]`).classList.toggle('has-error', on);
+}
+
+document.querySelectorAll('#entryForm input').forEach(input => {
+  input.addEventListener('input', () => {
+    const f = input.closest('.field');
+    if (f) f.classList.remove('has-error');
+  });
+});
+document.getElementById('consent').addEventListener('change', () => {
+  document.getElementById('consentLabel').classList.remove('has-error');
+});
+
+document.getElementById('entryForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const v = id => document.getElementById(id).value.trim();
+  const data = {
+    company: v('company'),
+    name: v('name'),
+    position: v('position'),
+    phone: v('phone'),
+    zipcode: v('zipcode'),
+    address: v('address'),
+    addressDetail: v('addressDetail')
+  };
+
+  let firstInvalid = null;
+  const check = (field, ok, el) => {
+    setError(field, !ok);
+    if (!ok && !firstInvalid) firstInvalid = el;
+  };
+  check('company', !!data.company, 'company');
+  check('name', !!data.name, 'name');
+  check('position', !!data.position, 'position');
+  check('phone', /^01[016789]-\d{3,4}-\d{4}$/.test(data.phone), 'phone');
+  check('address', !!data.address, 'address');
+
+  const consent = document.getElementById('consent').checked;
+  document.getElementById('consentLabel').classList.toggle('has-error', !consent);
+
+  if (firstInvalid) {
+    document.getElementById(firstInvalid).focus();
+    return;
+  }
+  if (!consent) {
+    toast('개인정보 수집·이용에 동의해 주세요.');
+    return;
+  }
+
+  const digits = data.phone.replace(/\D/g, '');
+  if (state.entries.some(en => en.phone.replace(/\D/g, '') === digits)) {
+    setError('phone', true);
+    toast('이미 응모된 연락처입니다.');
+    return;
+  }
+
+  state.entries.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    ...data,
+    createdAt: new Date().toISOString(),
+    winner: false
+  });
+  saveState();
+
+  document.getElementById('doneMsg').innerHTML =
+    `<b>${escapeHtml(data.name)}</b>님, 응모해 주셔서 감사합니다.<br>추첨 결과는 당첨되신 분께 개별 연락드립니다.`;
+  document.getElementById('entryForm').reset();
+  document.getElementById('entryView').style.display = 'none';
+  document.getElementById('doneView').style.display = 'block';
+  window.scrollTo(0, 0);
+});
+
+function showEntry() {
+  document.getElementById('doneView').style.display = 'none';
+  document.getElementById('adminView').classList.remove('open');
+  document.getElementById('entryView').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+// ── Admin (제목 5번 탭) ──
+let tapCount = 0, tapTimer = null;
+document.getElementById('headerTitle').addEventListener('click', () => {
+  tapCount++;
+  clearTimeout(tapTimer);
+  tapTimer = setTimeout(() => { tapCount = 0; }, 1500);
+  if (tapCount >= 5) {
+    tapCount = 0;
+    openAdmin();
+  }
+});
+
+function openAdmin() {
+  document.getElementById('entryView').style.display = 'none';
+  document.getElementById('doneView').style.display = 'none';
+  document.getElementById('adminView').classList.add('open');
+  document.getElementById('eventNameInput').value = state.eventName;
+  renderAdmin();
+  window.scrollTo(0, 0);
+}
+function closeAdmin() { showEntry(); }
+
+document.getElementById('eventNameInput').addEventListener('input', e => {
+  state.eventName = e.target.value.trim() || '행사';
+  document.getElementById('eventLabel').textContent = state.eventName;
+  saveState();
+});
+
+function renderAdmin() {
+  const winners = state.entries.filter(e => e.winner);
+  document.getElementById('statTotal').textContent = state.entries.length;
+  document.getElementById('statWinners').textContent = winners.length;
+
+  const list = document.getElementById('entryList');
+  if (state.entries.length === 0) {
+    list.innerHTML = '<div class="empty">아직 응모자가 없습니다.</div>';
+    return;
+  }
+  // 당첨자 먼저, 그 다음 응모 순
+  const sorted = [...state.entries].sort((a, b) => (b.winner - a.winner) || a.createdAt.localeCompare(b.createdAt));
+  list.innerHTML = sorted.map(e => `
+    <div class="entry ${e.winner ? 'winner' : ''}">
+      <div class="entry-top">
+        <div class="entry-name">${escapeHtml(e.name)}<small>${escapeHtml(e.company)} · ${escapeHtml(e.position)}</small></div>
+        ${e.winner ? '<span class="badge">당첨</span>' : ''}
+      </div>
+      <div class="entry-meta">${escapeHtml(e.phone)}</div>
+      <div class="entry-meta">${e.zipcode ? '(' + escapeHtml(e.zipcode) + ') ' : ''}${escapeHtml(e.address)} ${escapeHtml(e.addressDetail)}</div>
+    </div>
+  `).join('');
+}
+
+// ── Draw ──
+function drawWinners() {
+  const n = parseInt(document.getElementById('drawCount').value, 10);
+  if (!n || n < 1) { toast('추첨 인원을 입력해 주세요.'); return; }
+  const pool = state.entries.filter(e => !e.winner);
+  if (pool.length === 0) { toast('추첨할 응모자가 없습니다.'); return; }
+  const count = Math.min(n, pool.length);
+
+  // Fisher–Yates 셔플 (crypto 난수)
+  const rand = max => {
+    const buf = new Uint32Array(1);
+    crypto.getRandomValues(buf);
+    return buf[0] % max;
+  };
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = rand(i + 1);
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  const picked = pool.slice(0, count);
+  picked.forEach(e => { e.winner = true; });
+  saveState();
+  renderAdmin();
+  alert('🎉 당첨자\n\n' + picked.map((e, i) => `${i + 1}. ${e.name} (${e.company} ${e.position})`).join('\n'));
+}
+
+function clearWinners() {
+  if (!confirm('당첨 결과를 모두 초기화할까요?')) return;
+  state.entries.forEach(e => { e.winner = false; });
+  saveState();
+  renderAdmin();
+}
+
+function deleteAll() {
+  if (!confirm('응모자 명단을 모두 삭제할까요?\n삭제 후에는 복구할 수 없습니다.')) return;
+  state.entries = [];
+  saveState();
+  renderAdmin();
+}
+
+// ── CSV export (엑셀 호환 UTF-8 BOM) ──
+function downloadCSV(winnersOnly) {
+  const rows = state.entries.filter(e => !winnersOnly || e.winner);
+  if (rows.length === 0) { toast(winnersOnly ? '당첨자가 없습니다.' : '응모자가 없습니다.'); return; }
+  const header = ['회사명', '성함', '직위', '연락처', '우편번호', '주소', '상세주소', '당첨', '응모일시'];
+  const q = s => '"' + String(s ?? '').replace(/"/g, '""') + '"';
+  const lines = [header.map(q).join(',')].concat(rows.map(e => [
+    e.company, e.name, e.position, e.phone, e.zipcode, e.address, e.addressDetail,
+    e.winner ? 'O' : '', new Date(e.createdAt).toLocaleString('ko-KR')
+  ].map(q).join(',')));
+  const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${state.eventName}_${winnersOnly ? '당첨자' : '응모자'}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ── Init ──
+loadState();
+document.getElementById('eventLabel').textContent = state.eventName;
+</script>
+</body>
+</html>
