@@ -343,16 +343,16 @@ section[id]{scroll-margin-top:72px}
 .dtree.card .dt-groups{gap:16px;align-items:stretch}
 /* card style: each group is a white card with a gradient header (title + item count) and soft tinted tiles */
 .dtree.card .dt-g{padding:0;border-radius:16px;overflow:hidden;background:var(--sheet);border:1px solid color-mix(in srgb,var(--gc) 28%,var(--rule));box-shadow:0 14px 30px -20px color-mix(in srgb,var(--gc) 70%,transparent),0 2px 6px -4px rgba(0,0,0,.08);display:flex;flex-direction:column}
-.dtree.card .dt-pill{width:auto;max-width:none;margin:0;border-radius:0;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:1.02rem;letter-spacing:-.01em;
+.dtree.card .dt-pill{width:auto;max-width:none;margin:0;border-radius:0;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:1.02rem;letter-spacing:-.01em;
   background:linear-gradient(120deg,var(--gc),color-mix(in srgb,var(--gc) 72%,#000));box-shadow:none;position:relative;overflow:hidden}
 .dtree.card .dt-pill::after{content:attr(data-n) "개 항목";font-size:.72rem;font-weight:500;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.22);text-shadow:none;white-space:nowrap}
 .dtree.card .dt-pill::before{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.28) 50%,transparent 65%);transform:translateX(-100%);animation:cardShine 6s ease-in-out infinite}
 @keyframes cardShine{0%,60%{transform:translateX(-100%)}85%,100%{transform:translateX(100%)}}
-.dtree.card .dt-items{flex:1;align-content:start;padding:14px;gap:10px;border:0;border-radius:0;background:linear-gradient(180deg,color-mix(in srgb,var(--gc) 7%,var(--sheet)),var(--sheet))}
-.dtree.card .dt-items li{position:relative;padding:14px 8px 12px;border-radius:12px;background:var(--sheet);border:1px solid color-mix(in srgb,var(--gc) 20%,var(--rule));box-shadow:0 6px 14px -12px color-mix(in srgb,var(--gc) 80%,transparent);transition:transform .25s var(--ease),box-shadow .25s,border-color .25s}
+.dtree.card .dt-items{flex:1;align-content:start;padding:10px;gap:8px;border:0;border-radius:0;background:linear-gradient(180deg,color-mix(in srgb,var(--gc) 7%,var(--sheet)),var(--sheet))}
+.dtree.card .dt-items li{position:relative;padding:9px 6px 8px;gap:4px;border-radius:10px;background:var(--sheet);border:1px solid color-mix(in srgb,var(--gc) 20%,var(--rule));box-shadow:0 6px 14px -12px color-mix(in srgb,var(--gc) 80%,transparent);transition:transform .25s var(--ease),box-shadow .25s,border-color .25s}
 .dtree.card .dt-items li::before{content:"";position:absolute;left:50%;top:0;width:28px;height:3px;margin-left:-14px;border-radius:0 0 3px 3px;background:var(--gc);opacity:.7}
 .dtree.card .dt-items li:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--gc) 55%,var(--rule));box-shadow:0 12px 22px -14px color-mix(in srgb,var(--gc) 90%,transparent)}
-.dtree.card .dt-items .no{border:0;background:color-mix(in srgb,var(--gc) 16%,var(--sheet));color:color-mix(in srgb,var(--gc) 60%,var(--ink));font-weight:600}
+.dtree.card .dt-items .no{width:22px;height:22px;font-size:.62rem;border:0;background:color-mix(in srgb,var(--gc) 16%,var(--sheet));color:color-mix(in srgb,var(--gc) 60%,var(--ink));font-weight:600}
 .dtree.card .dt-g.solo .dt-items{max-width:none;margin:0}
 @media (prefers-reduced-motion:reduce){.dtree.card .dt-pill::before{animation:none;display:none}}
 @media (max-width:640px){.dt-groups{grid-template-columns:minmax(0,1fr)!important}.dt-g::after{display:none}.dt-g+.dt-g{padding-top:20px}}
