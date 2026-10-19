@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KSA 럭키드로우</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;700&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: the explore scene runs full-bleed behind (iframe ?bg=1); one glass card in the middle opens the entry form */
+:root{
+  --night:#120A0A;--fg:#F6EEE7;--mute:#C7B3A6;--line:rgba(246,238,231,.16);--line-2:rgba(246,238,231,.32);
+  --glass:rgba(22,12,10,.6);--gold:#E2BC74;--gold-2:#F6DDA0;--err:#FF9C86;
+  --f-display:"Noto Serif KR","Nanum Myeongjo",Georgia,serif;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --ease:cubic-bezier(.2,.7,.1,1);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:#2A1410;color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.6;word-break:keep-all;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.glass{background:var(--glass);backdrop-filter:blur(16px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.2);border:1px solid var(--line)}
+
+.bg{position:fixed;inset:0;width:100%;height:100%;border:0;pointer-events:none;background:linear-gradient(#3B1B1E,#C9875E 70%,#8E3B1F)}
+.veil{position:fixed;inset:0;pointer-events:none;background:radial-gradient(60% 60% at 50% 50%,rgba(18,10,10,.15),rgba(18,10,10,.55))}
+
+.top{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:clamp(14px,2.4vw,26px);z-index:2}
+.brand img{height:30px;width:auto;display:block}
+.back{font-size:.84rem;padding:.5em 1em;border-radius:99px;text-decoration:none;color:var(--fg)}
+.back:hover{border-color:var(--line-2)}
+
+.stage{position:relative;z-index:1;min-height:100%;display:grid;place-items:center;padding:96px 16px 48px}
+.card{width:min(520px,100%);padding:clamp(26px,4vw,40px);border-radius:22px;text-align:center;box-shadow:0 30px 70px -30px rgba(0,0,0,.7)}
+.k{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.18em;color:var(--gold);margin:0}
+.card h1{font-family:var(--f-display);font-size:clamp(1.7rem,4.6vw,2.4rem);line-height:1.3;margin:.5em 0 .4em}
+.card h1 em{font-style:normal;color:var(--gold-2)}
+.card p.d{color:var(--mute);margin:0 auto 1.6em;max-width:28em}
+.gift{font-size:56px;line-height:1;display:inline-block;filter:drop-shadow(0 10px 22px rgba(226,188,116,.45));animation:bob 3.2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px) rotate(-4deg)}}
+
+/* the event button: warm gold gradient with a passing glint */
+.go{position:relative;overflow:hidden;isolation:isolate;display:inline-flex;align-items:center;gap:.6em;height:54px;padding:0 2em;border:0;border-radius:99px;cursor:pointer;font-weight:600;font-size:1.02rem;color:#2A1A06;
+  background:linear-gradient(120deg,#C99A3E,#F6DDA0 50%,#C99A3E);background-size:200% 100%;box-shadow:0 14px 34px -14px rgba(226,188,116,.9),inset 0 1px 0 rgba(255,255,255,.6);animation:flow 5s ease-in-out infinite alternate;transition:transform .25s var(--ease)}
+.go::after{content:"";position:absolute;inset:-20% auto -20% -50%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);transform:skewX(-20deg);animation:glint 2.8s ease-in-out infinite;z-index:-1}
+.go:hover{transform:translateY(-2px)}
+@keyframes flow{to{background-position:100% 0}}
+@keyframes glint{0%{left:-50%}55%,100%{left:130%}}
+.note{margin:1.2em 0 0;font-size:.8rem;color:var(--mute)}
+.done-msg{margin:1.4em 0 0;padding:.9em 1em;border-radius:12px;border:1px solid rgba(226,188,116,.4);background:rgba(226,188,116,.1);font-size:.9rem}
+.link{background:none;border:0;padding:0;color:var(--gold);text-decoration:underline;cursor:pointer;font-size:.86rem}
+
+/* entry form */
+.modal{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:16px;background:rgba(10,5,5,.55);overflow-y:auto}
+.form{width:min(480px,100%);border-radius:20px;padding:clamp(22px,4vw,32px);text-align:left;animation:rise .45s var(--ease)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+.form h2{font-family:var(--f-display);font-size:1.4rem;margin:.2em 0 .2em}
+.form .sub{color:var(--mute);font-size:.86rem;margin:0 0 1.2em}
+.fld{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.fld label{font-size:.84rem;font-weight:500}
+.fld label b{color:var(--gold);font-weight:500}
+.fld input,.fld textarea{width:100%;padding:.75em .9em;border-radius:10px;border:1px solid var(--line-2);background:rgba(255,255,255,.06);outline:0;transition:border-color .2s,background .2s}
+.fld input:focus,.fld textarea:focus{border-color:var(--gold);background:rgba(255,255,255,.1)}
+.fld textarea{resize:vertical;min-height:72px}
+.fld [aria-invalid="true"]{border-color:var(--err)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.agree{display:flex;gap:10px;align-items:flex-start;font-size:.82rem;color:var(--mute);margin:4px 0 16px;padding:.8em .9em;border-radius:10px;border:1px solid var(--line)}
+.agree input{margin-top:3px;accent-color:#E2BC74}
+.err{color:var(--err);font-size:.84rem;min-height:1.3em;margin:0 0 8px}
+.acts{display:flex;gap:10px}
+.btn{flex:1;height:48px;border-radius:12px;border:1px solid var(--line-2);background:transparent;cursor:pointer;font-weight:500}
+.btn.pri{border:0;color:#2A1A06;font-weight:600;background:linear-gradient(120deg,#C99A3E,#F6DDA0)}
+.btn:disabled{opacity:.6;cursor:wait}
+
+/* owner-only entry list */
+.admin{position:fixed;right:clamp(14px,2.4vw,26px);bottom:clamp(14px,2.4vw,26px);z-index:3;border-radius:99px;padding:.6em 1.1em;font-size:.84rem;cursor:pointer}
+.list{width:min(980px,100%);max-height:86vh;display:flex;flex-direction:column;border-radius:18px;padding:22px}
+.list-h{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.list-h h2{font-family:var(--f-display);font-size:1.25rem;margin:0;flex:1}
+.tbl-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:.84rem}
+th,td{padding:.6em .8em;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{position:sticky;top:0;background:rgba(30,16,13,.95);font-weight:500;color:var(--mute);white-space:nowrap}
+td.nw{white-space:nowrap}
+.empty{padding:2em;text-align:center;color:var(--mute)}
+.sm{flex:none;height:38px;padding:0 1em}
+@media (prefers-reduced-motion:reduce){.gift,.go,.go::after{animation:none}.go::after{display:none}}
+</style>
+</head>
+<body>
+<iframe class="bg" src="explore.html?bg=1" title="" aria-hidden="true" tabindex="-1"></iframe>
+<div class="veil" aria-hidden="true"></div>
+
+<header class="top">
+  <a class="brand" href="explore.html" aria-label="화성 탐사로"><img src="assets/brand/ksa-logo-light.png" alt="KSA 한국표준협회"></a>
+  <a class="back glass" href="explore.html">← 탐사로 돌아가기</a>
+</header>
+
+<main class="stage">
+  <section class="card glass" aria-labelledby="ttl">
+    <div class="gift" aria-hidden="true">🎁</div>
+    <p class="k">KSA LUCKY DRAW · 2026</p>
+    <h1 id="ttl">탐사 완료 기념<br><em>럭키드로우</em> 이벤트</h1>
+    <p class="d" id="lede">다섯 지수를 모두 찾아주셔서 감사합니다. 간단한 정보를 남겨 주시면 추첨을 통해 선물을 보내 드립니다.</p>
+    <button class="go" type="button" id="open">이벤트 응모하기 <span aria-hidden="true">→</span></button>
+    <div class="done-msg" id="doneMsg" hidden>응모가 완료되었습니다. 당첨되시면 남겨주신 연락처로 안내드릴게요.<br><button class="link" type="button" id="edit">응모 정보 수정하기</button></div>
+    <p class="note" id="note"></p>
+  </section>
+</main>
+
+<div class="modal" id="modal" hidden>
+  <form class="form glass" id="form" novalidate aria-labelledby="fT">
+    <p class="k">ENTRY FORM</p>
+    <h2 id="fT">응모 정보 입력</h2>
+    <p class="sub">경품 배송을 위해 아래 정보를 정확히 입력해 주세요.</p>
+    <div class="fld"><label for="company">회사명 <b>*</b></label><input id="company" name="company" autocomplete="organization" maxlength="60" required></div>
+    <div class="row2">
+      <div class="fld"><label for="name">성함 <b>*</b></label><input id="name" name="name" autocomplete="name" maxlength="30" required></div>
+      <div class="fld"><label for="title">직위 <b>*</b></label><input id="title" name="title" autocomplete="organization-title" maxlength="30" required></div>
+    </div>
+    <div class="fld"><label for="phone">연락처 <b>*</b></label><input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000" maxlength="20" required></div>
+    <div class="fld"><label for="address">배송받을 주소 <b>*</b></label><textarea id="address" name="address" autocomplete="street-address" maxlength="200" rows="2" placeholder="도로명 주소와 상세 주소를 입력해 주세요" required></textarea></div>
+    <label class="agree"><input type="checkbox" id="agree" required><span>[필수] 경품 추첨 및 배송을 위한 개인정보(회사명, 성함, 직위, 연락처, 주소) 수집·이용에 동의합니다. 수집된 정보는 이벤트 종료 후 파기됩니다.</span></label>
+    <p class="err" id="err" role="alert"></p>
+    <div class="acts"><button class="btn" type="button" id="cancel">취소</button><button class="btn pri" type="submit" id="submit">응모하기</button></div>
+  </form>
+</div>
+
+<button class="admin glass" type="button" id="adminBtn" hidden>응모자 목록</button>
+<div class="modal" id="listModal" hidden>
+  <div class="list glass" role="dialog" aria-labelledby="lT">
+    <div class="list-h"><h2 id="lT">응모자 목록 <span class="k" id="cnt"></span></h2>
+      <button class="btn sm" type="button" id="csv">CSV 저장</button><button class="btn sm" type="button" id="closeList">닫기</button></div>
+    <div class="tbl-wrap"><table><thead><tr><th>#</th><th>응모 시각</th><th>회사명</th><th>성함</th><th>직위</th><th>연락처</th><th>배송 주소</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const $=s=>document.querySelector(s);
+  const F=['company','name','title','phone','address'];
+  const LABEL={company:'회사명',name:'성함',title:'직위',phone:'연락처',address:'배송 주소'};
+  let db=null,user=null,me=null,mine=null,downloads=null;
+  const note=t=>{$('#note').textContent=t||''};
+
+  /* ── form ── */
+  const modal=$('#modal'),form=$('#form');
+  function openForm(){F.forEach(k=>{form[k].value=mine&&mine[k]||'';form[k].removeAttribute('aria-invalid')});$('#agree').checked=!!mine;$('#err').textContent='';modal.hidden=false;setTimeout(()=>form.company.focus(),50)}
+  const closeForm=()=>{modal.hidden=true;$('#open').focus()};
+  $('#open').onclick=openForm;$('#edit').onclick=openForm;$('#cancel').onclick=closeForm;
+  modal.addEventListener('click',e=>{if(e.target===modal)closeForm()});
+  addEventListener('keydown',e=>{if(e.key==='Escape'){if(!modal.hidden)closeForm();if(!$('#listModal').hidden)$('#listModal').hidden=true}});
+  form.phone.addEventListener('input',()=>{const d=form.phone.value.replace(/\D/g,'').slice(0,11);form.phone.value=d.length<4?d:d.length<8?d.slice(0,3)+'-'+d.slice(3):d.slice(0,3)+'-'+d.slice(3,d.length-4)+'-'+d.slice(-4)});
+
+  form.addEventListener('submit',async e=>{e.preventDefault();
+    let bad=null;F.forEach(k=>{const v=form[k].value.trim();const ok=k==='phone'?/^0\d{1,2}-?\d{3,4}-?\d{4}$/.test(v):!!v;form[k].setAttribute('aria-invalid',ok?'false':'true');if(!ok&&!bad)bad=k});
+    if(bad){$('#err').textContent=bad==='phone'?'연락처를 올바르게 입력해 주세요. (예: 010-1234-5678)':LABEL[bad]+'을(를) 입력해 주세요.';form[bad].focus();return}
+    if(!$('#agree').checked){$('#err').textContent='개인정보 수집·이용에 동의해 주세요.';return}
+    if(!db||!me){$('#err').textContent='응모는 claude.ai에서 사이트를 열고 로그인한 상태에서만 저장됩니다.';return}
+    const data={};F.forEach(k=>data[k]=form[k].value.trim());data.agree=true;data.at=mine&&mine.at||new Date().toISOString();if(mine)data.updated=new Date().toISOString();
+    const b=$('#submit');b.disabled=true;b.textContent='저장 중…';
+    try{await db.doc('draw/'+me).set(data);mine=data;modal.hidden=true;showDone()}
+    catch(err){$('#err').textContent=err&&err.code==='invalid_argument'?'이 계정은 응모 권한이 없습니다. 사이트 관리자에게 문의해 주세요.':'저장하지 못했습니다. 잠시 후 다시 시도해 주세요.'}
+    finally{b.disabled=false;b.textContent='응모하기'}});
+  function showDone(){$('#open').hidden=!!mine;$('#doneMsg').hidden=!mine}
+
+  /* ── owner: entry list + CSV ── */
+  let entries=[];
+  function renderList(){const tb=$('#rows');$('#cnt').textContent=entries.length+'명';tb.textContent='';
+    if(!entries.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=7;td.className='empty';td.textContent='아직 응모자가 없습니다.';tr.appendChild(td);tb.appendChild(tr);return}
+    entries.forEach((r,i)=>{const tr=document.createElement('tr');
+      [String(i+1),fmt(r.at),r.company,r.name,r.title,r.phone,r.address].forEach((v,j)=>{const td=document.createElement('td');td.textContent=v||'';if(j<2||j===5)td.className='nw';tr.appendChild(td)});tb.appendChild(tr)})}
+  const fmt=t=>{const d=new Date(t);return isNaN(d)?'':d.toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})};
+  $('#adminBtn').onclick=()=>{$('#listModal').hidden=false;renderList()};
+  $('#closeList').onclick=()=>{$('#listModal').hidden=true};
+  $('#listModal').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.hidden=true});
+  $('#csv').onclick=async()=>{const q=v=>'"'+String(v||'').replace(/"/g,'""')+'"';
+    const csv='﻿'+['응모 시각,회사명,성함,직위,연락처,배송 주소'].concat(entries.map(r=>[r.at,r.company,r.name,r.title,r.phone,r.address].map(q).join(','))).join('\r\n');
+    const name='럭키드로우_응모자_'+new Date().toISOString().slice(0,10)+'.csv';
+    try{if(downloads){await downloads.save({filename:name,data:new Blob([csv],{type:'text/csv'})});return}}catch(_){return}
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)};
+
+  /* ── connect ── */
+  const C=window.claude;
+  if(!C||!C.use){note('미리보기 화면입니다. 응모 정보는 claude.ai에서 열었을 때 저장됩니다.');return}
+  C.use('downloads').then(d=>{downloads=d}).catch(()=>{});
+  Promise.all([C.use('db'),C.use('user')]).then(async([d,u])=>{db=d;user=u;
+    if(!db||!user){note('로그인하면 응모할 수 있습니다.');return}
+    me=await user.id().catch(()=>null);
+    if(me){try{const s=await db.doc('draw/'+me).get();if(s.exists){mine=s.data();showDone()}}catch(_){}}
+    const owner=await user.isOwner().catch(()=>false);
+    if(owner){$('#adminBtn').hidden=false;
+      db.collection('draw').onSnapshot(qs=>{entries=qs.docs.map(x=>x.data()).sort((a,b)=>String(a.at).localeCompare(String(b.at)));$('#adminBtn').textContent='응모자 목록 · '+entries.length+'명';if(!$('#listModal').hidden)renderList()},()=>{})}
+  }).catch(()=>note('응모 기능을 불러오지 못했습니다. 새로고침해 주세요.'));
+})();
+</script>
+</body>
+</html>
