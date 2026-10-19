@@ -212,6 +212,13 @@ body.xe-on .radar{top:calc(var(--pad) + 118px + env(safe-area-inset-top,0px))}
 .fin-chars .fc-fig svg{position:absolute;left:0;top:-22.6%;width:100%;height:23.4%;overflow:visible;filter:drop-shadow(0 0 2px #FFFFFF) drop-shadow(0 0 5px #9CC2FF)}
 .fin-chars .fc-fig svg .tw{transform-box:fill-box;transform-origin:center;animation:ant-tw 1.4s ease-in-out infinite}
 @keyframes fin-hop{0%,60%,100%{transform:none}30%{transform:translateY(-7px)}}
+.fin-draw{position:relative;overflow:hidden;isolation:isolate;display:flex;align-items:center;justify-content:center;gap:.5em;height:50px;margin:4px 0 10px;border-radius:99px;font-weight:600;font-size:1rem;color:#2A1A06;
+  background:linear-gradient(120deg,#C99A3E,#F6DDA0 50%,#C99A3E);background-size:200% 100%;box-shadow:0 12px 28px -12px rgba(226,188,116,.9),inset 0 1px 0 rgba(255,255,255,.6);animation:drawFlow 5s ease-in-out infinite alternate;transition:transform .25s var(--ease)}
+.fin-draw::after{content:"";position:absolute;inset:-20% auto -20% -50%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);transform:skewX(-20deg);animation:drawGlint 2.8s ease-in-out infinite;z-index:-1}
+.fin-draw:hover{transform:translateY(-2px)}
+@keyframes drawFlow{to{background-position:100% 0}}
+@keyframes drawGlint{0%{left:-50%}55%,100%{left:130%}}
+@media (prefers-reduced-motion:reduce){.fin-draw,.fin-draw::after{animation:none}.fin-draw::after{display:none}}
 .fin-card .row{flex-wrap:wrap}.fin-card .row .btn{min-width:120px}
 .fin-skip{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:29;font-size:.8rem;height:38px}
 .fin-skip[hidden]{display:none}
@@ -315,6 +322,7 @@ html.bgmode #world{pointer-events:none}
 <div class="fin" id="fin" hidden><div class="fin-card glass" role="dialog" aria-labelledby="finT" aria-describedby="finD">
   <p class="fin-k">MISSION COMPLETE · 5 / 5</p><h2 id="finT"></h2><p class="fin-d" id="finD"></p>
   <div class="fin-chars" id="finChars" aria-hidden="true"></div>
+  <a class="fin-draw" id="finDraw" href="luckydraw.html"><span aria-hidden="true">🎁</span> 럭키드로우 응모하기 <span aria-hidden="true">→</span></a>
   <div class="row"><a class="btn" id="finGo" href="./"></a><button class="btn ghost" type="button" id="finAgain">다시 보기</button></div>
   <button class="btn ghost" type="button" id="finClose" style="width:100%;margin-top:8px">계속 탐사하기</button>
 </div></div>
