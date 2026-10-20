@@ -169,7 +169,7 @@
         </div>
         <p class="se-help">연결할 공식 사이트 주소</p>
         ${IDX.map(x=>inp(`homepages.${x.id}`,esc(x.code),{type:'url',hint:esc(x.name)})).join('')}
-        <p class="se-help">조사결과 사이트 주소 · 지수 소개의 '조사결과 보기' 버튼에 연결됩니다. 비워 두면 '준비 중'으로 보입니다.</p>
+        <p class="se-help">조사결과 사이트 주소 · 비워 두면 사이트 안의 조사결과 페이지(엑셀 대시보드)에서 해당 지수가 열립니다. 다른 사이트로 연결할 때만 주소를 넣으세요.</p>
         ${IDX.map(x=>inp(`results.${x.id}`,esc(x.code)+' 조사결과',{type:'url',hint:esc(x.name)})).join('')}
       </div></details>
       <details><summary>지수별 내용</summary><div class="se-fields">

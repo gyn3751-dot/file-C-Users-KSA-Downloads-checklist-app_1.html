@@ -516,11 +516,5 @@ window.KSA_SAVED_CONFIG={
  ],
  "title1": "고객이 고른 1위,",
  "title2": "한국표준협회가 증명합니다",
- "results": {
-  "qei": "https://claude.ai/artifact/JLM8RYEErFfFZ83RyWm1Dq",
-  "cqi": "https://claude.ai/artifact/YCeqmYepWM2zXB4wqx62DT",
-  "pbi": "https://claude.ai/artifact/QJbrXPiwVPEfxRgNBDGXKu",
-  "well": "https://claude.ai/artifact/1ga3aPwoMS874bZHegMuEL",
-  "dcxi": "https://claude.ai/artifact/TZct5WJM2jLtjYaeLUSLzU"
- }
+ "results": {}
 };
