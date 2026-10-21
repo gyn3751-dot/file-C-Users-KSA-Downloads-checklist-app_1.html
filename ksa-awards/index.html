@@ -1120,7 +1120,11 @@ body.se-open .se-fab{display:none}
     target=Math.round((rot+vel*9)/STEP)*STEP;paint(nearestIdx(target));
   }
   canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);
-  canvas.addEventListener('pointerleave',()=>{hovPick=-1;if(!dragging){px=py=0}});
+  /* the coins also lean toward the pointer over the edge-to-edge space beside the board; they settle only when it leaves that band */
+  const band=canvas.closest('.board-band')||canvas;
+  band.addEventListener('pointermove',e=>{if(dragging||e.target===canvas)return;const r=canvas.getBoundingClientRect(),c=v=>Math.max(-1,Math.min(1,v));px=c((e.clientX-r.left)/r.width*2-1);py=c((e.clientY-r.top)/r.height*2-1)});
+  canvas.addEventListener('pointerleave',()=>{hovPick=-1;canvas.classList.remove('hover')});
+  band.addEventListener('pointerleave',()=>{if(!dragging){px=py=0}});
   canvas.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){api.step(1);poke();e.preventDefault()}else if(e.key==='ArrowLeft'){api.step(-1);poke();e.preventDefault()}else if(e.key==='Enter'||e.key===' '){if(items[cur])activate(cur);e.preventDefault()}});
 
   /* loop */
