@@ -291,8 +291,12 @@
     if(k.startsWith('schedule.')){
       const ks=k.split('.'),r=cfg.schedule[ks[1]][ks[2]].slice();r[+ks[3]]=el.value;
       const pair=panel.querySelectorAll(`[data-k^="schedule.${ks[1]}.${ks[2]}."]`);
-      if(!ST.normRange(r)){pair.forEach(x=>x.setAttribute('aria-invalid','true'));setStatus(el.value?'시작일이 종료일보다 늦을 수 없습니다.':'날짜를 골라 주세요.','err');return}
-      pair.forEach(x=>x.removeAttribute('aria-invalid'));cfg.schedule[ks[1]][ks[2]]=r;changed();return}
+      if(!el.value){el.setAttribute('aria-invalid','true');setStatus('날짜를 골라 주세요.','err');return}
+      /* a start after its end (or an end before its start) pulls the other date along, so what the boxes show is always what gets saved */
+      let moved=false;if(!ST.normRange(r)&&r[0]&&r[1]&&r[0]>r[1]){const j=+ks[3]?0:1;r[j]=el.value;moved=true;const o=[...pair].find(x=>x!==el);if(o)o.value=el.value}
+      if(!ST.normRange(r)){el.setAttribute('aria-invalid','true');setStatus('날짜를 골라 주세요.','err');return}
+      pair.forEach(x=>x.removeAttribute('aria-invalid'));cfg.schedule[ks[1]][ks[2]]=r;changed();
+      if(moved)setStatus(+ks[3]?'종료일이 시작일보다 빨라서 시작일도 같은 날로 맞췄습니다.':'시작일이 종료일보다 늦어서 종료일도 같은 날로 맞췄습니다.');return}
     if(el.type==='number'){
       const v=parseFloat(el.value);if(!isFinite(v)){el.setAttribute('aria-invalid','true');return}
       if(k.startsWith('schedule.')){const ks=k.split('.'),r=cfg.schedule[ks[1]][ks[2]].slice();r[+ks[3]]=Math.round(v*2)/2;
