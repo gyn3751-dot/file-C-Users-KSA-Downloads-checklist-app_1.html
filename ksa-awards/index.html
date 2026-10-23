@@ -839,7 +839,7 @@ body.se-open .se-fab{display:none}
       /* the announcement is often a single day: its label keeps its own width instead of being clipped by the bar */
       const isLbl=k==='award',endSide=isLbl&&b>12.55;
       const pos=endSide?`right:${((1-b+1)*100).toFixed(2)}%`:`left:${((a-1)*100).toFixed(2)}%;width:${((b-a)*100).toFixed(2)}%`;
-      bars+=`<span class="seg ${k}${isLbl?' lbl':''}${endSide?' end':''}" data-i="${i.id}" data-ph="${k}" style="${pos};--c:${i.color};--d:${(row*.09+(a-1)*.035).toFixed(2)}s">${lab}</span>`;
+      bars+=`<span class="seg ${k}${isLbl?' lbl':''}${endSide?' end':''}" data-i="${i.id}" data-ph="${k}" data-a="${a}" data-b="${b}" style="${pos};--c:${i.color};--d:${(row*.09+(a-1)*.035).toFixed(2)}s">${lab}</span>`;
     });
     for(let m=1;m<=12;m++){
       let segs=m===1?bars:'';
@@ -850,7 +850,14 @@ body.se-open .se-fab{display:none}
     if(pos){if(inR(s.apply))st='<em class="st st-apply">부문 설정 중</em>';else if(inR(s.survey))st='<em class="st st-survey">조사 · 평가 중</em>';else if(inR(s.notice))st='<em class="st st-notice">결과 안내 중</em>';else if(inR(s.award))st='<em class="st st-award">발표 시즌</em>';else{const n=parseD(s.apply[0]);st=n&&n>today0?`<em class="st st-next">다음 부문 설정 ${n.getMonth()+1}월 ${n.getDate()}일</em>`:''}}
     return `<tr><th scope="row" style="--c:${i.color}">${i.name}<span>${i.code}</span>${st}</th>${cells}</tr>`;
   }).join('')}
-  renderSched();
+  /* place every bar by the real month-column edges (the % placement above drifts by the cell borders, ~1px per month) */
+  function alignSegs(){const R=[...document.querySelectorAll('#sched thead th')].slice(1).map(t=>t.getBoundingClientRect());if(R.length<12||!R[0].width)return;
+    const X=v=>{if(v>=13)return R[11].right;const m=Math.max(0,Math.floor(v-1));return R[m].left+(v-1-m)*R[m].width};
+    document.querySelectorAll('#sched tbody tr').forEach(tr=>{const td=tr.children[1];if(!td)return;const c=td.getBoundingClientRect();
+      tr.querySelectorAll('.seg[data-a]').forEach(sg=>{const xa=X(+sg.dataset.a),xb=X(+sg.dataset.b);
+        if(sg.classList.contains('end'))sg.style.right=(c.right-xb)+'px';else{sg.style.left=(xa-c.left)+'px';sg.style.width=(xb-xa)+'px'}})})}
+  const renderSched0=renderSched;renderSched=function(){renderSched0();alignSegs()};
+  renderSched();addEventListener('resize',alignSegs);if('ResizeObserver' in window)new ResizeObserver(alignSegs).observe($('#sched'));
   /* hover a bar: every piece of it lights up and a tooltip gives the exact dates */
   const PH={apply:'조사 부문 설정',survey:'고객 조사 · 평가',notice:'조사결과 안내',award:'발표 · 인증식'};
   const tip=document.createElement('div');tip.className='sched-tip';tip.setAttribute('role','tooltip');tip.hidden=true;document.body.appendChild(tip);
