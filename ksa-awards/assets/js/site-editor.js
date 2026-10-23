@@ -16,7 +16,7 @@
     ['고객이 고른 1위,','표준이 확인한 1위.','1위'],
     ['고객이 증명한 품질,','국가 표준의 이름으로 인정받습니다.','표준']
   ];
-  const INDEX_FIELDS=[['name','지수 이름'],['en','영문 이름'],['desc','설명','area'],['target','평가 대상'],['method','평가 방식'],['announce','결과 발표 (예: 10월)'],['greet','캐릭터 인사말']];
+  const INDEX_FIELDS=[['name','지수 이름'],['en','영문 이름'],['desc','설명','area'],['target','평가 대상'],['method','평가 방식'],['announce','결과 발표 (운영 일정의 발표일 월로 자동 표시 · 일정이 없을 때만 사용)'],['greet','캐릭터 인사말']];
   const SECTIONS=[['indices','지수 소개'],['process','참여 절차'],['schedule','연간 일정']];
   const PHASES=[['apply','조사 부문 설정'],['survey','조사 · 평가'],['notice','조사결과 안내'],['award','발표 · 인증식']];
   const SC=window.KSA_SITE_CONFIG||{logoUrl:()=>'',DEFAULT_LOGO:{}};

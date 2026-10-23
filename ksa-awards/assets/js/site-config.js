@@ -32,6 +32,8 @@
       const o=c.indices&&c.indices[x.id];
       if(o&&typeof o==='object'){
         for(const k of ['name','en','desc','target','method','announce','greet'])if(typeof o[k]==='string'&&o[k].trim())x[k]=o[k];
+        /* 결과 발표 month follows the 발표 date in the schedule */
+        const aw=c.schedule&&c.schedule[x.id]&&c.schedule[x.id].award,m=aw&&/^\d{4}-(\d{2})-\d{2}$/.exec(aw[0]||'');if(m)x.announce=(+m[1])+'월';
         const okDims=ds=>Array.isArray(ds)&&ds.length>=1&&ds.length<=12&&ds.every(d=>Array.isArray(d)&&typeof d[0]==='string'&&typeof d[1]==='number');
         const cp=ds=>ds.map(d=>[d[0],Math.max(0,Math.min(100,d[1]))]);
         if(Array.isArray(o.charts)&&o.charts.length&&o.charts.every(ch=>ch&&typeof ch.title==='string'&&okDims(ch.dims))){x.charts=o.charts.slice(0,6).map(ch=>({title:ch.title,inline:!!ch.inline,dims:cp(ch.dims)}));x.dims=cp(x.charts[0].dims)}
