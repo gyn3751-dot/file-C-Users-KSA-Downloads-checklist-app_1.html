@@ -16,9 +16,11 @@
     return '';
   }
   /* a stored logo-song file: "asset:<id>" (uploaded in the claude.ai viewer, webm) or an audio data: URI (saved in this browser) */
+  /* logo songs shipped with the site (assets/audio), so they also play where claude.ai's asset store is not available (public copy) */
+  const BUNDLED_AUDIO=new Set(["0e7056f513c747f6d46b53d0018cfdf7", "5505a00e8d07f357f1c7efc594a5e9f9", "bc1daa052202300983fa824eade1869b", "e513be4ddd85d0b25ee28accbc310f19", "ee6fd65c00f5d3964567a222102a8a8a"]);
   function audioUrl(v){
     if(typeof v!=='string')return '';
-    if(/^asset:[0-9a-f]{32}$/.test(v))return '/_blob/'+v.slice(6);
+    if(/^asset:[0-9a-f]{32}$/.test(v)){const id=v.slice(6);return BUNDLED_AUDIO.has(id)?'assets/audio/'+id+'.webm':'/_blob/'+id}
     if(/^data:(audio|video)\/[\w.+-]+;base64,[A-Za-z0-9+/=]+$/.test(v))return v;
     return '';
   }
