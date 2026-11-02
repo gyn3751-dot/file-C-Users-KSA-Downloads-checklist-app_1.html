@@ -140,6 +140,7 @@ td.nw{white-space:nowrap}
   </div>
 </div>
 
+<script src="assets/js/site-saved.js"></script>
 <script>
 (function(){
   const $=s=>document.querySelector(s);
@@ -187,7 +188,12 @@ td.nw{white-space:nowrap}
 
   /* ── connect ── */
   const C=window.claude;
-  if(!C||!C.use){note('미리보기 화면입니다. 응모 정보는 claude.ai에서 열었을 때 저장됩니다.');return}
+  if(!C||!C.use){
+    /* public copy (no claude.ai runtime): entries go to the Google Form set in the site editor (탐사 이벤트 → 응모 구글 폼 주소) */
+    const FORM=((window.KSA_SAVED_CONFIG||{}).event||{}).form||'';
+    if(/^https:\/\/[^\s]+$/.test(FORM)){$('#open').onclick=()=>window.open(FORM,'_blank','noopener');note('버튼을 누르면 응모 양식이 새 창으로 열립니다.')}
+    else{$('#open').onclick=()=>note('응모 접수를 준비하고 있습니다. 잠시 후 다시 확인해 주세요.');note('')}
+    return}
   C.use('downloads').then(d=>{downloads=d}).catch(()=>{});
   Promise.all([C.use('db'),C.use('user')]).then(async([d,u])=>{db=d;user=u;
     if(!db||!user){note('로그인하면 응모할 수 있습니다.');return}

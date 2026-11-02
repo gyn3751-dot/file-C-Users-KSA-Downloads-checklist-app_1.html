@@ -1,0 +1,10 @@
+# Netlify: the site lives in ksa-awards/ (static files, no build step)
+[build]
+  publish = "ksa-awards"
+  command = ""
+
+# webm logo songs are audio-only; keep the right type and let browsers cache assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"

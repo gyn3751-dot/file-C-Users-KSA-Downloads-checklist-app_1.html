@@ -49,7 +49,7 @@
     schedule:JSON.parse(JSON.stringify(K0.schedule||{})),
     logos:Object.fromEntries(IDX.map(x=>[x.id,''])),
     explore:Object.assign({},SC.EXPLORE_DEF||{}),
-    event:{title:'탐사 완료! 선물이 도착했어요',text:'다섯 지수의 신호를 모두 해독했어요.\n캐릭터 친구들이 준비한 선물을 확인해 보세요.',btn:'메인 사이트로',link:''},
+    event:{title:'탐사 완료! 선물이 도착했어요',text:'다섯 지수의 신호를 모두 해독했어요.\n캐릭터 친구들이 준비한 선물을 확인해 보세요.',btn:'메인 사이트로',link:'',form:''},
     brand:{logo:'',name:text($('.brand-text b')),sub:text($('.brand-text span')),showText:!($('.brand-text')||{}).hidden},
     homepages:Object.fromEntries(IDX.map(x=>[x.id,x.homepage])),
     results:Object.fromEntries(IDX.map(x=>[x.id,''])) /* each index's survey-results site; empty = button shows 준비 중 */
@@ -85,6 +85,7 @@
     for(const id of Object.keys(c.logos))if(c.logos[id]&&!SC.logoUrl(c.logos[id]))c.logos[id]='';
     if(c.brand.logo&&!SC.logoUrl(c.brand.logo))c.brand.logo='';
     if(c.event.link&&!okUrl(c.event.link))c.event.link='';
+    if(c.event.form&&!/^https:\/\/[^\s]+$/.test(c.event.form))c.event.form='';
     for(const id of Object.keys(c.indices)){const sg=c.indices[id].song;if(sg.audio&&!(SC.audioUrl&&SC.audioUrl(sg.audio)))sg.audio='';if(!sg.audio)sg.dur=0}
     for(const id of Object.keys(c.indices))c.indices[id].charts.forEach(ch=>ch.dims.forEach(d=>{d[1]=Math.max(0,Math.min(100,Math.round(+d[1]||0)))}));
     for(const id of Object.keys(c.schedule))for(const [ph] of PHASES){const r=ST.normRange(c.schedule[id][ph]);c.schedule[id][ph]=r||clone(DEFAULTS.schedule[id][ph])}
@@ -208,6 +209,7 @@
         <p class="se-help">화성 탐사에서 다섯 지수를 모두 찾으면 캐릭터들이 모여 선물 상자를 열고, 아래 축하 카드가 나옵니다.</p>
         ${inp('event.title','카드 제목')}${inp('event.text','카드 내용',{area:1,rows:3})}
         <div class="se-2"><div>${inp('event.btn','버튼 글자')}</div><div>${inp('event.link','버튼 링크',{type:'url',hint:'비우면 메인 사이트'})}</div></div>
+        ${inp('event.form','럭키드로우 응모 구글 폼 주소',{type:'url',hint:'공개 사이트에서 응모 버튼이 이 양식으로 연결됩니다'})}
         <a class="se-btn ghost" href="explore.html#finale" target="_blank" rel="noopener" style="text-align:center">이벤트 미리보기 ↗</a>
         <p class="se-help">미리보기는 저장된 내용으로 보입니다. 바꾼 뒤에는 먼저 저장해 주세요.</p>
       </div></details>
@@ -285,6 +287,7 @@
     if(el.name==='se-pc'){cfg.planetClick=el.value;changed();return}
     if(!k)return;
     if(el.type==='checkbox'){setPath(cfg,k,el.checked);changed();return}
+    if(k==='event.form'){if(el.value&&!/^https:\/\/[^\s]+$/.test(el.value)){el.setAttribute('aria-invalid','true');return}el.removeAttribute('aria-invalid');setPath(cfg,k,el.value.trim());changed();return}
     if(k==='event.link'){if(el.value&&!okUrl(el.value)){el.setAttribute('aria-invalid','true');return}el.removeAttribute('aria-invalid');setPath(cfg,k,el.value);changed();return}
     if(k.startsWith('results.')){if(el.value&&!okUrl(el.value)){el.setAttribute('aria-invalid','true');return}el.removeAttribute('aria-invalid');setPath(cfg,k,el.value.trim());changed();return}
     if(k.startsWith('homepages.')){if(el.value&&!okUrl(el.value)){el.setAttribute('aria-invalid','true');return}el.removeAttribute('aria-invalid');setPath(cfg,k,el.value||getPath(DEFAULTS,k));changed();return}
