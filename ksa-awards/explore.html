@@ -282,6 +282,17 @@ body.xe-on .radar{top:calc(var(--pad) + 118px + env(safe-area-inset-top,0px))}
   .toast{top:calc(78px + env(safe-area-inset-top,0px))}
 }
 @media (max-width:420px){.back b{font-size:.8rem}.slot{width:34px;height:34px}.slots{gap:4px}}
+/* phones: the top bar fits on one line (logo + ← only, smaller signal slots) and the telemetry panel steps aside */
+@media (max-width:560px){
+  .back{gap:6px;padding:6px 10px 6px 8px}
+  .back .mk.has-img{padding-right:8px;height:20px}
+  .back .mk.has-img img{max-width:88px}
+  .back>span:last-child b{font-size:0}.back>span:last-child b::before{content:"←";font-size:1rem}
+  .found{padding:5px}
+  .slot{width:30px;height:30px;padding:3px}.slot img{max-height:22px;max-width:24px}
+  .slots{gap:3px}
+  .telemetry{display:none}
+}
 @media (hover:none){.intro-keys .kb{display:none}}
 @media (prefers-reduced-motion:reduce){.dr-char-fig,.dr-say{animation:none!important}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 html.bgmode body>*:not(#world):not(script){display:none!important}
