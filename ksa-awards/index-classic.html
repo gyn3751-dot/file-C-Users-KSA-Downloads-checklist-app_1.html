@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KSA 지수·포상</title>
+<meta name="description" content="한국표준협회가 운영하는 KS-QEI, KS-CQI, KS-PBI, Wellness, DCXI 지수 소개와 참여 상담 예약">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 12-col document grid, like a KS standard sheet — navy "certificate" hero with white logo plaques, quiet ruled sections below */
+:root{
+  --paper:#F5F6F8;      /* page ground, cool off-white */
+  --sheet:#FFFFFF;      /* raised surfaces */
+  --ink:#101B2E;        /* primary text, KSA navy-black */
+  --ink-2:#4A5568;      /* secondary text */
+  --ink-3:#8A93A3;      /* captions */
+  --rule:#DDE1E8;       /* hairlines */
+  --navy:#13284A;       /* hero / brand field */
+  --navy-2:#1C3966;
+  --brass:#9C7A3C;      /* single accent: seal & numerals */
+  --brass-soft:#F1EADC;
+  --on-navy:#F3F5F9;
+  --on-navy-2:#A9B5CB;
+  --ok:#2F7D5B;
+  --plaque:#FFFFFF;     /* logo tiles stay white in both themes */
+
+  --f-display:"Noto Serif KR","Nanum Myeongjo",Georgia,serif;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+
+  --s-1:.25rem;--s-2:.5rem;--s-3:.75rem;--s-4:1rem;--s-5:1.5rem;--s-6:2rem;--s-7:3rem;--s-8:4.5rem;--s-9:7rem;
+  --wrap:1200px;
+  --gutter:clamp(16px,4vw,40px);
+  --ease:cubic-bezier(.2,.7,.1,1);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0C1320;--sheet:#121C2D;--ink:#E7EBF2;--ink-2:#AEB7C6;--ink-3:#7A8496;--rule:#243149;
+  --navy:#0F2140;--navy-2:#18325C;--brass:#C9A766;--brass-soft:#2A2518;--on-navy:#F3F5F9;--on-navy-2:#A9B5CB;--ok:#5DBB8E;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0C1320;--sheet:#121C2D;--ink:#E7EBF2;--ink-2:#AEB7C6;--ink-3:#7A8496;--rule:#243149;
+  --navy:#0F2140;--navy-2:#18325C;--brass:#C9A766;--brass-soft:#2A2518;--on-navy:#F3F5F9;--on-navy-2:#A9B5CB;--ok:#5DBB8E;
+  color-scheme:dark}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:1rem;line-height:1.7;font-weight:400;word-break:keep-all;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brass);outline-offset:3px;border-radius:2px}
+[hidden]{display:none!important}
+.wrap{max-width:var(--wrap);margin-inline:auto;padding-inline:var(--gutter)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);display:flex;align-items:center;gap:var(--s-3)}
+.eyebrow::before{content:"";width:24px;height:1px;background:currentColor}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:-.02em;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.75rem,3.2vw,2.5rem);line-height:1.3}
+p{margin:0}
+
+/* ── Header ── */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--paper) 86%,transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid transparent;transition:border-color .3s}
+.top.scrolled{border-bottom-color:var(--rule)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:72px;gap:var(--s-5)}
+.brand{display:flex;align-items:center;gap:var(--s-3)}
+.brand-mark{width:34px;height:34px;border:1.5px solid var(--ink);display:grid;place-items:center;font-family:var(--f-mono);font-size:.68rem;font-weight:500;letter-spacing:.04em}
+.brand-text{display:flex;flex-direction:column;line-height:1.2}
+.brand-text b{font-weight:600;font-size:.95rem;letter-spacing:-.01em}
+.brand-text span{font-size:.72rem;color:var(--ink-3);letter-spacing:.02em}
+.nav{display:flex;align-items:center;gap:var(--s-6);font-size:.92rem}
+.nav a:not(.btn){color:var(--ink-2);position:relative;padding-block:4px;transition:color .2s}
+.nav a:not(.btn)::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:1px;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .35s var(--ease)}
+.nav a:not(.btn):hover{color:var(--ink)}
+.nav a:not(.btn):hover::after{transform:scaleX(1)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.6em;height:46px;padding-inline:1.4em;border:1px solid var(--ink);background:var(--ink);color:var(--paper);font-size:.92rem;font-weight:500;cursor:pointer;transition:background .25s,color .25s,transform .25s var(--ease)}
+.btn:hover{background:transparent;color:var(--ink)}
+.btn .arr{transition:transform .3s var(--ease)}
+.btn:hover .arr{transform:translateX(4px)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--ink);color:var(--paper)}
+.btn.sm{height:40px;font-size:.85rem}
+.menu-btn{display:none;background:none;border:0;width:40px;height:40px;cursor:pointer;padding:0}
+.menu-btn i{display:block;width:22px;height:1.5px;background:var(--ink);margin:5px auto;transition:transform .3s}
+@media (max-width:860px){
+  .nav{position:fixed;inset:72px 0 auto 0;flex-direction:column;align-items:stretch;gap:0;background:var(--paper);border-bottom:1px solid var(--rule);padding:var(--s-3) var(--gutter) var(--s-5);transform:translateY(-8px);opacity:0;pointer-events:none;transition:.3s var(--ease)}
+  .nav.open{transform:none;opacity:1;pointer-events:auto}
+  .nav a:not(.btn){padding-block:var(--s-3);border-bottom:1px solid var(--rule)}
+  .nav .btn{margin-top:var(--s-4)}
+  .menu-btn{display:block}
+}
+
+/* ── Hero ── */
+.hero{padding-block:var(--s-7) var(--s-8)}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(2rem,5vw,5rem);align-items:center}
+.hero h1{font-size:clamp(2rem,3.6vw,3.05rem);line-height:1.22;margin-block:var(--s-5) var(--s-5)}
+.hero h1 em{font-style:normal;color:var(--brass)}
+.hero-lede{color:var(--ink-2);font-size:1.06rem;max-width:34em}
+.hero-cta{display:flex;flex-wrap:wrap;gap:var(--s-3);margin-top:var(--s-6)}
+.hero-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:var(--s-7);border-top:1px solid var(--rule)}
+.hero-facts div{padding:var(--s-4) var(--s-4) 0 0}
+.hero-facts dt{font-size:.75rem;color:var(--ink-3);letter-spacing:.02em}
+.hero-facts dd{margin:var(--s-1) 0 0;font-family:var(--f-display);font-size:1.5rem;font-weight:600}
+.hero-facts dd small{font-family:var(--f-body);font-size:.8rem;font-weight:400;color:var(--ink-2);margin-left:2px}
+
+.board{position:relative;background:var(--navy);color:var(--on-navy);padding:clamp(1.25rem,3vw,2.25rem);isolation:isolate;overflow:hidden}
+.board::before{content:"";position:absolute;inset:0;z-index:-1;background-image:linear-gradient(to right,rgba(255,255,255,.055) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.055) 1px,transparent 1px);background-size:calc(100%/12) 48px}
+.board::after{content:"";position:absolute;width:70%;aspect-ratio:1;right:-25%;top:-35%;z-index:-1;background:radial-gradient(closest-side,var(--navy-2),transparent);opacity:.9}
+.board-head{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;color:var(--on-navy-2);text-transform:uppercase;padding-bottom:var(--s-4);border-bottom:1px solid rgba(255,255,255,.14)}
+.plaques{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:clamp(.6rem,1.4vw,1rem);margin-top:var(--s-5)}
+.plaque{grid-column:span 2;background:var(--plaque);color:#101B2E;display:flex;flex-direction:column;cursor:pointer;border:0;padding:0;text-align:left;transition:transform .45s var(--ease),box-shadow .45s var(--ease);animation:rise .9s var(--ease) both}
+.plaque:nth-child(4),.plaque:nth-child(5){grid-column:span 3}
+.plaque:nth-child(1){animation-delay:.05s}.plaque:nth-child(2){animation-delay:.12s}.plaque:nth-child(3){animation-delay:.19s}.plaque:nth-child(4){animation-delay:.26s}.plaque:nth-child(5){animation-delay:.33s}
+.plaque:hover{transform:translateY(-4px);box-shadow:0 18px 30px -18px rgba(0,0,0,.6)}
+.plaque .logo{flex:1;display:grid;place-items:center;padding:clamp(.9rem,2vw,1.5rem) .75rem;min-height:clamp(96px,11vw,132px)}
+.plaque .logo img{max-height:clamp(52px,6vw,74px);width:auto;object-fit:contain}
+.plaque .cap{display:flex;flex-direction:column;gap:1px;line-height:1.35;padding:.55rem .75rem;border-top:1px solid #E6E9EF;font-size:.72rem;color:#4A5568}
+.plaque .cap b{font-family:var(--f-mono);font-weight:500;color:#101B2E;letter-spacing:.02em}
+.board-foot{display:flex;align-items:center;gap:var(--s-4);margin-top:var(--s-5);padding-top:var(--s-4);border-top:1px solid rgba(255,255,255,.14);font-size:.82rem;color:var(--on-navy-2)}
+.seal{flex:none;width:52px;height:52px;border-radius:50%;border:1px solid var(--brass);display:grid;place-items:center;color:var(--brass);font-family:var(--f-mono);font-size:.62rem;letter-spacing:.06em;text-align:center;line-height:1.15;position:relative}
+.seal::after{content:"";position:absolute;inset:4px;border-radius:50%;border:1px dashed color-mix(in srgb,var(--brass) 55%,transparent)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (max-width:960px){.hero-grid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:520px){.plaque,.plaque:nth-child(4),.plaque:nth-child(5){grid-column:span 3}.plaque:nth-child(5){grid-column:span 6}.hero-facts dd{font-size:1.2rem}}
+
+/* ── Marquee strip ── */
+.strip{border-block:1px solid var(--rule);overflow:hidden;background:var(--sheet)}
+.strip-track{display:flex;gap:var(--s-8);width:max-content;padding-block:var(--s-4);animation:slide 40s linear infinite;font-family:var(--f-mono);font-size:.78rem;letter-spacing:.12em;color:var(--ink-3);text-transform:uppercase}
+.strip-track span{display:flex;align-items:center;gap:var(--s-8)}
+.strip-track span::after{content:"◆";font-size:.5rem;color:var(--brass)}
+@keyframes slide{to{transform:translateX(-50%)}}
+
+/* ── Sections ── */
+section.block{padding-block:var(--s-9)}
+.sec-head{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(1.5rem,5vw,5rem);align-items:end;margin-bottom:var(--s-7)}
+.sec-head h2{margin-top:var(--s-4)}
+.sec-head p{color:var(--ink-2);max-width:36em}
+@media (max-width:860px){.sec-head{grid-template-columns:minmax(0,1fr)}section.block{padding-block:var(--s-8)}}
+
+/* ── Index explorer ── */
+.explorer{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);border:1px solid var(--rule);background:var(--sheet)}
+.idx-list{list-style:none;margin:0;padding:0;border-right:1px solid var(--rule)}
+.idx-list button{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:var(--s-4);align-items:center;text-align:left;background:none;border:0;border-bottom:1px solid var(--rule);padding:var(--s-5);cursor:pointer;position:relative;transition:background .25s}
+.idx-list li:last-child button{border-bottom:0}
+.idx-list button::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--brass);transform:scaleY(0);transition:transform .35s var(--ease)}
+.idx-list button:hover{background:color-mix(in srgb,var(--paper) 60%,var(--sheet))}
+.idx-list button[aria-selected="true"]{background:var(--paper)}
+.idx-list button[aria-selected="true"]::before{transform:scaleY(1)}
+.idx-list .thumb{width:56px;height:56px;background:var(--plaque);border:1px solid var(--rule);display:grid;place-items:center;padding:6px}
+.idx-list .thumb img{max-height:42px;width:auto}
+.idx-list .t{display:flex;flex-direction:column;min-width:0;line-height:1.35}
+.idx-list .t b{font-weight:500;font-size:.98rem}
+.idx-list .t span{font-family:var(--f-mono);font-size:.74rem;color:var(--ink-3);letter-spacing:.04em}
+.idx-list .chev{color:var(--ink-3);transition:transform .3s var(--ease),color .3s}
+.idx-list button[aria-selected="true"] .chev{color:var(--brass);transform:translateX(3px)}
+
+.idx-detail{padding:clamp(1.5rem,4vw,3rem);min-width:0;display:flex;flex-direction:column;gap:var(--s-6)}
+.idx-detail.swap{animation:fade .5s var(--ease)}
+@keyframes fade{from{opacity:.2;transform:translateY(6px)}to{opacity:1;transform:none}}
+.d-top{display:flex;gap:var(--s-5);align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.d-code{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.1em;color:var(--brass)}
+.d-title{font-size:clamp(1.5rem,2.6vw,2rem);margin-top:var(--s-2)}
+.d-en{font-size:.85rem;color:var(--ink-3);margin-top:var(--s-1)}
+.d-logo{background:var(--plaque);border:1px solid var(--rule);width:132px;height:100px;display:grid;place-items:center;padding:12px;flex:none}
+.d-logo img{max-height:72px;width:auto}
+.d-desc{color:var(--ink-2);max-width:42em}
+.d-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--rule)}
+.d-meta div{padding:var(--s-4) var(--s-4) 0 0;min-width:0}
+.d-meta dt{font-size:.74rem;color:var(--ink-3)}
+.d-meta dd{margin:var(--s-1) 0 0;font-size:.92rem;font-weight:500}
+.d-dims h4{margin:0 0 var(--s-3);font-size:.78rem;font-weight:500;color:var(--ink-3);letter-spacing:.04em}
+.dims{display:flex;flex-direction:column;gap:var(--s-3)}
+.dim{display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 3.2rem;align-items:center;gap:var(--s-4);font-size:.88rem}
+.dim .bar{height:4px;background:var(--rule);position:relative;overflow:hidden}
+.dim .bar i{position:absolute;inset:0 auto 0 0;background:var(--ink);transform-origin:left;animation:grow 1s var(--ease) both}
+.dim .w{font-family:var(--f-mono);font-size:.78rem;color:var(--ink-2);text-align:right}
+@keyframes grow{from{transform:scaleX(0)}}
+.d-actions{display:flex;flex-wrap:wrap;gap:var(--s-3);align-items:center}
+.d-actions .note{font-size:.8rem;color:var(--ink-3)}
+@media (max-width:860px){
+  .explorer{grid-template-columns:minmax(0,1fr)}
+  .idx-list{border-right:0;border-bottom:1px solid var(--rule);display:flex;overflow-x:auto;scrollbar-width:none}
+  .idx-list::-webkit-scrollbar{display:none}
+  .idx-list li{flex:none}
+  .idx-list button{grid-template-columns:auto;justify-items:center;gap:var(--s-2);padding:var(--s-4);border-bottom:0;border-right:1px solid var(--rule);text-align:center}
+  .idx-list .t b{font-size:.8rem}.idx-list .t span,.idx-list .chev{display:none}
+  .idx-list button::before{top:auto;right:0;height:2px;width:auto;transform:scaleX(0)}
+  .idx-list button[aria-selected="true"]::before{transform:scaleX(1)}
+  .d-meta{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .dim{grid-template-columns:minmax(0,7rem) minmax(0,1fr) 2.8rem}
+}
+
+/* ── Process ── */
+.process{background:var(--sheet);border-block:1px solid var(--rule)}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));counter-reset:st;border-top:1px solid var(--ink)}
+.steps li{counter-increment:st;padding:var(--s-5) var(--s-4) 0 0;position:relative;min-width:0}
+.steps li::before{content:"0" counter(st);font-family:var(--f-mono);font-size:.78rem;color:var(--brass);letter-spacing:.06em}
+.steps li::after{content:"";position:absolute;top:-4px;left:0;width:7px;height:7px;background:var(--paper);border:1px solid var(--ink);border-radius:50%}
+.steps h3{font-family:var(--f-body);font-weight:600;font-size:1rem;margin-block:var(--s-3) var(--s-2);letter-spacing:-.01em}
+.steps p{font-size:.86rem;color:var(--ink-2)}
+.steps .when{display:block;margin-top:var(--s-3);font-family:var(--f-mono);font-size:.72rem;color:var(--ink-3)}
+@media (max-width:960px){.steps{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:var(--s-6)}}
+@media (max-width:560px){.steps{grid-template-columns:minmax(0,1fr);border-top:0;border-left:1px solid var(--ink);row-gap:var(--s-5)}.steps li{padding:0 0 0 var(--s-5)}.steps li::after{top:6px;left:-4px}}
+
+/* ── Schedule ── */
+.sched-wrap{overflow-x:auto;border:1px solid var(--rule);background:var(--sheet)}
+.sched{width:100%;min-width:760px;border-collapse:collapse;font-size:.86rem}
+.sched th,.sched td{border-bottom:1px solid var(--rule);padding:0;height:56px}
+.sched thead th{height:44px;font-family:var(--f-mono);font-weight:400;font-size:.72rem;color:var(--ink-3);letter-spacing:.06em;text-align:center}
+.sched tbody th{text-align:left;padding-inline:var(--s-5);font-weight:500;white-space:nowrap;width:190px}
+.sched tbody th span{display:block;font-family:var(--f-mono);font-size:.7rem;color:var(--ink-3);font-weight:400}
+.sched td{position:relative;border-left:1px solid color-mix(in srgb,var(--rule) 60%,transparent)}
+.sched tbody tr:last-child th,.sched tbody tr:last-child td{border-bottom:0}
+.seg{position:absolute;top:50%;height:22px;transform:translateY(-50%);font-size:.68rem;display:flex;align-items:center;padding-inline:.5rem;white-space:nowrap;overflow:hidden}
+.seg.apply{background:var(--brass-soft);color:var(--brass);border:1px solid color-mix(in srgb,var(--brass) 40%,transparent)}
+.seg.survey{background:color-mix(in srgb,var(--ink) 9%,transparent);color:var(--ink-2)}
+.seg.award{background:var(--ink);color:var(--paper);font-weight:500}
+.now-col{background:color-mix(in srgb,var(--brass) 6%,transparent)}
+.legend{display:flex;flex-wrap:wrap;gap:var(--s-5);margin-top:var(--s-4);font-size:.8rem;color:var(--ink-2);align-items:center}
+.legend i{display:inline-block;width:18px;height:10px;margin-right:6px;vertical-align:middle}
+.legend .l-apply{background:var(--brass-soft);border:1px solid var(--brass)}
+.legend .l-survey{background:color-mix(in srgb,var(--ink) 12%,transparent)}
+.legend .l-award{background:var(--ink)}
+.legend .disc{margin-left:auto;color:var(--ink-3)}
+
+/* ── Booking ── */
+.booking{background:var(--navy);color:var(--on-navy);position:relative;isolation:isolate;overflow:hidden}
+.booking::before{content:"";position:absolute;inset:0;z-index:-1;background-image:linear-gradient(to right,rgba(255,255,255,.04) 1px,transparent 1px);background-size:calc(100%/12) 100%}
+.booking .eyebrow{color:var(--brass)}
+.booking .sec-head p{color:var(--on-navy-2)}
+.book-grid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);gap:clamp(1.5rem,4vw,4rem);align-items:start}
+.book-aside{display:flex;flex-direction:column;gap:var(--s-5)}
+.book-aside .card{border:1px solid rgba(255,255,255,.16);padding:var(--s-5)}
+.book-aside h3{font-family:var(--f-body);font-size:.95rem;font-weight:600;margin-bottom:var(--s-3)}
+.book-aside ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:var(--s-2);font-size:.88rem;color:var(--on-navy-2)}
+.book-aside li{display:flex;gap:var(--s-3)}
+.book-aside li::before{content:"—";color:var(--brass)}
+.contact-line{display:flex;justify-content:space-between;gap:var(--s-3);font-size:.86rem;padding-block:var(--s-2);border-bottom:1px solid rgba(255,255,255,.1)}
+.contact-line:last-child{border-bottom:0}
+.contact-line span{color:var(--on-navy-2)}
+
+.form{background:var(--sheet);color:var(--ink);padding:clamp(1.25rem,3.5vw,2.75rem);display:flex;flex-direction:column;gap:var(--s-6)}
+.form fieldset{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction:column;gap:var(--s-4)}
+.form legend{padding:0;margin-bottom:var(--s-4);display:flex;align-items:baseline;gap:var(--s-3);font-weight:600;font-size:1rem}
+.form legend .mono{font-size:.72rem;color:var(--brass);font-weight:400}
+.chips{display:flex;flex-wrap:wrap;gap:var(--s-2)}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;pointer-events:none}
+.chip label{display:inline-flex;align-items:center;gap:.5em;height:40px;padding-inline:1em;border:1px solid var(--rule);font-size:.86rem;cursor:pointer;transition:border-color .2s,background .2s,color .2s;user-select:none}
+.chip label:hover{border-color:var(--ink-3)}
+.chip input:checked+label{border-color:var(--ink);background:var(--ink);color:var(--sheet)}
+.chip input:focus-visible+label{outline:2px solid var(--brass);outline-offset:2px}
+.chip label .mono{font-size:.7rem;opacity:.7}
+
+.cal-row{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:var(--s-5)}
+.cal{border:1px solid var(--rule);padding:var(--s-4)}
+.cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--s-3)}
+.cal-head b{font-family:var(--f-mono);font-weight:500;font-size:.9rem}
+.cal-head button{width:32px;height:32px;border:1px solid var(--rule);background:none;cursor:pointer;display:grid;place-items:center}
+.cal-head button:disabled{opacity:.3;cursor:default}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;text-align:center}
+.cal-grid .dow{font-size:.68rem;color:var(--ink-3);padding-block:4px;font-family:var(--f-mono)}
+.cal-grid button{aspect-ratio:1;max-width:100%;border:0;background:none;font-family:var(--f-mono);font-size:.82rem;cursor:pointer;position:relative;transition:background .2s,color .2s}
+.cal-grid button:hover:not(:disabled){background:var(--paper)}
+.cal-grid button:disabled{color:var(--ink-3);opacity:.4;cursor:default;text-decoration:line-through;text-decoration-thickness:1px}
+.cal-grid button.today::after{content:"";position:absolute;left:50%;bottom:5px;width:4px;height:4px;border-radius:50%;background:var(--brass);transform:translateX(-50%)}
+.cal-grid button[aria-pressed="true"]{background:var(--ink);color:var(--sheet)}
+.slots{display:flex;flex-direction:column;gap:var(--s-2)}
+.slots-head{font-size:.8rem;color:var(--ink-3);margin-bottom:var(--s-1)}
+.slots-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s-2)}
+.slot{height:42px;border:1px solid var(--rule);background:none;cursor:pointer;font-family:var(--f-mono);font-size:.84rem;display:flex;align-items:center;justify-content:center;gap:.4em;transition:.2s}
+.slot:hover:not(:disabled){border-color:var(--ink)}
+.slot:disabled{color:var(--ink-3);cursor:default;background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--rule) 70%,transparent) 5px 6px)}
+.slot[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+.slot small{font-family:var(--f-body);font-size:.66rem;opacity:.75}
+.slots-empty{border:1px dashed var(--rule);padding:var(--s-5);font-size:.84rem;color:var(--ink-3);text-align:center}
+
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s-4) var(--s-5)}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field.full{grid-column:1/-1}
+.field label{font-size:.8rem;color:var(--ink-2)}
+.field label .req{color:var(--brass)}
+.field input,.field select,.field textarea{width:100%;height:48px;border:0;border-bottom:1px solid var(--rule);background:transparent;padding:0 2px;font-size:.95rem;border-radius:0;transition:border-color .2s;outline:none}
+.field textarea{height:96px;padding-top:var(--s-3);resize:vertical;border:1px solid var(--rule);padding-inline:var(--s-3)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--ink)}
+.field.err input,.field.err select{border-color:#B4432F}
+.field .msg{font-size:.74rem;color:#B4432F;min-height:1em}
+.agree{display:flex;gap:var(--s-3);align-items:flex-start;font-size:.84rem;color:var(--ink-2)}
+.agree input{width:18px;height:18px;margin-top:3px;accent-color:var(--ink)}
+.form-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:var(--s-4);padding-top:var(--s-5);border-top:1px solid var(--rule)}
+.summary{font-size:.84rem;color:var(--ink-2)}
+.summary b{color:var(--ink);font-weight:500}
+@media (max-width:960px){.book-grid{grid-template-columns:minmax(0,1fr)}.book-aside{order:2}}
+@media (max-width:620px){.cal-row,.fields{grid-template-columns:minmax(0,1fr)}}
+
+.done{background:var(--sheet);color:var(--ink);padding:clamp(1.5rem,4vw,3rem);display:flex;flex-direction:column;gap:var(--s-5);animation:fade .6s var(--ease)}
+.done .seal{width:64px;height:64px;font-size:.66rem}
+.done h3{font-size:1.6rem}
+.ticket{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--ink)}
+.ticket div{padding:var(--s-4) var(--s-4) var(--s-4) 0;border-bottom:1px solid var(--rule);min-width:0}
+.ticket dt{font-size:.74rem;color:var(--ink-3)}
+.ticket dd{margin:4px 0 0;font-weight:500;overflow-wrap:anywhere}
+.done p{color:var(--ink-2);font-size:.9rem}
+
+/* ── FAQ ── */
+.faq-grid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);gap:clamp(1.5rem,5vw,5rem)}
+.faq-grid .sec-head{display:block;margin:0}
+.faq-grid .sec-head p{margin-top:var(--s-4)}
+.faq{border-top:1px solid var(--ink)}
+.faq details{border-bottom:1px solid var(--rule)}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:var(--s-4);padding-block:var(--s-5);font-weight:500}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary .pm{flex:none;width:14px;height:14px;position:relative}
+.faq summary .pm::before,.faq summary .pm::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:var(--ink);transition:transform .3s var(--ease)}
+.faq summary .pm::after{transform:rotate(90deg)}
+.faq details[open] summary .pm::after{transform:rotate(0)}
+.faq details p{padding-bottom:var(--s-5);color:var(--ink-2);max-width:44em;font-size:.94rem}
+@media (max-width:860px){.faq-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* ── Footer ── */
+footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font-size:.84rem;color:var(--ink-2)}
+.foot-grid{display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:var(--s-6)}
+.foot-grid h4{margin:0 0 var(--s-3);font-size:.74rem;font-weight:500;color:var(--ink-3);letter-spacing:.06em}
+.foot-grid ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--s-2)}
+.foot-grid a:hover{color:var(--ink)}
+.foot-bottom{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--s-3);margin-top:var(--s-7);padding-top:var(--s-4);border-top:1px solid var(--rule);font-size:.76rem;color:var(--ink-3)}
+@media (max-width:760px){.foot-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.foot-grid>div:first-child{grid-column:1/-1}}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--paper);padding:.8em 1.3em;font-size:.86rem;opacity:0;pointer-events:none;transition:.35s var(--ease);z-index:80;max-width:calc(100% - 32px)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header class="top" id="top">
+  <div class="wrap">
+    <a href="#" class="brand" aria-label="한국표준협회 지수·포상 홈">
+      <span class="brand-mark">KSA</span>
+      <span class="brand-text"><b>한국표준협회</b><span>지수 · 포상 센터</span></span>
+    </a>
+    <nav class="nav" id="nav" aria-label="주요 메뉴">
+      <a href="#indices">지수 소개</a>
+      <a href="#process">참여 절차</a>
+      <a href="#schedule">연간 일정</a>
+      <a href="#faq">자주 묻는 질문</a>
+      <a href="#booking" class="btn sm">상담 예약 <span class="arr">→</span></a>
+    </nav>
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false" aria-controls="nav"><i></i><i></i></button>
+  </div>
+</header>
+
+<main>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow">Korean Standards Association · Index &amp; Awards</p>
+        <h1>고객이 증명한 품질,<br>국가 <em>표준</em>의 이름으로<br>인정받습니다.</h1>
+        <p class="hero-lede">한국표준협회는 KS 표준에 기반한 측정모델로 제품과 서비스의 품질, 브랜드 가치, 고객경험을 객관적으로 평가합니다. 5개 지수의 평가 기준을 살펴보고, 우리 기업에 맞는 참여 상담을 예약하세요.</p>
+        <div class="hero-cta">
+          <a href="#booking" class="btn">참여 상담 예약 <span class="arr">→</span></a>
+          <a href="#indices" class="btn ghost">지수 살펴보기</a>
+        </div>
+        <dl class="hero-facts">
+          <div><dt>운영 지수</dt><dd>5<small>개</small></dd></div>
+          <div><dt>평가 척도</dt><dd>100<small>점 만점</small></dd></div>
+          <div><dt>조사 주기</dt><dd>연 1<small>회</small></dd></div>
+        </dl>
+      </div>
+
+      <div class="board" aria-label="한국표준협회 지수 인증 로고">
+        <div class="board-head"><span>KSA Index Portfolio</span><span class="mono">2026</span></div>
+        <div class="plaques" id="plaques"></div>
+        <div class="board-foot">
+          <span class="seal">KS<br>CERT.</span>
+          <span>인증 로고는 해당 지수 1위 또는 우수기업으로 선정된 기업이 홍보에 사용할 수 있습니다. 로고를 선택하면 상세 기준을 볼 수 있습니다.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="strip" aria-hidden="true">
+    <div class="strip-track">
+      <span>KS-QEI 한국품질만족지수</span><span>KS-CQI 콜센터품질지수</span><span>KS-PBI 프리미엄브랜드지수</span><span>Wellness 한국웰니스지수</span><span>DCXI 디지털고객경험지수</span>
+      <span>KS-QEI 한국품질만족지수</span><span>KS-CQI 콜센터품질지수</span><span>KS-PBI 프리미엄브랜드지수</span><span>Wellness 한국웰니스지수</span><span>DCXI 디지털고객경험지수</span>
+    </div>
+  </div>
+
+  <!-- Indices -->
+  <section class="block" id="indices">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow">Indices</p>
+          <h2>다섯 개의 지수,<br>하나의 표준 측정 체계</h2>
+        </div>
+        <p>각 지수는 실제 고객 조사와 전문 평가를 결합해 산출합니다. 지수를 선택하면 평가 대상과 측정 차원, 가중치를 확인할 수 있습니다.</p>
+      </div>
+
+      <div class="explorer">
+        <ul class="idx-list" id="idxList" role="tablist" aria-label="지수 목록"></ul>
+        <div class="idx-detail" id="idxDetail" role="tabpanel" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="block process" id="process">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow">Process</p>
+          <h2>상담부터 인증 수여까지</h2>
+        </div>
+        <p>모든 지수는 같은 여섯 단계를 거칩니다. 조사 기간과 평가 방식은 지수별로 다르며, 첫 상담에서 일정과 준비 서류를 안내해 드립니다.</p>
+      </div>
+      <ol class="steps">
+        <li><h3>상담 예약</h3><p>참여 지수와 업종을 확인하고 담당 연구원과 상담 일정을 정합니다.</p><span class="when">D-120</span></li>
+        <li><h3>참여 신청</h3><p>신청서와 기업 기본자료를 제출하고 조사 대상 브랜드를 확정합니다.</p><span class="when">D-90</span></li>
+        <li><h3>고객 조사</h3><p>실사용 고객 대상 설문, 미스터리 콜, 디지털 채널 진단을 수행합니다.</p><span class="when">D-60</span></li>
+        <li><h3>평가·심의</h3><p>측정모델로 지수를 산출하고 외부 전문가 위원회가 결과를 심의합니다.</p><span class="when">D-20</span></li>
+        <li><h3>결과 발표</h3><p>업종별 지수와 순위를 발표하고 기업별 상세 진단 보고서를 제공합니다.</p><span class="when">D-7</span></li>
+        <li><h3>인증 수여</h3><p>인증식에서 인증서를 수여하며, 1년간 인증 로고를 사용할 수 있습니다.</p><span class="when">D-day</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Schedule -->
+  <section class="block" id="schedule">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow">Annual Calendar</p>
+          <h2>2026 지수별 운영 일정</h2>
+        </div>
+        <p>신청 접수 기간 안에 상담을 마쳐야 해당 연도 조사에 포함됩니다. 이번 달은 옅은 색으로 표시했습니다.</p>
+      </div>
+      <div class="sched-wrap">
+        <table class="sched" id="sched">
+          <thead><tr><th scope="col" style="text-align:left;padding-left:1.5rem">지수</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="legend">
+        <span><i class="l-apply"></i>신청 접수</span>
+        <span><i class="l-survey"></i>고객 조사·평가</span>
+        <span><i class="l-award"></i>발표·인증식</span>
+        <span class="disc">일정은 예시이며 확정 일정은 공지사항을 기준으로 합니다.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Booking -->
+  <section class="block booking" id="booking">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow">Reservation</p>
+          <h2>참여 상담 예약</h2>
+        </div>
+        <p>원하는 지수와 상담 방식, 일시를 선택해 주세요. 담당 연구원이 영업일 기준 1일 안에 확정 연락을 드립니다.</p>
+      </div>
+
+      <div class="book-grid">
+        <aside class="book-aside">
+          <div class="card">
+            <h3>상담에서 안내하는 내용</h3>
+            <ul>
+              <li>업종 분류와 조사 대상 브랜드 범위</li>
+              <li>지수별 측정 차원과 평가 방식</li>
+              <li>참여 비용과 조사 일정</li>
+              <li>인증 로고 사용 범위와 기간</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>상담 운영 안내</h3>
+            <div class="contact-line"><span>운영 시간</span><b class="mono">평일 09:00–18:00</b></div>
+            <div class="contact-line"><span>상담 시간</span><b>회당 40분</b></div>
+            <div class="contact-line"><span>방문 상담</span><b>서울 강남구 테헤란로 305</b></div>
+          </div>
+        </aside>
+
+        <div id="bookArea">
+          <form class="form" id="bookForm" novalidate>
+            <fieldset>
+              <legend><span class="mono">STEP 1</span>참여 희망 지수</legend>
+              <div class="chips" id="idxChips"></div>
+            </fieldset>
+
+            <fieldset>
+              <legend><span class="mono">STEP 2</span>상담 방식</legend>
+              <div class="chips">
+                <span class="chip"><input type="radio" name="mode" id="mode-online" value="온라인 화상" checked><label for="mode-online">온라인 화상</label></span>
+                <span class="chip"><input type="radio" name="mode" id="mode-visit" value="협회 방문"><label for="mode-visit">협회 방문</label></span>
+                <span class="chip"><input type="radio" name="mode" id="mode-phone" value="전화"><label for="mode-phone">전화</label></span>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend><span class="mono">STEP 3</span>상담 일시</legend>
+              <div class="cal-row">
+                <div class="cal">
+                  <div class="cal-head">
+                    <button type="button" id="calPrev" aria-label="이전 달">‹</button>
+                    <b id="calTitle"></b>
+                    <button type="button" id="calNext" aria-label="다음 달">›</button>
+                  </div>
+                  <div class="cal-grid" id="calGrid"></div>
+                </div>
+                <div class="slots">
+                  <p class="slots-head" id="slotsHead">날짜를 먼저 선택해 주세요.</p>
+                  <div id="slotsBody"><div class="slots-empty">달력에서 평일을 선택하면<br>예약 가능한 시간이 표시됩니다.</div></div>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend><span class="mono">STEP 4</span>신청 기업 정보</legend>
+              <div class="fields">
+                <div class="field"><label for="f-company">기업명 <span class="req">*</span></label><input id="f-company" name="company" autocomplete="organization" placeholder="예: 한빛전자 주식회사"><span class="msg"></span></div>
+                <div class="field"><label for="f-industry">업종 <span class="req">*</span></label>
+                  <select id="f-industry" name="industry"><option value="">선택해 주세요</option><option>제조 · 전자/가전</option><option>제조 · 생활/소비재</option><option>금융 · 은행/카드/보험</option><option>유통 · 백화점/마트/이커머스</option><option>통신 · 방송</option><option>의료 · 헬스케어</option><option>공공기관</option><option>기타 서비스</option></select><span class="msg"></span></div>
+                <div class="field"><label for="f-name">담당자명 <span class="req">*</span></label><input id="f-name" name="name" autocomplete="name" placeholder="홍길동"><span class="msg"></span></div>
+                <div class="field"><label for="f-dept">부서 / 직책</label><input id="f-dept" name="dept" autocomplete="organization-title" placeholder="고객경험팀 과장"><span class="msg"></span></div>
+                <div class="field"><label for="f-phone">연락처 <span class="req">*</span></label><input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000"><span class="msg"></span></div>
+                <div class="field"><label for="f-email">이메일 <span class="req">*</span></label><input id="f-email" name="email" type="email" autocomplete="email" placeholder="name@company.co.kr"><span class="msg"></span></div>
+                <div class="field full"><label for="f-memo">문의 내용</label><textarea id="f-memo" name="memo" placeholder="조사 대상 브랜드, 지난해 참여 여부 등 미리 알려주시면 상담이 빨라집니다."></textarea></div>
+              </div>
+              <label class="agree"><input type="checkbox" id="f-agree"> <span>상담 진행을 위한 개인정보(이름, 연락처, 이메일) 수집·이용에 동의합니다. 수집된 정보는 상담 종료 후 1년간 보관됩니다.</span></label>
+            </fieldset>
+
+            <div class="form-foot">
+              <p class="summary" id="summary">지수와 일시를 선택해 주세요.</p>
+              <button class="btn" type="submit">예약 신청 <span class="arr">→</span></button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="block" id="faq">
+    <div class="wrap faq-grid">
+      <div class="sec-head">
+        <p class="eyebrow">FAQ</p>
+        <h2>자주 묻는 질문</h2>
+        <p>더 궁금한 점은 상담 예약 시 문의 내용에 남겨 주세요.</p>
+      </div>
+      <div class="faq">
+        <details open><summary>여러 지수에 동시에 참여할 수 있나요?<span class="pm"></span></summary><p>네. 예약 화면에서 지수를 여러 개 선택하면 한 번의 상담에서 지수별 일정과 조건을 함께 안내해 드립니다. 조사 기간이 겹치는 경우 일정 조율을 도와드립니다.</p></details>
+        <details><summary>조사 대상 고객은 어떻게 선정하나요?<span class="pm"></span></summary><p>최근 1년 안에 해당 제품이나 서비스를 이용한 고객을 대상으로 업종별 표본 설계 기준에 따라 무작위로 추출합니다. 참여 기업이 응답자를 직접 지정하지 않습니다.</p></details>
+        <details><summary>결과 보고서에는 어떤 내용이 담기나요?<span class="pm"></span></summary><p>지수 점수와 업종 내 위치, 측정 차원별 점수, 경쟁사 대비 강점과 개선 과제를 담은 진단 보고서를 제공합니다.</p></details>
+        <details><summary>인증 로고는 언제부터 얼마 동안 사용할 수 있나요?<span class="pm"></span></summary><p>결과 발표일부터 1년간 광고, 제품 패키지, 홈페이지 등에 사용할 수 있습니다. 로고 사용 시 인증 연도와 지수명을 함께 표기해야 합니다.</p></details>
+        <details><summary>예약을 변경하거나 취소하려면 어떻게 하나요?<span class="pm"></span></summary><p>예약 확정 연락을 받은 담당 연구원에게 상담 하루 전까지 알려 주시면 일정을 변경하거나 취소할 수 있습니다.</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a href="#" class="brand"><span class="brand-mark">KSA</span><span class="brand-text"><b>한국표준협회</b><span>지수 · 포상 센터</span></span></a>
+        <p style="margin-top:1rem;max-width:28em">서울특별시 강남구 테헤란로 305 한국기술센터</p>
+      </div>
+      <div><h4>지수</h4><ul><li><a href="#indices" data-idx="qei">KS-QEI</a></li><li><a href="#indices" data-idx="cqi">KS-CQI</a></li><li><a href="#indices" data-idx="pbi">KS-PBI</a></li><li><a href="#indices" data-idx="well">Wellness</a></li><li><a href="#indices" data-idx="dcxi">DCXI</a></li></ul></div>
+      <div><h4>안내</h4><ul><li><a href="#process">참여 절차</a></li><li><a href="#schedule">연간 일정</a></li><li><a href="#faq">자주 묻는 질문</a></li></ul></div>
+      <div><h4>예약</h4><ul><li><a href="#booking">상담 예약</a></li><li><a href="https://www.ksa.or.kr" target="_blank" rel="noopener">협회 홈페이지 ↗</a></li></ul></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Korean Standards Association. All rights reserved.</span><span>개인정보처리방침 · 이용약관</span></div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  const INDICES=[
+    {id:'qei',code:'KS-QEI',name:'한국품질만족지수',en:'Korean Standard Quality Excellence Index',logo:'assets/logos/ks-qei.png',
+     desc:'제품과 서비스를 실제 사용한 고객이 느끼는 품질 만족 수준을 측정합니다. 품질 요소별 성과와 전반적 만족도를 함께 평가해 업종별 품질 경쟁력을 보여줍니다.',
+     target:'제조 · 서비스 전 업종',method:'고객 설문조사',announce:'10월',
+     dims:[['품질 성능',35],['신뢰성',25],['디자인 · 사용성',20],['전반적 만족',20]]},
+    {id:'cqi',code:'KS-CQI',name:'콜센터품질지수',en:'Korean Standard Contact-center Quality Index',logo:'assets/logos/ks-cqi.png',
+     desc:'고객이 콜센터를 이용하며 경험하는 서비스 품질을 측정합니다. 전문 평가원의 모니터링과 이용 고객 설문을 결합해 응대 품질과 문제 해결력을 평가합니다.',
+     target:'콜센터 · 고객센터 운영 기관',method:'모니터링 + 고객 설문',announce:'6월',
+     dims:[['문제 해결력',30],['응대 친절성',25],['접근 용이성',25],['고객 만족',20]]},
+    {id:'pbi',code:'KS-PBI',name:'프리미엄브랜드지수',en:'Korean Standard Premium Brand Index',logo:'assets/logos/ks-pbi.png',
+     desc:'브랜드가 고객에게 주는 프리미엄 가치를 측정합니다. 브랜드 인지와 이미지, 품질 지각, 충성도를 종합해 업종별 대표 프리미엄 브랜드를 선정합니다.',
+     target:'소비재 · 서비스 브랜드',method:'소비자 인식 조사',announce:'4월',
+     dims:[['브랜드 인지',20],['브랜드 이미지',30],['지각된 품질',25],['브랜드 충성도',25]]},
+    {id:'well',code:'Wellness',name:'한국웰니스지수',en:'Korean Wellness Index',logo:'assets/logos/wellness.png',
+     desc:'건강과 웰빙에 관련된 제품과 서비스가 고객의 신체적 · 정서적 웰니스에 기여하는 정도를 측정합니다. 웰니스 가치를 실현한 기업과 브랜드를 선정합니다.',
+     target:'헬스케어 · 식품 · 레저 · 생활',method:'고객 설문 + 전문가 평가',announce:'11월',
+     dims:[['신체 건강 기여',30],['정서적 안정',25],['안전 · 신뢰',25],['지속 가능성',20]]},
+    {id:'dcxi',code:'DCXI',name:'디지털고객경험지수',en:'Digital Customer Experience Index',logo:'assets/logos/dcxi.png',
+     desc:'앱과 웹 등 디지털 채널에서 고객이 겪는 경험의 질을 측정합니다. 사용 편의성과 기능 완성도, 개인화, 보안 신뢰를 평가해 디지털 고객경험 수준을 진단합니다.',
+     target:'앱 · 웹 서비스 운영 기업',method:'채널 진단 + 고객 설문',announce:'12월',
+     dims:[['사용 편의성',30],['기능 완성도',25],['개인화',20],['보안 · 신뢰',25]]}
+  ];
+  /* month index 1–12: [start,end] (fractional = mid-month) */
+  const SCHED={
+    qei:{apply:[3,5],survey:[5,8.5],award:[10,10.5]},
+    cqi:{apply:[1,2],survey:[2,5],award:[6,6.5]},
+    pbi:{apply:[11,12],survey:[1,3],award:[4,4.5]},
+    well:{apply:[4,6],survey:[6,10],award:[11,11.5]},
+    dcxi:{apply:[6,7.5],survey:[7.5,11],award:[12,12.5]}
+  };
+  const $=s=>document.querySelector(s);
+  const byId=Object.fromEntries(INDICES.map(i=>[i.id,i]));
+
+  /* header */
+  const top=$('#top');
+  addEventListener('scroll',()=>top.classList.toggle('scrolled',scrollY>8),{passive:true});
+  const nav=$('#nav'),menuBtn=$('#menuBtn');
+  menuBtn.addEventListener('click',()=>{const o=nav.classList.toggle('open');menuBtn.setAttribute('aria-expanded',o)});
+  nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');menuBtn.setAttribute('aria-expanded','false')}));
+
+  /* hero plaques */
+  $('#plaques').innerHTML=INDICES.map(i=>`<button class="plaque" type="button" data-idx="${i.id}" aria-label="${i.name} ${i.code} 자세히 보기">
+    <span class="logo"><img src="${i.logo}" alt="${i.code} 로고"></span>
+    <span class="cap"><span>${i.name}</span><b>${i.code}</b></span></button>`).join('');
+
+  /* explorer */
+  const list=$('#idxList'),detail=$('#idxDetail');
+  list.innerHTML=INDICES.map(i=>`<li><button type="button" role="tab" id="tab-${i.id}" data-idx="${i.id}" aria-selected="false">
+    <span class="thumb"><img src="${i.logo}" alt=""></span>
+    <span class="t"><b>${i.name}</b><span>${i.code}</span></span><span class="chev">→</span></button></li>`).join('');
+  function show(id,scroll){
+    const i=byId[id];if(!i)return;
+    list.querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',b.dataset.idx===id));
+    detail.setAttribute('aria-labelledby','tab-'+id);
+    detail.innerHTML=`<div class="d-top"><div><p class="d-code">${i.code}</p><h3 class="d-title">${i.name}</h3><p class="d-en">${i.en}</p></div>
+      <div class="d-logo"><img src="${i.logo}" alt="${i.code} 인증 로고"></div></div>
+      <p class="d-desc">${i.desc}</p>
+      <dl class="d-meta"><div><dt>평가 대상</dt><dd>${i.target}</dd></div><div><dt>평가 방식</dt><dd>${i.method}</dd></div><div><dt>결과 발표</dt><dd>매년 ${i.announce}</dd></div></dl>
+      <div class="d-dims"><h4>측정 차원 · 가중치 (100점 환산)</h4><div class="dims">${i.dims.map(([n,w])=>`<div class="dim"><span>${n}</span><span class="bar"><i style="width:${w/40*100}%"></i></span><span class="w">${w}%</span></div>`).join('')}</div></div>
+      <div class="d-actions"><a href="#booking" class="btn" data-book="${i.id}">${i.code} 상담 예약 <span class="arr">→</span></a><span class="note">가중치는 업종에 따라 조정될 수 있습니다.</span></div>`;
+    detail.classList.remove('swap');void detail.offsetWidth;detail.classList.add('swap');
+    if(scroll)document.getElementById('indices').scrollIntoView({behavior:'smooth'});
+  }
+  list.addEventListener('click',e=>{const b=e.target.closest('button');if(b)show(b.dataset.idx)});
+  list.addEventListener('keydown',e=>{
+    if(!['ArrowDown','ArrowUp','ArrowLeft','ArrowRight'].includes(e.key))return;
+    const bs=[...list.querySelectorAll('button')],k=bs.indexOf(document.activeElement);if(k<0)return;
+    e.preventDefault();const n=bs[(k+(e.key==='ArrowDown'||e.key==='ArrowRight'?1:-1)+bs.length)%bs.length];n.focus();show(n.dataset.idx);
+  });
+  document.addEventListener('click',e=>{
+    const p=e.target.closest('.plaque,[data-idx]:not([role="tab"])');
+    if(p&&!p.closest('#idxList')){if(p.tagName==='A')e.preventDefault();show(p.dataset.idx,true)}
+    const b=e.target.closest('[data-book]');
+    if(b){const c=document.getElementById('ix-'+b.dataset.book);if(c&&!c.checked){c.checked=true;updateSummary()}}
+  });
+  show('qei');
+
+  /* schedule */
+  const now=new Date(),curM=now.getFullYear()===2026?now.getMonth()+1:0;
+  const thead=$('#sched thead tr');
+  for(let m=1;m<=12;m++){const th=document.createElement('th');th.scope='col';th.textContent=String(m).padStart(2,'0')+'월';if(m===curM)th.className='now-col';thead.appendChild(th)}
+  $('#sched tbody').innerHTML=INDICES.map(i=>{
+    const s=SCHED[i.id];let cells='';
+    for(let m=1;m<=12;m++){
+      let segs='';
+      [['apply','신청'],['survey','조사·평가'],['award','발표']].forEach(([k,lab])=>{
+        const [a,b]=s[k];
+        if(m>=Math.floor(a)&&m<Math.ceil(b)){
+          const L=Math.max(a,m)-m,R=Math.min(b,m+1)-m;
+          const first=m===Math.floor(a);
+          segs+=`<span class="seg ${k}" style="left:${L*100}%;right:${(1-R)*100}%">${first?lab:''}</span>`;
+        }
+      });
+      cells+=`<td class="${m===curM?'now-col':''}">${segs}</td>`;
+    }
+    return `<tr><th scope="row">${i.name}<span>${i.code}</span></th>${cells}</tr>`;
+  }).join('');
+
+  /* booking: index chips */
+  $('#idxChips').innerHTML=INDICES.map(i=>`<span class="chip"><input type="checkbox" name="idx" id="ix-${i.id}" value="${i.code}"><label for="ix-${i.id}">${i.name} <span class="mono">${i.code}</span></label></span>`).join('');
+
+  /* calendar */
+  const HOLIDAYS=['2026-10-09','2026-12-25','2027-01-01','2027-02-08','2027-02-09','2027-02-10'];
+  const today=new Date();today.setHours(0,0,0,0);
+  const maxDate=new Date(today);maxDate.setDate(maxDate.getDate()+60);
+  let view=new Date(today.getFullYear(),today.getMonth(),1),selDate=null,selTime=null;
+  const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const DOW=['일','월','화','수','목','금','토'];
+  function renderCal(){
+    $('#calTitle').textContent=`${view.getFullYear()}.${String(view.getMonth()+1).padStart(2,'0')}`;
+    $('#calPrev').disabled=view<=new Date(today.getFullYear(),today.getMonth(),1);
+    $('#calNext').disabled=new Date(view.getFullYear(),view.getMonth()+1,1)>maxDate;
+    let h=DOW.map(d=>`<span class="dow">${d}</span>`).join('');
+    const first=view.getDay(),days=new Date(view.getFullYear(),view.getMonth()+1,0).getDate();
+    for(let k=0;k<first;k++)h+='<span></span>';
+    for(let d=1;d<=days;d++){
+      const dt=new Date(view.getFullYear(),view.getMonth(),d),key=fmt(dt),wd=dt.getDay();
+      const off=dt<=today||dt>maxDate||wd===0||wd===6||HOLIDAYS.includes(key);
+      h+=`<button type="button" data-date="${key}" ${off?'disabled':''} class="${+dt===+today?'today':''}" aria-pressed="${selDate===key}" aria-label="${dt.getMonth()+1}월 ${d}일 ${DOW[wd]}요일">${d}</button>`;
+    }
+    $('#calGrid').innerHTML=h;
+  }
+  /* deterministic pseudo-availability so the same day always shows the same booked slots */
+  function booked(key,t){let x=0;for(const c of key+t)x=(x*31+c.charCodeAt(0))%9973;return x%10<3}
+  const TIMES=['10:00','11:00','13:30','14:30','15:30','16:30'];
+  function renderSlots(){
+    if(!selDate)return;
+    const d=new Date(selDate+'T00:00');
+    $('#slotsHead').textContent=`${d.getMonth()+1}월 ${d.getDate()}일 (${DOW[d.getDay()]}) 예약 가능 시간`;
+    $('#slotsBody').innerHTML='<div class="slots-grid">'+TIMES.map(t=>{const b=booked(selDate,t);return `<button type="button" class="slot" data-time="${t}" ${b?'disabled':''} aria-pressed="${selTime===t}">${t}${b?' <small>마감</small>':''}</button>`}).join('')+'</div>';
+  }
+  $('#calPrev').onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);renderCal()};
+  $('#calNext').onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);renderCal()};
+  $('#calGrid').addEventListener('click',e=>{const b=e.target.closest('button[data-date]');if(!b||b.disabled)return;selDate=b.dataset.date;selTime=null;renderCal();renderSlots();updateSummary()});
+  $('#slotsBody').addEventListener('click',e=>{const b=e.target.closest('.slot');if(!b||b.disabled)return;selTime=b.dataset.time;renderSlots();updateSummary()});
+  renderCal();
+
+  /* summary + validation */
+  const form=$('#bookForm');
+  function picked(){return [...form.querySelectorAll('input[name=idx]:checked')].map(i=>i.value)}
+  function updateSummary(){
+    const ix=picked(),mode=form.querySelector('input[name=mode]:checked').value;
+    const parts=[];
+    if(ix.length)parts.push(`<b>${ix.join(', ')}</b>`);
+    parts.push(mode);
+    if(selDate){const d=new Date(selDate+'T00:00');parts.push(`<b>${d.getMonth()+1}월 ${d.getDate()}일${selTime?' '+selTime:''}</b>`)}
+    $('#summary').innerHTML=ix.length||selDate?parts.join(' · '):'지수와 일시를 선택해 주세요.';
+  }
+  form.addEventListener('change',updateSummary);
+  const toast=$('#toast');let tt;
+  function say(m){toast.textContent=m;toast.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>toast.classList.remove('show'),2800)}
+  function setErr(id,msg){const f=document.getElementById(id).closest('.field');f.classList.toggle('err',!!msg);f.querySelector('.msg').textContent=msg||''}
+  form.addEventListener('input',e=>{const f=e.target.closest('.field');if(f&&f.classList.contains('err'))setErr(e.target.id,'')});
+  form.addEventListener('submit',e=>{
+    e.preventDefault();
+    const v=id=>document.getElementById(id).value.trim();
+    let ok=true;
+    [['f-company','기업명을 입력해 주세요.'],['f-industry','업종을 선택해 주세요.'],['f-name','담당자명을 입력해 주세요.']].forEach(([id,m])=>{const bad=!v(id);setErr(id,bad?m:'');if(bad)ok=false});
+    const ph=v('f-phone').replace(/\D/g,'');const phBad=ph.length<9||ph.length>11;setErr('f-phone',phBad?'숫자 9~11자리로 입력해 주세요.':'');if(phBad)ok=false;
+    const em=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('f-email'));setErr('f-email',em?'':'이메일 형식을 확인해 주세요. 예: name@company.co.kr');if(!em)ok=false;
+    if(!picked().length){say('참여 희망 지수를 하나 이상 선택해 주세요.');return}
+    if(!selDate||!selTime){say('상담 날짜와 시간을 선택해 주세요.');return}
+    if(!ok){say('표시된 항목을 확인해 주세요.');form.querySelector('.err input,.err select')?.focus();return}
+    if(!document.getElementById('f-agree').checked){say('개인정보 수집·이용에 동의해 주세요.');return}
+    /* TODO: 실제 운영 시 예약 API로 전송 */
+    const d=new Date(selDate+'T00:00');
+    const no='KSA-'+selDate.replace(/-/g,'').slice(2)+'-'+String(Math.floor(Math.random()*9000)+1000);
+    const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    $('#bookArea').innerHTML=`<div class="done" tabindex="-1" id="doneBox">
+      <span class="seal">KSA<br>RSV.</span>
+      <h3>예약 신청이 접수되었습니다</h3>
+      <p>담당 연구원이 영업일 기준 1일 안에 ${esc(v('f-email'))} 로 확정 안내를 보내드립니다.</p>
+      <dl class="ticket">
+        <div><dt>접수 번호</dt><dd class="mono">${no}</dd></div>
+        <div><dt>상담 일시</dt><dd>${d.getMonth()+1}월 ${d.getDate()}일 (${DOW[d.getDay()]}) ${selTime}</dd></div>
+        <div><dt>참여 지수</dt><dd>${picked().join(', ')}</dd></div>
+        <div><dt>상담 방식</dt><dd>${form.querySelector('input[name=mode]:checked').value}</dd></div>
+        <div><dt>기업명</dt><dd>${esc(v('f-company'))}</dd></div>
+        <div><dt>담당자</dt><dd>${esc(v('f-name'))}</dd></div>
+      </dl>
+      <div><button class="btn ghost" type="button" id="again">새 예약 작성</button></div></div>`;
+    const box=$('#doneBox');box.focus({preventScroll:true});box.scrollIntoView({behavior:'smooth',block:'center'});
+    $('#again').onclick=()=>location.reload();
+  });
+})();
+</script>
+</body>
+</html>
