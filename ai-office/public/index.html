@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI 사무실</title>
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--tx:#1f2937;--sub:#6b7280;--line:#e5e7eb;--pri:#2563eb;--ok:#16a34a;--bad:#dc2626;--warn:#d97706}
+@media(prefers-color-scheme:dark){:root{--bg:#111827;--card:#1f2937;--tx:#f3f4f6;--sub:#9ca3af;--line:#374151}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 system-ui,'Malgun Gothic',sans-serif}
+header{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--card);border-bottom:1px solid var(--line)}
+h1{font-size:18px;margin:0}main{padding:16px 20px;max-width:1400px;margin:auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:16px}
+.staff{display:flex;gap:8px;flex-wrap:wrap}.staff span{border:1px solid var(--line);border-radius:20px;padding:3px 10px;font-size:13px;cursor:help}
+label{display:block;font-weight:600;margin:8px 0 4px}
+select,textarea,input{width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--tx);font:inherit}
+textarea{min-height:90px;resize:vertical}
+button{padding:7px 12px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--tx);cursor:pointer;font:inherit}
+button.pri{background:var(--pri);border-color:var(--pri);color:#fff}button.ok{background:var(--ok);border-color:var(--ok);color:#fff}button.bad{color:var(--bad)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{flex:0 0 auto}.row .grow{flex:1 1 200px}
+.tpl{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}.tpl button{font-size:12px;border-radius:20px}
+.files{max-height:130px;overflow:auto;border:1px solid var(--line);border-radius:6px;padding:6px;background:var(--bg)}.files label{font-weight:400;margin:2px 0;display:flex;gap:6px;align-items:center}.files input{width:auto}
+.board{display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));gap:12px;overflow-x:auto}
+.col h3{margin:0 0 8px;font-size:14px;display:flex;justify-content:space-between}
+.task{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:8px;background:var(--bg)}
+.task b{display:block}.meta{color:var(--sub);font-size:12px}.err{color:var(--bad);font-size:12px;white-space:pre-wrap}
+.task .row{margin-top:6px}.task button{font-size:12px;padding:4px 8px}
+dialog{width:min(820px,94vw);border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--tx)}
+pre{white-space:pre-wrap;word-break:break-word;font:inherit;max-height:60vh;overflow:auto;margin:8px 0}
+.warn{background:#fef3c7;color:#92400e;padding:8px;border-radius:6px;margin-bottom:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏢 AI 사무실</h1>
+  <div class="meta" id="usage"></div>
+  <div class="row"><button id="cfgBtn">크레딧 설정</button><button id="notionBtn">노션 정리</button></div>
+</header>
+<main>
+  <div id="claudeWarn" class="warn" hidden>claude 명령을 찾을 수 없어요. Claude Code 설치 후 터미널에서 claude 로 로그인하세요.</div>
+  <div class="card"><div class="staff" id="staff"></div></div>
+
+  <div class="card">
+    <div class="tpl" id="tpl"></div>
+    <div class="row">
+      <div class="grow"><label>담당자</label><select id="agent"></select></div>
+      <div class="grow" style="flex:3 1 300px"><label>제목 (선택)</label><input id="title" placeholder="비워두면 지시 앞부분이 제목이 돼요"></div>
+    </div>
+    <label>지시</label><textarea id="inst" placeholder="예) 첨부한 3월 집행내역으로 비목별 집행률을 정리하고 주간보고 초안을 만들어 주세요"></textarea>
+    <label>첨부 파일 (문서 폴더: <span id="wd"></span>)</label>
+    <div class="files" id="files">불러오는 중…</div>
+    <div class="row" style="margin-top:10px"><button class="pri" id="submit">결재함에 올리기</button><span class="meta">올리면 '결재대기'에 쌓이고, 승인해야 직원이 일을 시작해요. 결과는 초안으로만 저장돼요.</span></div>
+  </div>
+
+  <div class="board" id="board"></div>
+</main>
+
+<dialog id="dlg"><div class="row"><b class="grow" id="dTitle"></b><button id="dClose">닫기</button></div><div class="meta" id="dMeta"></div><pre id="dBody"></pre></dialog>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let S = { agents: [], tasks: [], templates: [] }, filesLoaded = false;
+const COLS = [['pending','⏳ 결재대기'],['running','⚙️ 진행중'],['done','✅ 완료'],['failed','⚠️ 실패·반려']];
+const api = async (p, body) => {
+  const r = await fetch(p, body === undefined ? {} : { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const j = await r.json(); if (!r.ok) throw new Error(j.error || r.status); return j;
+};
+const agentOf = id => S.agents.find(a => a.id === id) || { emoji: '', name: id };
+
+async function load() {
+  S = await api('/api/state');
+  $('claudeWarn').hidden = S.claudeFound; $('wd').textContent = S.workDir;
+  $('usage').textContent = `오늘 ${S.usage.calls}/${S.config.dailyCallLimit}회 · $${S.usage.costUsd}/$${S.config.dailyCostLimitUsd}`;
+  $('staff').innerHTML = S.agents.map(a => `<span title="${esc(a.does)}">${a.emoji} ${esc(a.title)}</span>`).join('');
+  if (!$('agent').options.length) {
+    $('agent').innerHTML = S.agents.map(a => `<option value="${a.id}">${a.emoji} ${esc(a.title)}</option>`).join('');
+    $('tpl').innerHTML = '<span class="meta">반복 업무:</span>' + S.templates.map((t,i) => `<button data-i="${i}">${esc(t.label)}</button>`).join('');
+  }
+  render();
+}
+function render() {
+  $('board').innerHTML = COLS.map(([st, label]) => {
+    const list = S.tasks.filter(t => st === 'failed' ? ['failed','rejected'].includes(t.status) : t.status === st).sort((a,b) => b.id - a.id);
+    return `<div class="col card"><h3>${label}<span>${list.length}</span></h3>${list.map(card).join('')}</div>`;
+  }).join('');
+}
+function card(t) {
+  const a = agentOf(t.agent);
+  let btns = '';
+  if (t.status === 'pending' || t.status === 'failed') btns += `<button class="ok" data-act="approve" data-id="${t.id}">${t.status === 'failed' ? '다시 시도' : '승인'}</button>`;
+  if (t.status === 'pending') btns += `<button class="bad" data-act="reject" data-id="${t.id}">반려</button>`;
+  if (t.status === 'done') btns += `<button data-act="view" data-id="${t.id}">결과 보기</button><button data-act="review" data-id="${t.id}">🔍 검토 요청</button>`;
+  return `<div class="task"><b>#${t.id} ${esc(t.title)}</b>
+    <div class="meta">${a.emoji} ${esc(a.name)}${t.parent ? ` · 실장 #${t.parent}에서 분담` : ''}${t.reviewOf ? ` · #${t.reviewOf} 검토` : ''}${t.status === 'rejected' ? ' · 반려됨' : ''}${t.costUsd ? ` · $${t.costUsd.toFixed(3)}` : ''}</div>
+    ${t.error ? `<div class="err">${esc(t.error)}</div>` : ''}
+    <div class="row">${btns}${t.status === 'pending' ? `<button data-act="view" data-id="${t.id}">지시 보기</button>` : ''}</div></div>`;
+}
+async function loadFiles() {
+  try {
+    const fs = await api('/api/files');
+    $('files').innerHTML = fs.length ? fs.map(f => `<label><input type="checkbox" value="${esc(f)}"> ${esc(f)}</label>`).join('') : '<span class="meta">읽을 수 있는 파일이 없어요 (txt, md, csv, xlsx, docx, hwpx)</span>';
+  } catch (e) { $('files').textContent = '파일 목록 오류: ' + e.message; }
+}
+$('tpl').onclick = e => {
+  const i = e.target.dataset.i; if (i === undefined) return;
+  const t = S.templates[i]; $('agent').value = t.agent; $('title').value = t.title; $('inst').value = t.instruction; $('inst').focus();
+};
+$('submit').onclick = async () => {
+  const instruction = $('inst').value.trim(); if (!instruction) return alert('지시를 입력하세요');
+  const files = [...$('files').querySelectorAll('input:checked')].map(x => x.value);
+  try { await api('/api/tasks', { agent: $('agent').value, title: $('title').value.trim(), instruction, files });
+    $('inst').value = ''; $('title').value = ''; $('files').querySelectorAll('input:checked').forEach(x => x.checked = false); load(); }
+  catch (e) { alert(e.message); }
+};
+$('board').onclick = async e => {
+  const b = e.target.closest('button[data-act]'); if (!b) return;
+  const id = +b.dataset.id, t = S.tasks.find(x => x.id === id);
+  try {
+    if (b.dataset.act === 'approve') await api(`/api/tasks/${id}/approve`, {});
+    else if (b.dataset.act === 'reject') await api(`/api/tasks/${id}/reject`, {});
+    else if (b.dataset.act === 'review') { await api('/api/tasks', { agent: 'reviewer', title: `#${id} 검토`, instruction: `#${id} "${t.title}" 결과물을 점검해 주세요.`, reviewOf: id }); }
+    else if (b.dataset.act === 'view') {
+      $('dTitle').textContent = `#${t.id} ${t.title}`;
+      $('dMeta').textContent = `담당: ${agentOf(t.agent).name}${t.resultFile ? ' · 저장: ' + t.resultFile : ''}`;
+      $('dBody').textContent = t.status === 'done' ? t.result : `[지시]\n${t.instruction}\n\n[첨부]\n${(t.files || []).join('\n') || '없음'}`;
+      $('dlg').showModal(); return;
+    }
+    load();
+  } catch (err) { alert(err.message); }
+};
+$('dClose').onclick = () => $('dlg').close();
+$('cfgBtn').onclick = async () => {
+  const n = prompt('하루 호출 한도(회)', S.config.dailyCallLimit); if (n === null) return;
+  const c = prompt('하루 비용 한도(USD)', S.config.dailyCostLimitUsd); if (c === null) return;
+  await api('/api/config', { dailyCallLimit: n, dailyCostLimitUsd: c }); load();
+};
+$('notionBtn').onclick = async () => {
+  if (!confirm('Claude의 Notion 커넥터로 칸반 보드를 현재 업무 목록과 맞춥니다. 진행할까요?')) return;
+  const url = prompt('노션 보드 주소 (비우면 자동 검색)', '') ?? ''; $('notionBtn').disabled = true;
+  try { const r = await api('/api/notion-sync', { boardUrl: url }); alert(r.result || '완료'); } catch (e) { alert(e.message); }
+  $('notionBtn').disabled = false;
+};
+load(); loadFiles(); setInterval(load, 3000);
+</script>
+</body>
+</html>
