@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 사무실</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#232636;--border:#2e3246;--accent:#5b7ff5;--accent2:#7c5bf5;--green:#34c97e;--yellow:#f5c04a;--text:#e8eaf2;--text2:#8b8fa8;--text3:#5a5d72;--r:14px}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;padding-bottom:40px;line-height:1.5}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 20px;position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center}
+.header h1{font-size:17px;font-weight:700}
+.header a{font-size:12px;color:var(--accent);text-decoration:none}
+main{max-width:760px;margin:0 auto;padding:16px 20px}
+h2{font-size:13px;color:var(--text2);margin:22px 0 10px;letter-spacing:.3px}
+.roster{display:grid;gap:10px}
+.emp{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:14px 16px;display:flex;gap:12px;align-items:center;cursor:pointer}
+.emp.sel{border-color:var(--accent)}
+.avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.emp .name{font-weight:700;font-size:15px}
+.emp .meta{font-size:12px;color:var(--text2)}
+.status{margin-left:auto;font-size:11px;font-weight:600;color:var(--green);background:rgba(52,201,126,.12);padding:3px 9px;border-radius:20px}
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:16px}
+.card ol,.card ul{padding-left:18px;font-size:13px}
+.card li{margin:4px 0}
+.flow{display:flex;flex-wrap:wrap;gap:6px;font-size:12px}
+.flow span{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 10px}
+.flow .gate{border-color:var(--yellow);color:var(--yellow);font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--border)}
+th{color:var(--text2);font-weight:600}
+label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin:12px 0 5px}
+input,textarea,select{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:9px 11px;font-family:inherit;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+textarea{min-height:70px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{padding:12px;border-radius:var(--r);font-size:14px;font-weight:600;cursor:pointer;border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;width:100%;margin-top:14px}
+.btn.sub{background:var(--surface2);color:var(--text2);border:1.5px solid var(--border)}
+pre{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:12px;font-size:12px;white-space:pre-wrap;word-break:keep-all;margin-top:12px;max-height:340px;overflow:auto}
+.warn{font-size:12px;color:var(--yellow);margin-top:8px}
+.ok{font-size:12px;color:var(--green);margin-top:8px}
+.note{font-size:11px;color:var(--text3);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="header"><h1>🏢 AI 사무실</h1><a href="index.html.html">📋 행사 체크리스트</a></div>
+<main>
+
+<h2>사원 명단</h2>
+<div class="roster">
+  <div class="emp sel">
+    <div class="avatar">📣</div>
+    <div><div class="name">홍보사원</div><div class="meta">홍보실 · 홍보물 제작 준비 · ChatGPT Codex 이미지 생성 연동</div></div>
+    <div class="status">근무중</div>
+  </div>
+</div>
+
+<h2>업무 규칙</h2>
+<div class="card">
+  <ol>
+    <li>채널별 규격에 맞춤 (인스타그램, 블로그, 배너 등)</li>
+    <li>브랜드 가이드의 로고·색상·폰트 준수</li>
+    <li>채널별 문구 길이 조정, 핵심 메시지는 1개</li>
+    <li>가격·기간·유의사항 등 필수 표기 누락 점검</li>
+    <li>채널별 시안 2개씩 제작 → <b>자료 제작 전 승인 요청</b></li>
+  </ol>
+</div>
+
+<h2>작업 흐름</h2>
+<div class="card"><div class="flow">
+  <span>입력 수령</span>→<span>핵심 메시지 1개 확정</span>→<span>채널별 문구</span>→<span>필수 표기 점검</span>→<span>Codex 시안 생성 (채널별 2개)</span>→<span class="gate">⛔ 사용자 승인</span>→<span>최종 PNG/PDF + XLSX</span>
+</div>
+<p class="note">입력: 기획안 1개(DOCX/TXT) · 이미지 여러 장(PNG/JPG) · 브랜드 가이드 1개(PDF) · 기존 자료(PDF)</p>
+</div>
+
+<h2>채널 규격 (수정 가능)</h2>
+<div class="card"><table id="specTable"><thead><tr><th>채널</th><th>규격(px)</th><th>문구 길이 기준</th></tr></thead><tbody></tbody></table></div>
+
+<h2>이미지 생성 요청서 (ChatGPT Codex용)</h2>
+<div class="card">
+  <div class="row">
+    <div><label>채널</label><select id="ch"></select></div>
+    <div><label>시안 번호</label><select id="ver"><option>A</option><option>B</option></select></div>
+  </div>
+  <label>핵심 메시지 (1개)</label><input id="core" placeholder="예: 연말 감사 이벤트, 전 제품 20% 할인">
+  <div class="row">
+    <div><label>헤드카피</label><input id="head"></div>
+    <div><label>CTA</label><input id="cta" placeholder="예: 지금 신청하기"></div>
+  </div>
+  <label>본문</label><textarea id="body"></textarea>
+  <div class="row">
+    <div><label>가격</label><input id="price"></div>
+    <div><label>기간</label><input id="period"></div>
+  </div>
+  <label>유의사항</label><input id="notice">
+  <label>브랜드 색상 / 폰트 / 로고 위치 (브랜드 가이드 기준)</label><textarea id="brand" placeholder="예: 메인 #1A3C8E, 포인트 #F5C04A / 폰트 Pretendard / 로고 좌상단"></textarea>
+  <label>이번에 새로 요청하는 내용 (이미지 기준)</label><textarea id="req" placeholder="소재, 분위기, 인물/배경, 참고 이미지 등"></textarea>
+  <button class="btn" onclick="gen()">요청서 만들기</button>
+  <div id="check"></div>
+  <pre id="out" hidden></pre>
+  <button class="btn sub" id="copy" hidden onclick="copyOut()">복사해서 Codex에 붙여넣기</button>
+  <p class="note">이 페이지는 요청서를 만들어 줄 뿐, ChatGPT Codex를 자동 호출하지는 않습니다. 복사해서 Codex에 붙여넣으세요.</p>
+</div>
+
+<h2>문구 정리표 (XLSX 열)</h2>
+<div class="card"><table><tr><th>채널</th><th>규격</th><th>헤드카피</th><th>본문</th><th>CTA</th><th>해시태그</th><th>게시 일정</th></tr></table></div>
+
+</main>
+<script>
+const SPECS=[
+ ["인스타그램 피드","1080×1350","헤드 20자 / 본문 125자 내외"],
+ ["인스타그램 스토리","1080×1920","헤드 15자 / 본문 40자"],
+ ["블로그 대표이미지","1200×675","제목 30자 / 본문 별도"],
+ ["웹 배너","1200×628","헤드 18자 / CTA 8자"]
+];
+const tb=document.querySelector('#specTable tbody'),ch=document.getElementById('ch');
+SPECS.forEach(s=>{tb.insertAdjacentHTML('beforeend',`<tr><td>${s[0]}</td><td>${s[1]}</td><td>${s[2]}</td></tr>`);ch.add(new Option(`${s[0]} (${s[1]})`,s[0]))});
+const $=id=>document.getElementById(id).value.trim();
+function gen(){
+  const spec=SPECS.find(s=>s[0]===$('ch'));
+  const miss=[['price','가격'],['period','기간'],['notice','유의사항'],['brand','브랜드 가이드 정보'],['core','핵심 메시지']].filter(([i])=>!$(i)).map(x=>x[1]);
+  document.getElementById('check').innerHTML=miss.length?`<p class="warn">⚠ 필수 표기 누락: ${miss.join(', ')} — 해당 없으면 "없음"으로 적어 주세요.</p>`:'<p class="ok">✓ 필수 표기 점검 통과</p>';
+  const t=`[홍보사원 → Codex 이미지 생성 요청]
+채널: ${spec[0]}
+규격: ${spec[1]} px
+시안: ${$('ver')}안 (채널당 2안 중 하나, 승인용 시안)
+
+핵심 메시지(1개): ${$('core')}
+헤드카피: ${$('head')}
+본문: ${$('body')}
+CTA: ${$('cta')}
+
+필수 표기(이미지에 반드시 포함): 
+- 가격: ${$('price')||'(미기재)'}
+- 기간: ${$('period')||'(미기재)'}
+- 유의사항: ${$('notice')||'(미기재)'}
+
+브랜드 가이드: ${$('brand')||'(미기재)'}
+신규 요청 내용: ${$('req')||'(미기재)'}
+
+지켜야 할 것:
+- 브랜드 색상·폰트·로고 위치 준수, 가이드에 없는 색 사용 금지
+- 메시지는 핵심 1개만 강조
+- 한글 오탈자 없이 위 문구 그대로 사용
+- 결과는 ${spec[1]} px PNG
+- 시안 승인 전이므로 최종 자료로 확정하지 말 것`;
+  const o=document.getElementById('out');o.textContent=t;o.hidden=false;document.getElementById('copy').hidden=false;
+}
+function copyOut(){navigator.clipboard.writeText(document.getElementById('out').textContent).then(()=>alert('복사했습니다'))}
+</script>
+</body>
+</html>
