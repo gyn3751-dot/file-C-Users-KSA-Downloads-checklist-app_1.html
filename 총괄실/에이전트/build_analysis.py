@@ -70,7 +70,8 @@ txt=f"""KSA 대시보드 작성 (1~10月 누계, 원천: 2025·2026 사업군별
 • 연간 추정(73.6억/42.4억/31.6억)은 RAW에 없어 기존 값 유지(확인 필요)"""
 ws['Q2'].value=txt
 ws['A2'].value='2026 목표 매출&실적 1~10月'
-ws['A18'].value='2025 매출&사업비 1~10月 (RAW 1~10月 필터, 인문경영 제외)'
+ws['A18'].value='2025 매출&사업비 1~10月_인문경영 제외'
+for _c in 'QRSTUVW': ws.column_dimensions[_c].width=15
 ws['A33'].value='전년대비 매출&이익1 참고자료 (1~10월 기준): 2025·2026 사업군별 매출·사업비(10월) RAW 집계'
 ws['A35'].value='※ 사업군 코드 통일: 서비스지수→지수, 조찬→경영자조찬회, 현장교육(OJT)→OJT. 2025는 월(1~10), 2026은 전기일 월(1~10) 기준. 2026 RAW 말미 "총 액" 합계행은 제외하여 이중집계 방지.'
 def fnotes(lst): return '\n'.join(f'-{c} {sg(v)}' for c,v in lst)
@@ -81,7 +82,7 @@ ws['I20'].value='전년대비 매출 ('+sg(t26r-t25r)+')\n\n'+fnotes(top(dy,5))
 ws['L20'].value='전년대비 이익1 ('+sg(prof26-prof25)+')\n\n'+fnotes(top(dp,5))
 
 # ---------- 월 분석 시트
-ms=wb.create_sheet('사업군별_10월분석',0)
+ms=wb.create_sheet('사업군별_10월분석',1)
 hdr=Font(bold=True); thin=Side(style='thin',color='999999'); bd=Border(left=thin,right=thin,top=thin,bottom=thin)
 fill=PatternFill('solid',fgColor='FFC0C0C0'); fill2=PatternFill('solid',fgColor='FFFFCC99')
 ms['A1']='2026년 10월 사업군별 매출·이익1 분석 (단월)'; ms['A1'].font=Font(bold=True,size=14)
