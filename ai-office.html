@@ -255,6 +255,7 @@ CTA: ${$('cta')}
 - 시안 승인 전이므로 최종 자료로 확정하지 말 것`;
   const o=document.getElementById('out');o.textContent=t;o.hidden=false;document.getElementById('copy').hidden=false;document.getElementById('genimg').hidden=false;
 }
+const IMG_RATIO={"인스타그램 피드":"4:5","인스타그램 스토리":"9:16","블로그 대표이미지":"16:9","웹 배너":"16:9"};
 const IMG_SIZE={"인스타그램 피드":"1024x1536","인스타그램 스토리":"1024x1536","블로그 대표이미지":"1536x1024","웹 배너":"1536x1024"};
 function saveRelay(){try{localStorage.setItem('relay',document.getElementById('relay').value);localStorage.setItem('rtoken',document.getElementById('rtoken').value)}catch(e){}}
 try{document.getElementById('relay').value=localStorage.getItem('relay')||'';document.getElementById('rtoken').value=localStorage.getItem('rtoken')||''}catch(e){}
@@ -265,11 +266,11 @@ async function genImages(){
   msg.innerHTML='<p class="note">생성 중... (최대 1~2분)</p>';box.innerHTML='';
   try{
     const r=await fetch(base+'/api/image',{method:'POST',headers:{'Content-Type':'application/json','X-Relay-Token':$('rtoken')},
-      body:JSON.stringify({prompt:document.getElementById('out').textContent,size:IMG_SIZE[spec[0]],n:2})});
+      body:JSON.stringify({prompt:document.getElementById('out').textContent,size:IMG_SIZE[spec[0]],ratio:IMG_RATIO[spec[0]],n:2})});
     const j=await r.json();
     if(!r.ok)throw new Error(j.error||r.status);
     j.images.forEach((src,i)=>{box.insertAdjacentHTML('beforeend',`<div><img src="${src}" style="width:100%;border-radius:8px;border:1px solid var(--border)"><a class="note" download="${spec[0]}_시안${'AB'[i]}.png" href="${src}">시안 ${'AB'[i]} 저장</a></div>`)});
-    msg.innerHTML='<p class="warn">⛔ 시안입니다. 사용자 승인 전에는 본 자료로 확정하지 않습니다. 생성 크기는 '+IMG_SIZE[spec[0]]+'이며 채널 규격('+spec[1]+')은 이후 리사이즈합니다.</p>';
+    msg.innerHTML='<p class="warn">⛔ 시안입니다. 사용자 승인 전에는 본 자료로 확정하지 않습니다. 생성 비율은 '+IMG_RATIO[spec[0]]+'이며 채널 규격('+spec[1]+')은 이후 리사이즈합니다.</p>';
   }catch(e){msg.innerHTML='<p class="warn">생성 실패: '+e.message+'</p>'}
 }
 function copyOut(){navigator.clipboard.writeText(document.getElementById('out').textContent).then(()=>alert('복사했습니다'))}
