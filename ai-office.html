@@ -117,7 +117,14 @@ AI 사무실에 "홍보사원" 으로 새로운 사원을 만들어주고 반영
   <div id="check"></div>
   <pre id="out" hidden></pre>
   <button class="btn sub" id="copy" hidden onclick="copyOut()">복사해서 Codex에 붙여넣기</button>
-  <p class="note">이 페이지는 요청서를 만들어 줄 뿐, ChatGPT Codex를 자동 호출하지는 않습니다. 복사해서 Codex에 붙여넣으세요.</p>
+  <label>중계 서버 주소 (API 키는 서버에만 보관)</label>
+  <input id="relay" placeholder="http://localhost:8787" oninput="saveRelay()">
+  <label>중계 토큰 (서버에 RELAY_TOKEN을 설정한 경우)</label>
+  <input id="rtoken" type="password" oninput="saveRelay()">
+  <button class="btn" id="genimg" hidden onclick="genImages()">API로 시안 2개 생성 (승인용)</button>
+  <div id="imgs" class="row" style="margin-top:12px"></div>
+  <div id="imgmsg"></div>
+  <p class="note">API 키는 이 페이지에 저장되지 않고 중계 서버(server/image-relay.js)에만 둡니다. 복사해서 Codex에 직접 붙여넣는 방법도 그대로 쓸 수 있습니다.</p>
 </div>
 
 <h2>문구 정리표 (XLSX 열)</h2>
@@ -162,7 +169,24 @@ CTA: ${$('cta')}
 - 한글 오탈자 없이 위 문구 그대로 사용
 - 결과는 ${spec[1]} px PNG
 - 시안 승인 전이므로 최종 자료로 확정하지 말 것`;
-  const o=document.getElementById('out');o.textContent=t;o.hidden=false;document.getElementById('copy').hidden=false;
+  const o=document.getElementById('out');o.textContent=t;o.hidden=false;document.getElementById('copy').hidden=false;document.getElementById('genimg').hidden=false;
+}
+const IMG_SIZE={"인스타그램 피드":"1024x1536","인스타그램 스토리":"1024x1536","블로그 대표이미지":"1536x1024","웹 배너":"1536x1024"};
+function saveRelay(){try{localStorage.setItem('relay',document.getElementById('relay').value);localStorage.setItem('rtoken',document.getElementById('rtoken').value)}catch(e){}}
+try{document.getElementById('relay').value=localStorage.getItem('relay')||'';document.getElementById('rtoken').value=localStorage.getItem('rtoken')||''}catch(e){}
+async function genImages(){
+  const base=$('relay').replace(/\/$/,''),msg=document.getElementById('imgmsg'),box=document.getElementById('imgs');
+  if(!base){msg.innerHTML='<p class="warn">중계 서버 주소를 입력하세요.</p>';return}
+  const spec=SPECS.find(s=>s[0]===$('ch'));
+  msg.innerHTML='<p class="note">생성 중... (최대 1~2분)</p>';box.innerHTML='';
+  try{
+    const r=await fetch(base+'/api/image',{method:'POST',headers:{'Content-Type':'application/json','X-Relay-Token':$('rtoken')},
+      body:JSON.stringify({prompt:document.getElementById('out').textContent,size:IMG_SIZE[spec[0]],n:2})});
+    const j=await r.json();
+    if(!r.ok)throw new Error(j.error||r.status);
+    j.images.forEach((src,i)=>{box.insertAdjacentHTML('beforeend',`<div><img src="${src}" style="width:100%;border-radius:8px;border:1px solid var(--border)"><a class="note" download="${spec[0]}_시안${'AB'[i]}.png" href="${src}">시안 ${'AB'[i]} 저장</a></div>`)});
+    msg.innerHTML='<p class="warn">⛔ 시안입니다. 사용자 승인 전에는 본 자료로 확정하지 않습니다. 생성 크기는 '+IMG_SIZE[spec[0]]+'이며 채널 규격('+spec[1]+')은 이후 리사이즈합니다.</p>';
+  }catch(e){msg.innerHTML='<p class="warn">생성 실패: '+e.message+'</p>'}
 }
 function copyOut(){navigator.clipboard.writeText(document.getElementById('out').textContent).then(()=>alert('복사했습니다'))}
 </script>
