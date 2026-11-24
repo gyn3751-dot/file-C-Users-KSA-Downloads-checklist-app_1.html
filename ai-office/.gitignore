@@ -1,2 +1,7 @@
 data/
 drafts/
+
+# 홍보실 비밀 값
+홍보실/*.local
+홍보실/*.env.local
+.env
