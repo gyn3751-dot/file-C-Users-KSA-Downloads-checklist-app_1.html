@@ -40,36 +40,83 @@ pre{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padd
 .warn{font-size:12px;color:var(--yellow);margin-top:8px}
 .ok{font-size:12px;color:var(--green);margin-top:8px}
 .note{font-size:11px;color:var(--text3);margin-top:8px}
+
+.office{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:6px}
+.office svg{display:block;width:100%;height:auto}
+.floor{fill:#1d2030}.wall{fill:#252a40}.baseboard{fill:#14161f}
+.sign{fill:#14161f;stroke:var(--accent);stroke-width:1.5}.signtxt{fill:var(--text);font:700 15px sans-serif}
+.window{fill:#33406a;stroke:#14161f;stroke-width:3}.winline{stroke:#14161f;stroke-width:3}
+.deskdash{fill:none;stroke:var(--text3);stroke-width:1.5;stroke-dasharray:5 4}.emptytxt{fill:var(--text3);font:12px sans-serif}
+.shadow{fill:rgba(0,0,0,.28)}.chair{fill:#3a3f5c}.shirt{fill:var(--accent)}.skin{fill:#f3c9a5}.hair{fill:#2b2118}
+.headset{stroke:#14161f;stroke-width:4}.headsetpad{fill:#14161f}.eye{fill:#2b2118}.mouth{stroke:#8a4b3a;stroke-width:2;stroke-linecap:round}
+.desktop{fill:#8a6a48}.leg{fill:#6d5338}.monitor{fill:#11131b;stroke:#3a3f5c;stroke-width:2}.mlogo{fill:var(--accent2)}
+.keyboard{fill:#cfd3e6}.cup{fill:#f5f5f5}.nameplate{fill:#14161f;stroke:var(--accent);stroke-width:1}.nametxt{fill:var(--text);font:700 12px sans-serif}
+.bub{fill:#fff}.bubtxt{fill:#14161f;font:700 11px sans-serif}
+.typing circle{fill:#34c97e;animation:dot 1.2s infinite}.typing circle:nth-child(2){animation-delay:.2s}.typing circle:nth-child(3){animation-delay:.4s}
+@keyframes dot{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.bob{animation:bob 2.4s ease-in-out infinite;transform-origin:360px 190px}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.emp1{cursor:pointer;outline:none}.emp1:hover .nameplate,.emp1:focus .nameplate{fill:var(--accent)}
+.tabs2{display:flex;gap:6px;margin:14px 0 4px;flex-wrap:wrap}
+.tb{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer}
+.tb.on{background:var(--accent);border-color:var(--accent);color:#fff}
+@media (prefers-reduced-motion:reduce){.bob,.typing circle{animation:none}}
 </style>
 </head>
 <body>
 <div class="header"><h1>🏢 AI 사무실</h1><a href="index.html.html">📋 행사 체크리스트</a></div>
 <main>
 
-<h2>사원 명단</h2>
-<div class="roster">
-  <div class="emp sel">
-    <div class="avatar">📣</div>
-    <div><div class="name">홍보사원 <span style="font-size:11px;color:var(--text3)">신규 영입</span></div><div class="meta">홍보실 · 홍보물 제작 준비 · 이미지 API 연동 · 결과 수신: gyn3751@ksa.or.kr</div></div>
-    <div class="status">근무중</div>
-  </div>
-  <div class="emp">
-    <div class="avatar">✍️</div>
-    <div><div class="name">홍보사원 (조찬회 블로그) <span style="font-size:11px;color:var(--text3)">신규 영입</span></div><div class="meta">홍보실 · 조찬회 강연 텍스트 → 블로그 요약글 · 결과 수신: gyn3751@ksa.or.kr</div></div>
-    <div class="status">근무중</div>
-  </div>
+<h2>사무실</h2>
+<div class="office">
+<svg viewBox="0 0 720 320" role="img" aria-label="AI 사무실">
+  <rect width="720" height="320" class="floor"/>
+  <rect width="720" height="120" class="wall"/>
+  <rect x="0" y="116" width="720" height="6" class="baseboard"/>
+  <rect x="270" y="22" width="180" height="40" rx="8" class="sign"/>
+  <text x="360" y="48" text-anchor="middle" class="signtxt">AI 사무실 · 홍보실</text>
+  <rect x="40" y="26" width="90" height="62" rx="4" class="window"/><line x1="85" y1="26" x2="85" y2="88" class="winline"/><line x1="40" y1="57" x2="130" y2="57" class="winline"/>
+  <rect x="600" y="26" width="90" height="62" rx="4" class="window"/><line x1="645" y1="26" x2="645" y2="88" class="winline"/><line x1="600" y1="57" x2="690" y2="57" class="winline"/>
+  <!-- 빈 자리 -->
+  <g class="empty"><rect x="70" y="190" width="160" height="22" rx="4" class="deskdash"/><rect x="82" y="212" width="8" height="60" class="deskdash"/><rect x="210" y="212" width="8" height="60" class="deskdash"/><text x="150" y="250" text-anchor="middle" class="emptytxt">빈 자리</text></g>
+  <g class="empty"><rect x="490" y="190" width="160" height="22" rx="4" class="deskdash"/><rect x="502" y="212" width="8" height="60" class="deskdash"/><rect x="630" y="212" width="8" height="60" class="deskdash"/><text x="570" y="250" text-anchor="middle" class="emptytxt">빈 자리</text></g>
+  <!-- 홍보사원 -->
+  <g id="emp1" class="emp1" role="button" tabindex="0" aria-label="홍보사원 업무 열기" onclick="openEmp()" onkeydown="if(event.key==='Enter'||event.key===' ')openEmp()">
+    <ellipse cx="360" cy="285" rx="105" ry="14" class="shadow"/>
+    <rect x="320" y="122" width="80" height="90" rx="14" class="chair"/>
+    <g class="bob">
+      <rect x="333" y="118" width="54" height="76" rx="16" class="shirt"/>
+      <rect x="352" y="108" width="16" height="14" class="skin"/>
+      <circle cx="360" cy="96" r="24" class="skin"/>
+      <path d="M335 94 Q336 68 360 68 Q384 68 385 94 Q376 80 360 80 Q344 80 335 94Z" class="hair"/>
+      <path d="M333 98 Q330 70 360 66 Q390 70 387 98" class="headset" fill="none"/>
+      <rect x="328" y="94" width="8" height="16" rx="4" class="headsetpad"/><rect x="384" y="94" width="8" height="16" rx="4" class="headsetpad"/>
+      <circle cx="351" cy="97" r="2.6" class="eye"/><circle cx="369" cy="97" r="2.6" class="eye"/>
+      <path d="M353 107 Q360 112 367 107" class="mouth" fill="none"/>
+    </g>
+    <rect x="272" y="192" width="176" height="24" rx="5" class="desktop"/>
+    <rect x="284" y="216" width="9" height="62" class="leg"/><rect x="427" y="216" width="9" height="62" class="leg"/>
+    <rect x="322" y="146" width="76" height="46" rx="5" class="monitor"/>
+    <circle cx="360" cy="169" r="5" class="mlogo"/>
+    <rect x="356" y="192" width="8" height="4" class="monitor"/>
+    <rect x="296" y="184" width="56" height="9" rx="3" class="keyboard"/>
+    <rect x="402" y="178" width="16" height="14" rx="3" class="cup"/>
+    <rect x="300" y="226" width="120" height="22" rx="5" class="nameplate"/>
+    <text x="360" y="241" text-anchor="middle" class="nametxt">홍보사원 · 홍보실</text>
+    <g class="bubble"><rect x="410" y="58" width="112" height="42" rx="10" class="bub"/><path d="M416 100 L408 112 L430 100Z" class="bub"/><text x="466" y="79" text-anchor="middle" class="bubtxt">근무중 · 요청 대기</text></g>
+    <g class="typing"><circle cx="454" cy="91" r="2.6"/><circle cx="466" cy="91" r="2.6"/><circle cx="478" cy="91" r="2.6"/></g>
+  </g>
+</svg>
+<p class="note" style="text-align:center">홍보사원 자리를 눌러 업무를 확인하세요</p>
 </div>
 
-<h2>홍보사원 (조찬회 블로그) 업무</h2>
-<div class="card"><ol>
-<li>입력: 조찬회 강연 mp3를 변환한 텍스트 파일(txt/docx)</li>
-<li>참고: 네이버 블로그 "CEO 조찬회" 요약글 5편의 형식·문체</li>
-<li>유형 A(인사이트 나열형: 📍 핵심 인사이트 N가지) 또는 유형 B(강연자 요약형: 경영자를 위한 시사점) 중 선택</li>
-<li>강연에 없는 내용은 만들지 않고 불확실한 항목은 "※ 확인 필요"로 표시</li>
-<li>결과는 되묻지 않고 <b>gyn3751@ksa.or.kr</b>로 발송 (제목: [조찬회 블로그 초안] 글 제목)</li>
-</ol><p class="note">상세 기준: agents/조찬회_블로그_작성가이드.md</p></div>
-
-<h2>홍보사원 업무 지시서 (원문 · agents/홍보사원.md)</h2>
+<div id="empPanel" hidden>
+  <div class="tabs2">
+    <button class="tb on" data-t="work" onclick="showTab('work')">홍보물 제작</button>
+    <button class="tb" data-t="blog" onclick="showTab('blog')">조찬회 블로그</button>
+    <button class="tb" data-t="image" onclick="showTab('image')">이미지 요청서</button>
+  </div>
+  <div class="tpanel" id="t-work"><h2>홍보사원 업무 지시서 (원문 · agents/홍보사원.md)</h2>
 <div class="card"><pre id="spec" style="margin-top:0;max-height:none">4. 마케팅 업무: 홍보물 제작 준비 [홍보실]
 입력
 형식: 기획안(DOCX/TXT), 이미지(PNG/JPG), 브랜드 가이드(PDF), 기존 자료(PDF)
@@ -112,7 +159,18 @@ AI 사무실에 "홍보사원" 으로 새로운 사원을 만들어주고 반영
 <p class="note">입력: 기획안 1개(DOCX/TXT) · 이미지 여러 장(PNG/JPG) · 브랜드 가이드 1개(PDF) · 기존 자료(PDF)</p>
 </div>
 
-<h2>채널 규격 (수정 가능)</h2>
+</div>
+  <div class="tpanel" id="t-blog" hidden><h2>조찬회 블로그 글 (홍보사원 업무 2)</h2>
+<div class="card"><ol>
+<li>입력: 조찬회 강연 mp3를 변환한 텍스트 파일(txt/docx)</li>
+<li>참고: 네이버 블로그 "CEO 조찬회" 요약글 5편의 형식·문체</li>
+<li>유형 A(인사이트 나열형: 📍 핵심 인사이트 N가지) 또는 유형 B(강연자 요약형: 경영자를 위한 시사점) 중 선택</li>
+<li>강연에 없는 내용은 만들지 않고 불확실한 항목은 "※ 확인 필요"로 표시</li>
+<li>결과는 되묻지 않고 <b>gyn3751@ksa.or.kr</b>로 발송 (제목: [조찬회 블로그 초안] 글 제목)</li>
+</ol><p class="note">상세 기준: agents/조찬회_블로그_작성가이드.md</p></div>
+
+</div>
+  <div class="tpanel" id="t-image" hidden><h2>채널 규격 (수정 가능)</h2>
 <div class="card"><table id="specTable"><thead><tr><th>채널</th><th>규격(px)</th><th>문구 길이 기준</th></tr></thead><tbody></tbody></table></div>
 
 <h2>이미지 생성 요청서 (ChatGPT Codex용)</h2>
@@ -151,8 +209,13 @@ AI 사무실에 "홍보사원" 으로 새로운 사원을 만들어주고 반영
 <h2>문구 정리표 (XLSX 열)</h2>
 <div class="card"><table><tr><th>채널</th><th>규격</th><th>헤드카피</th><th>본문</th><th>CTA</th><th>해시태그</th><th>게시 일정</th></tr></table></div>
 
+</div>
+</div>
+
 </main>
 <script>
+function openEmp(){const p=document.getElementById('empPanel');p.hidden=false;p.scrollIntoView({behavior:'smooth',block:'start'})}
+function showTab(t){document.querySelectorAll('.tpanel').forEach(e=>e.hidden=e.id!=='t-'+t);document.querySelectorAll('.tb').forEach(b=>b.classList.toggle('on',b.dataset.t===t))}
 const SPECS=[
  ["인스타그램 피드","1080×1350","헤드 20자 / 본문 125자 내외"],
  ["인스타그램 스토리","1080×1920","헤드 15자 / 본문 40자"],
