@@ -511,6 +511,41 @@ footer{border-top:1px solid var(--rule);padding-block:var(--s-7) var(--s-6);font
 .foot-grid a:hover{color:var(--ink)}
 .foot-bottom{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--s-3);margin-top:var(--s-7);padding-top:var(--s-4);border-top:1px solid var(--rule);font-size:.76rem;color:var(--ink-3)}
 @media (max-width:760px){.foot-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.foot-grid>div:first-child{grid-column:1/-1}}
+/* ── Layout & controls (sizes, corners and placement only; colours stay the site's own) ──
+   buttons: 8px corners, lg 48px / sm 40px heights; cards: 12px corners; touch targets ≥44px;
+   phones (<640px): primary actions stack full width, like a bottom-sheet CTA row */
+.btn{border-radius:8px;height:48px;padding-inline:1.5em;font-weight:600;letter-spacing:-.01em}
+.btn.sm{height:40px;padding-inline:1.1em;border-radius:8px}
+.explorer{border-radius:12px;overflow:hidden}
+.d-logo{border-radius:12px}
+.idx-list .thumb{border-radius:8px}
+.sched-wrap{border-radius:12px}
+.sm-card{border-radius:12px}
+.d-meta{border-radius:0}
+@media (hover:none){
+  .btn:hover .arr{transform:none}
+  .foot-grid a{display:inline-flex;align-items:center;min-height:36px}
+  .foot-grid ul{gap:0}
+}
+@media (max-width:860px){
+  .nav a:not(.btn){min-height:48px;display:flex;align-items:center}
+  .nav .btn{height:48px;width:100%}
+  .menu-btn{width:44px;height:44px}
+}
+@media (max-width:640px){
+  .hero-cta{flex-direction:column;align-items:stretch;width:100%;max-width:420px;margin-inline:auto;gap:10px}
+  .hero-cta .btn{width:100%;height:52px;font-size:1rem}
+  .hero-cta .gift-badge{top:-14px;right:-6px}
+  .d-actions{flex-direction:column;align-items:stretch}
+  .d-actions .btn{width:100%;height:50px}
+  .d-actions .note{text-align:center}
+  .explorer{border-radius:12px}
+  .idx-list button{min-height:96px;min-width:104px}
+  .foot-grid a{display:inline-flex;align-items:center;min-height:36px}
+  .foot-grid ul{gap:0}
+  .hero-lede,.sec-head p{font-size:.97rem;line-height:1.6}
+}
+
 
 /* ── Site editor panel ── */
 .se-fab{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:95;display:flex;align-items:center;gap:.5em;height:44px;padding-inline:1.1em;border:1px solid var(--ink);background:var(--ink);color:var(--paper);font-size:.86rem;font-weight:500;cursor:pointer;box-shadow:0 12px 30px -12px rgba(0,0,0,.45)}

@@ -189,6 +189,7 @@ body.xe-on .radar{top:calc(var(--pad) + 118px + env(safe-area-inset-top,0px))}
 .btn{display:flex;align-items:center;justify-content:center;gap:.6em;height:46px;padding-inline:1.2em;border:1px solid var(--fg);background:var(--fg);color:#1A0E0B;font-size:.9rem;font-weight:500;cursor:pointer;transition:background .25s,color .25s}
 .btn:hover{background:transparent;color:var(--fg)}
 .btn.ghost{background:transparent;color:var(--fg);border-color:var(--line-2)}
+.btn{border-radius:8px} /* 8px control corners, as on the main site */
 .btn.ghost:hover{background:var(--fg);color:#1A0E0B;border-color:var(--fg)}
 .btn .arr{transition:transform .3s var(--ease)}
 .btn:hover .arr{transform:translate(3px,-1px)}
