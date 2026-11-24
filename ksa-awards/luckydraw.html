@@ -147,6 +147,9 @@ td.nw{white-space:nowrap}
   const F=['company','name','title','phone','address'];
   const LABEL={company:'회사명',name:'성함',title:'직위',phone:'연락처',address:'배송 주소'};
   let db=null,user=null,me=null,mine=null,downloads=null;
+  /* Cloudflare deploy: entries go to /api/draw (D1); the entrant's browser keeps a token to edit their own entry */
+  let api=false;const TK='ksa-draw-token';
+  const lsGet=k=>{try{return localStorage.getItem(k)}catch(_){return null}},lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(_){}};
   const note=t=>{$('#note').textContent=t||''};
 
   /* ── form ── */
@@ -162,6 +165,14 @@ td.nw{white-space:nowrap}
     let bad=null;F.forEach(k=>{const v=form[k].value.trim();const ok=k==='phone'?/^0\d{1,2}-?\d{3,4}-?\d{4}$/.test(v):!!v;form[k].setAttribute('aria-invalid',ok?'false':'true');if(!ok&&!bad)bad=k});
     if(bad){$('#err').textContent=bad==='phone'?'연락처를 올바르게 입력해 주세요. (예: 010-1234-5678)':LABEL[bad]+'을(를) 입력해 주세요.';form[bad].focus();return}
     if(!$('#agree').checked){$('#err').textContent='개인정보 수집·이용에 동의해 주세요.';return}
+    if(api){const data={};F.forEach(k=>data[k]=form[k].value.trim());data.agree=true;data.token=lsGet(TK)||undefined;
+      const sb=$('#submit');sb.disabled=true;sb.textContent='저장 중…';
+      try{const r=await fetch('/api/draw',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(data)});const j=await r.json().catch(()=>({}));
+        if(!r.ok){$('#err').textContent=j.field==='phone'?'연락처를 올바르게 입력해 주세요. (예: 010-1234-5678)':j.field&&LABEL[j.field]?LABEL[j.field]+'을(를) 확인해 주세요.':'저장하지 못했습니다. 잠시 후 다시 시도해 주세요.';return}
+        lsSet(TK,j.token);mine=j.entry;modal.hidden=true;showDone()}
+      catch(_){$('#err').textContent='저장하지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.'}
+      finally{sb.disabled=false;sb.textContent='응모하기'}
+      return}
     if(!db||!me){$('#err').textContent='응모는 claude.ai에서 사이트를 열고 로그인한 상태에서만 저장됩니다.';return}
     const data={};F.forEach(k=>data[k]=form[k].value.trim());data.agree=true;data.at=mine&&mine.at||new Date().toISOString();if(mine)data.updated=new Date().toISOString();
     const b=$('#submit');b.disabled=true;b.textContent='저장 중…';
@@ -191,8 +202,24 @@ td.nw{white-space:nowrap}
   if(!C||!C.use){
     /* public copy (no claude.ai runtime): entries go to the Google Form set in the site editor (탐사 이벤트 → 응모 구글 폼 주소) */
     const FORM=((window.KSA_SAVED_CONFIG||{}).event||{}).form||'';
-    if(/^https:\/\/[^\s]+$/.test(FORM)){$('#open').onclick=()=>window.open(FORM,'_blank','noopener');note('버튼을 누르면 응모 양식이 새 창으로 열립니다.')}
-    else{$('#open').onclick=()=>note('응모 접수를 준비하고 있습니다. 잠시 후 다시 확인해 주세요.');note('')}
+    const formMode=()=>{if(/^https:\/\/[^\s]+$/.test(FORM)){$('#open').onclick=()=>window.open(FORM,'_blank','noopener');note('버튼을 누르면 응모 양식이 새 창으로 열립니다.')}
+      else{$('#open').onclick=()=>note('응모 접수를 준비하고 있습니다. 잠시 후 다시 확인해 주세요.');note('')}};
+    /* on Cloudflare the site has its own entry database; elsewhere (Netlify copy) fall back to the Google Form */
+    fetch('/api/health',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(async j=>{
+      if(!j||!j.ok){formMode();return}
+      api=true;$('#open').onclick=openForm;
+      const t=lsGet(TK);if(t){try{const r=await fetch('/api/draw/me?token='+encodeURIComponent(t),{cache:'no-store'});const m=await r.json();if(m.entry){mine=m.entry;showDone()}}catch(_){}}
+      /* organiser: luckydraw.html?admin asks for the admin password, then shows the entry list and CSV */
+      if(new URLSearchParams(location.search).has('admin')){$('#adminBtn').hidden=false;$('#adminBtn').textContent='응모자 목록';
+        const load=async()=>{let k=null;try{k=sessionStorage.getItem('ksa-admin')}catch(_){}
+          if(!k){k=prompt('관리자 비밀번호를 입력해 주세요.');if(!k)return false}
+          const r=await fetch('/api/draw/list',{headers:{authorization:'Bearer '+k},cache:'no-store'});
+          if(r.status===401){try{sessionStorage.removeItem('ksa-admin')}catch(_){}alert('비밀번호가 맞지 않습니다.');return false}
+          if(!r.ok){alert('목록을 불러오지 못했습니다.');return false}
+          try{sessionStorage.setItem('ksa-admin',k)}catch(_){}
+          entries=(await r.json()).entries||[];$('#adminBtn').textContent='응모자 목록 · '+entries.length+'명';return true};
+        $('#adminBtn').onclick=async()=>{if(await load()){$('#listModal').hidden=false;renderList()}}}
+    }).catch(formMode);
     return}
   C.use('downloads').then(d=>{downloads=d}).catch(()=>{});
   Promise.all([C.use('db'),C.use('user')]).then(async([d,u])=>{db=d;user=u;

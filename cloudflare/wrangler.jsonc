@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ksa-awards",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-01",
+  // the whole site (ksa-awards/) is served as static assets; only /api/* runs the Worker first
+  "assets": {
+    "directory": "../ksa-awards",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*"]
+  },
+  // lucky-draw entries
+  "d1_databases": [
+    { "binding": "DB", "database_name": "ksa-luckydraw", "database_id": "9289714e-5890-4e56-9f85-db1307065295", "migrations_dir": "migrations" }
+  ],
+  "observability": { "enabled": true }
+  // secret (not in this file): ADMIN_KEY — password for the entry list, set with `wrangler secret put ADMIN_KEY`
+}
