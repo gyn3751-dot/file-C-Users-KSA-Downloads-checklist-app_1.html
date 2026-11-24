@@ -1,2 +1,4 @@
 .env
 server/.env
+홍보실/*.local
+홍보실/*.env.local

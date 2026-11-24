@@ -1,6 +1,18 @@
 // 홍보실 이미지 중계 서버 (의존성 없음, Node 18+)
 // 실행: OPENAI_API_KEY=sk-... node server/image-relay.js
 // 키는 이 서버의 환경변수에만 두고, 웹페이지에는 넣지 않는다.
+const fs = require('fs');
+const path = require('path');
+// ENV_DIR(기본: 저장소의 홍보실 폴더)의 홍보실.env → 홍보실.env.local 순으로 읽는다. 이미 설정된 환경변수가 우선.
+const ENV_DIR = process.env.ENV_DIR || path.join(__dirname, '..', '홍보실');
+for (const f of ['홍보실.env', '홍보실.env.local']) {
+  try {
+    for (const line of fs.readFileSync(path.join(ENV_DIR, f), 'utf8').split(/\r?\n/)) {
+      const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*?)\s*$/);
+      if (m && m[2] && !(m[1] in process.env && f === '홍보실.env')) process.env[m[1]] = m[2];
+    }
+  } catch {}
+}
 const http = require('http');
 
 const KEY = process.env.OPENAI_API_KEY;
